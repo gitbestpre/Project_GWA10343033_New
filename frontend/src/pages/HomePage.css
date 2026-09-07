@@ -1,0 +1,106 @@
+.home-page {
+  min-height: 100vh;
+  background: #F0F4F8;
+}
+
+.home-content {
+  padding: 40px 60px;
+}
+
+.title-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+.title-bar {
+  width: 4px;
+  height: 28px;
+  background: #4A90D9;
+  border-radius: 2px;
+}
+
+.page-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #333333;
+  margin: 0;
+}
+
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 40px;
+  max-width: 1200px;
+}
+
+.module-card {
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.module-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.card-image {
+  width: 100%;
+  height: 280px;
+  overflow: hidden;
+  background: #e8e8e8;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-info {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333333;
+  margin: 0;
+}
+
+.card-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.status-dot.not-started {
+  background: #FF6B6B;
+}
+
+.status-dot.in-progress {
+  background: #FFA500;
+}
+
+.status-dot.completed {
+  background: #4CAF50;
+}
+
+.status-text {
+  font-size: 14px;
+  color: #666666;
+}
