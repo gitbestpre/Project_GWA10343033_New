@@ -21,6 +21,51 @@ const moduleContent: Record<string, string> = {
   实验室检测与分子溯源: '实验室检测与分子溯源相关内容...',
 }
 
+function MicrophoneIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+      <line x1="12" y1="19" x2="12" y2="23"/>
+      <line x1="8" y1="23" x2="16" y2="23"/>
+    </svg>
+  )
+}
+
+function SendIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+    </svg>
+  )
+}
+
+function VolumeIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+    </svg>
+  )
+}
+
+function ChevronLeftIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  )
+}
+
+function ChevronRightIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="9 18 15 12 9 6"/>
+    </svg>
+  )
+}
+
 export default function KnowledgePage() {
   const [activeModule, setActiveModule] = useState(0)
   const [aiTutorVisible, setAiTutorVisible] = useState(true)
@@ -35,10 +80,10 @@ export default function KnowledgePage() {
         {aiTutorVisible && (
           <aside className="ai-tutor-sidebar">
             <div className="tutor-image-container">
-              <img src="/images/ai-tutor.jpg" alt="AI导师" className="tutor-image" />
+              <img src="/images/ai-tutor.svg" alt="AI导师" className="tutor-image" />
               <div className="tutor-controls">
                 <button className="control-btn" title="音量">
-                  
+                  <VolumeIcon />
                 </button>
                 <button
                   className="control-btn"
@@ -92,19 +137,19 @@ export default function KnowledgePage() {
 
           <div className="content-area">
             <button className="nav-arrow left-arrow" disabled>
-              ‹
+              <ChevronLeftIcon />
             </button>
             <div className="content-text">
               <p>{moduleContent[knowledgeModules[activeModule]]}</p>
             </div>
             <button className="nav-arrow right-arrow">
-              ›
+              <ChevronRightIcon />
             </button>
           </div>
 
           <div className="ai-dialog">
             <button className="voice-btn" title="语音输入">
-              🎤
+              <MicrophoneIcon />
             </button>
             <input
               type="text"
@@ -114,7 +159,7 @@ export default function KnowledgePage() {
               onChange={(e) => setDialogInput(e.target.value)}
             />
             <button className="send-btn" title="发送">
-              ➤
+              <SendIcon />
             </button>
           </div>
         </main>

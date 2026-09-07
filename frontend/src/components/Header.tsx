@@ -5,7 +5,7 @@ export default function Header() {
     <header className="app-header">
       <div className="header-left">
         <div className="logo-section">
-          <img src="/logo.png" alt="温州医科大学" className="logo" />
+          <img src="/logo.svg" alt="温州医科大学" className="logo" />
           <div className="title-section">
             <h1 className="main-title">食品安全</h1>
             <p className="sub-title">

@@ -8,28 +8,28 @@ const modules = [
     title: '流行病学调查',
     path: '/epidemiology',
     image: '/images/epidemiology.jpg',
-    status: '未开始' as const,
+    status: '未学习' as const,
   },
   {
     id: 'food-hygiene',
     title: '食品卫生学调查',
     path: '/food-hygiene',
     image: '/images/food-hygiene.jpg',
-    status: '未开始' as const,
+    status: '未学习' as const,
   },
   {
     id: 'lab-testing',
     title: '实验室检测',
     path: '/lab-testing',
     image: '/images/lab-testing.jpg',
-    status: '未开始' as const,
+    status: '未学习' as const,
   },
   {
     id: 'analysis',
     title: '资料分析及调查结论',
     path: '/analysis',
     image: '/images/analysis.jpg',
-    status: '未开始' as const,
+    status: '未学习' as const,
   },
 ]
 
