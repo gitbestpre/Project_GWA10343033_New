@@ -1,11 +1,9 @@
-import { describe, it, expect, vi } from 'vitest'
+/// <reference types="@testing-library/jest-dom" />
+import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
+import '@testing-library/jest-dom/vitest'
 import KnowledgePage from '../pages/KnowledgePage'
-import ModuleTabs from '../components/ModuleTabs'
-import ContentViewer from '../components/ContentViewer'
-import AITutor from '../components/AITutor'
-import ChatDialog from '../components/ChatDialog'
 import { knowledgeModules } from '../data/knowledgeData'
 
 // 辅助函数：渲染带路由的组件
@@ -156,7 +154,7 @@ describe('知识宣教模块页面', () => {
     })
 
     it('点击完成学习按钮应该触发导航', () => {
-      const { container } = renderWithRouter(<KnowledgePage />)
+      renderWithRouter(<KnowledgePage />)
       const completeBtn = screen.getByText('✓ 完成学习')
       fireEvent.click(completeBtn)
 

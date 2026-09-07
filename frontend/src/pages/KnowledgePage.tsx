@@ -12,7 +12,6 @@ export default function KnowledgePage() {
   const [currentModuleId, setCurrentModuleId] = useState(knowledgeModules[0].id)
   const [currentPageIndex, setCurrentPageIndex] = useState(0)
   const [isTutorVisible, setIsTutorVisible] = useState(true)
-  const [completedModules, setCompletedModules] = useState<Set<string>>(new Set())
 
   const currentModule = knowledgeModules.find(m => m.id === currentModuleId)!
   const currentPage = currentModule.pages[currentPageIndex]
@@ -36,7 +35,6 @@ export default function KnowledgePage() {
   }
 
   const handleCompleteLearning = () => {
-    setCompletedModules(prev => new Set([...prev, currentModuleId]))
     navigate('/')
   }
 

@@ -1,4 +1,4 @@
-import { KnowledgeModule } from '../data/knowledgeData'
+import type { KnowledgeModule } from '../data/knowledgeData'
 
 interface ModuleTabsProps {
   modules: KnowledgeModule[]

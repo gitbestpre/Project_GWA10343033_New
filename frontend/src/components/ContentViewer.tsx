@@ -1,4 +1,4 @@
-import { KnowledgePage } from '../data/knowledgeData'
+import type { KnowledgePage } from '../data/knowledgeData'
 
 interface ContentViewerProps {
   page: KnowledgePage
