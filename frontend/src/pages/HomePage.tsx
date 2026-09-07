@@ -8,14 +8,14 @@ const modules = [
     title: '知识宣教',
     path: '/knowledge',
     image: '/images/knowledge.jpg',
-    status: '未开始' as const,
+    status: '未学习' as const,
   },
   {
     id: 'case-study',
     title: '案例学习',
     path: '/case-study',
     image: '/images/case-study.jpg',
-    status: '未开始' as const,
+    status: '未学习' as const,
   },
 ]
 

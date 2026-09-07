@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="300" viewBox="0 0 200 300">
+  <rect width="200" height="300" fill="#E8F0FE"/>
+  <circle cx="100" cy="100" r="50" fill="#4A90D9"/>
+  <circle cx="100" cy="90" r="25" fill="#FFE0BD"/>
+  <ellipse cx="100" cy="130" rx="30" ry="20" fill="#FFE0BD"/>
+  <rect x="70" y="140" width="60" height="80" rx="10" fill="#4A90D9"/>
+  <rect x="75" y="145" width="50" height="30" rx="5" fill="#FFFFFF"/>
+  <text x="100" y="260" text-anchor="middle" fill="#4A90D9" font-size="14" font-family="sans-serif">AI导师</text>
+</svg>
