@@ -30,16 +30,16 @@
 }
 
 .main-title {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: bold;
   color: #333333;
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.3;
 }
 
 .sub-title {
-  font-size: 12px;
-  color: #666666;
+  font-size: 11px;
+  color: #888888;
   margin: 0;
   line-height: 1.2;
 }
@@ -47,23 +47,23 @@
 .header-right {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 .score-display,
 .timer-display {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border: 1px solid #4A90D9;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1.5px solid #4A90D9;
   border-radius: 20px;
   background: #ffffff;
 }
 
 .score-icon,
 .timer-icon {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .score-label,
@@ -82,15 +82,15 @@
 
 .tool-buttons {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 .tool-btn {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border: none;
   background: transparent;
-  color: #666666;
+  color: #888888;
   font-size: 16px;
   cursor: pointer;
   border-radius: 4px;

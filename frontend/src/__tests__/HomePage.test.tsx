@@ -29,7 +29,7 @@ describe('HomePage', () => {
         <HomePage />
       </MemoryRouter>
     )
-    expect(screen.getByText('食品安全')).toBeInTheDocument()
+    expect(screen.getByText('AI食品致病性微生物污染事件应急与处置')).toBeInTheDocument()
   })
 
   it('should render status indicators on cards', () => {
