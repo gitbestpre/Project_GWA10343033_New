@@ -1,0 +1,24 @@
+{
+  "project_id": "39154da4-6488-4a32-b9f8-b23a7c451401",
+  "project_title": "网页项目",
+  "project_description": "涉及视频播放，AI接口对接",
+  "resources": [
+    {
+      "id": "ccf048d6-25c5-4cb2-acd6-b1866177d29c",
+      "resource_type": "github_repo",
+      "resource_ref": {
+        "url": "https://github.com/gitbestpre/Project_GWA10343033_New"
+      }
+    },
+    {
+      "id": "38f6849d-5a7c-48e3-8ecf-0c24351f52ab",
+      "resource_type": "local_directory",
+      "resource_ref": {
+        "label": "GWA10343033_New",
+        "daemon_id": "01a03753-e8db-7e0d-a5e4-57922944a01b",
+        "local_path": "E:\\XWJ\\GWA10343033_New",
+        "execution_mode": "in_place"
+      }
+    }
+  ]
+}

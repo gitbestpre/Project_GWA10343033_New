@@ -240,6 +240,20 @@
   color: #333333;
 }
 
+.content-image-wrapper {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.content-module-image {
+  width: 100%;
+  height: auto;
+  max-height: 300px;
+  object-fit: cover;
+  display: block;
+}
+
 .content-section {
   margin-bottom: 20px;
 }
