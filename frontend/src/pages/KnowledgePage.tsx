@@ -160,18 +160,19 @@ function BackTriangleIcon() {
 
 function SpeechBubbleIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-      <circle cx="8.5" cy="11.5" r="1.1" fill="#ffffff" />
-      <circle cx="12" cy="11.5" r="1.1" fill="#ffffff" />
-      <circle cx="15.5" cy="11.5" r="1.1" fill="#ffffff" />
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M20 8h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-1v2.6L16.4 20H11a2 2 0 0 1-2-2v-1h7a3 3 0 0 0 3-3V8z" />
+      <path d="M16 3H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h1v3l3.5-3H16a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z" />
+      <circle cx="6.5" cy="10" r="1.1" fill="#ffffff" />
+      <circle cx="10" cy="10" r="1.1" fill="#ffffff" />
+      <circle cx="13.5" cy="10" r="1.1" fill="#ffffff" />
     </svg>
   )
 }
 
 function CheckCircleIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
       <circle cx="12" cy="12" r="10" />
       <polyline points="16.5 9.5 10.8 15.2 7.5 11.9" fill="none" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
@@ -206,7 +207,7 @@ export default function KnowledgePage() {
           <aside className="tutor-zone">
             <div className="tutor-action-col">
               <button
-                className={`sidebar-action-btn ${knowledgeStarted ? 'active' : ''}`}
+                className="sidebar-action-btn"
                 onClick={() => setKnowledgeStarted(true)}
               >
                 <SpeechBubbleIcon />
