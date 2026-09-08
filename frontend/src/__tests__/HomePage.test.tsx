@@ -39,7 +39,7 @@ describe('HomePage', () => {
       </MemoryRouter>
     )
     // Cards should have status indicators
-    const statusElements = screen.getAllByText('未开始')
+    const statusElements = screen.getAllByText('未学习')
     expect(statusElements.length).toBe(2)
   })
 })
