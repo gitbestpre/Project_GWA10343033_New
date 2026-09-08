@@ -11,15 +11,6 @@ const knowledgeModules = [
   '实验室检测与分子溯源',
 ]
 
-const moduleImages: Record<string, string> = {
-  '基础知识': '/images/基础知识.png',
-  '传播途径与污染机制': '/images/传播途径与污染机制.png',
-  '临床表现与诊断鉴别': '/images/临床表现与诊断鉴别.png',
-  '预防策略与控制体系': '/images/预防策略与控制体系.png',
-  '应急响应与流行病学调查': '/images/针对性预防策略与控制体系.png',
-  '实验室检测与分子溯源': '/images/实验室检测与分子溯源技术.png',
-}
-
 const moduleContent: Record<string, { title: string; sections: { heading: string; body: string }[] }> = {
   基础知识: {
     title: '基础知识',
@@ -63,8 +54,14 @@ const moduleContent: Record<string, { title: string; sections: { heading: string
   预防策略与控制体系: {
     title: '预防策略与控制体系',
     sections: [
-      { heading: '（一）预防策略', body: '预防为主是食品安全工作的基本原则。包括源头控制、过程监管、风险评估和应急响应四个层面。' },
-      { heading: '（二）控制体系', body: '建立从农田到餐桌的全过程控制体系，包括GAP、GMP、HACCP等管理体系。' },
+      {
+        heading: '一、WHO食品安全五要点',
+        body: '（1）保持清洁\n勤洗手（处理食品前、如厕后、接触生食品后用肥皂和流动水洗手至少20秒，可降低约50%腹泻性疾病风险），清洗消毒器具（刀具砧板餐具定期煮沸10分钟或含氯消毒剂浸泡）；防虫鼠，保持厨房卫生（抹布海绵每周煮沸消毒或更换）。\n（2）生熟分开\n冰箱内生肉生海鲜放最下层，即食食品放上层；至少准备两套刀具砧板（可用颜色区分：红色=生肉，蓝色=海鲜，绿色=蔬果，白色=即食），生食品用密封容器包裹防止汁液滴落。\n（3）烧熟煮透\n肉类禽海产品中心温度≥70℃保持至少2分钟；剩菜剩饭彻底加热（中心温度≥75℃）且只加热一次；避免生食/半生食高风险食品（肉类、蛋类、淡水鱼虾）。\n（4）安全温度\n熟食室温放置≤2小时（夏季≥32℃时≤1小时）；冷藏≤4℃，冷冻≤-18℃，热藏≥60℃；冷冻食品在冰箱冷藏层或微波炉解冻，不要室温解冻；避免反复冻融。\n（5）安全原料\n查看保质期，选择正规渠道，不采食野生蘑菇（预防毒蘑菇中毒唯一可靠方法），不喝生水，不食用变色变味发霉包装破损食品。',
+      },
+      {
+        heading: '二、HACCP体系与分环节控制',
+        body: '危害分析与关键控制点（HACCP）是国际公认的预防性管理体系，通过识别显著危害、确定关键控制点（CCP）并制定预防措施，将风险消除或降低到可接受水平。七项原理：危害分析（HA）、确定CCP、建立关键限值（CL）、建立监控程序、建立纠偏措施、建立验证程序、建立记录和文件保存系统。\n食品链各环节关键控制：原料采购（查验资质和检验报告，高风险原料抽样检测）；储存（分类分区、生熟分开、温度控制、先进先出）；粗加工（动植物水产品分池清洗，蔬菜一洗二泡三烫，冷冻食品正确解冻）；烹饪（中心温度≥70℃，烹饪后至食用≤2小时）；冷却和再加热（2h内从60℃降至21℃，再4h内降至4℃以下，再加热≥75℃）；备餐供餐（人员洗手消毒戴口罩手套，热藏≥60℃冷藏≤8℃，备餐到食用≤2小时）；餐用具清洗消毒（一刮二洗三冲四消毒五保洁，首选煮沸100℃10分钟，化学消毒有效氯≥250mg/L浸泡5分钟以上）。',
+      },
     ],
   },
   应急响应与流行病学调查: {
@@ -249,17 +246,16 @@ export default function KnowledgePage() {
               <ChevronLeftIcon />
             </button>
             <div className="content-text">
-              <div className="content-image-wrapper">
-                <img
-                  src={moduleImages[knowledgeModules[activeModule]]}
-                  alt={currentContent.title}
-                  className="content-module-image"
-                />
-              </div>
               {currentContent.sections.map((section, idx) => (
                 <div key={idx} className="content-section">
                   <h3 className="section-heading">{section.heading}</h3>
-                  <p className="section-body">{section.body}</p>
+                  {section.body.split('\n').map((line, lineIdx) =>
+                    line.trim() === '' ? null : /^（\d+）/.test(line.trim()) ? (
+                      <p key={lineIdx} className="point-lead">{line}</p>
+                    ) : (
+                      <p key={lineIdx} className="section-body">{line}</p>
+                    )
+                  )}
                 </div>
               ))}
             </div>
