@@ -13,7 +13,7 @@
 }
 
 .ai-tutor-sidebar {
-  width: 220px;
+  width: 180px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
