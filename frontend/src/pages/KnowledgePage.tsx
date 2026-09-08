@@ -180,7 +180,7 @@ export default function KnowledgePage() {
             </div>
             <div className="tutor-image-wrapper">
               <img
-                src="/images/ai-tutor.jpg"
+                src="/images/ai-tutor.png"
                 alt="AI导师"
                 className="tutor-image"
               />
