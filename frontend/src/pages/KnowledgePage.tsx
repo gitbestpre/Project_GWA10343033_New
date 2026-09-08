@@ -11,6 +11,15 @@ const knowledgeModules = [
   '实验室检测与分子溯源',
 ]
 
+const moduleImages: Record<string, string> = {
+  '基础知识': '/images/基础知识.png',
+  '传播途径与污染机制': '/images/传播途径与污染机制.png',
+  '临床表现与诊断鉴别': '/images/临床表现与诊断鉴别.png',
+  '预防策略与控制体系': '/images/预防策略与控制体系.png',
+  '应急响应与流行病学调查': '/images/针对性预防策略与控制体系.png',
+  '实验室检测与分子溯源': '/images/实验室检测与分子溯源技术.png',
+}
+
 const moduleContent: Record<string, { title: string; sections: { heading: string; body: string }[] }> = {
   基础知识: {
     title: '基础知识',
@@ -240,6 +249,13 @@ export default function KnowledgePage() {
               <ChevronLeftIcon />
             </button>
             <div className="content-text">
+              <div className="content-image-wrapper">
+                <img
+                  src={moduleImages[knowledgeModules[activeModule]]}
+                  alt={currentContent.title}
+                  className="content-module-image"
+                />
+              </div>
               {currentContent.sections.map((section, idx) => (
                 <div key={idx} className="content-section">
                   <h3 className="section-heading">{section.heading}</h3>
