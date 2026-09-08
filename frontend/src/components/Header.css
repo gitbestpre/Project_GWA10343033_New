@@ -20,8 +20,16 @@
 }
 
 .logo {
-  height: 50px;
+  height: 48px;
   width: auto;
+  flex-shrink: 0;
+}
+
+.header-divider {
+  width: 1px;
+  height: 44px;
+  background: #c9ced4;
+  flex-shrink: 0;
 }
 
 .title-section {

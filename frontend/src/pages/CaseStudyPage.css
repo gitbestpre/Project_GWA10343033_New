@@ -31,8 +31,8 @@
 
 .module-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 25px 30px;
+  grid-template-columns: repeat(3, minmax(320px, 400px));
+  gap: 30px;
   max-width: 1260px;
 }
 
@@ -43,7 +43,6 @@
 .module-card {
   cursor: pointer;
   transition: transform 0.2s;
-  min-height: 240px;
 }
 
 .module-card:hover {
@@ -52,17 +51,17 @@
 
 .card-image {
   width: 100%;
-  height: 180px;
+  aspect-ratio: 492 / 260;
   overflow: hidden;
   border-radius: 8px;
   background: #d0d5db;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
 .card-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center top;
   display: block;
 }
 

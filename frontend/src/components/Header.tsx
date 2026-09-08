@@ -6,6 +6,7 @@ export default function Header() {
       <div className="header-left">
         <div className="logo-section">
           <img src="/images/wmu-logo.png" alt="温州医科大学" className="logo" />
+          <div className="header-divider"></div>
           <div className="title-section">
             <h1 className="main-title">AI食品致病性微生物污染事件应急与处置</h1>
             <p className="sub-title">
