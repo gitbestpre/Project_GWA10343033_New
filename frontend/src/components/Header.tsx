@@ -7,9 +7,9 @@ export default function Header() {
         <div className="logo-section">
           <img src="/logo.svg" alt="温州医科大学" className="logo" />
           <div className="title-section">
-            <h1 className="main-title">食品安全</h1>
+            <h1 className="main-title">AI食品致病性微生物污染事件应急与处置</h1>
             <p className="sub-title">
-              AI食品致病性微生物污染事件应急与处置
+              Emergency response and disposal of food pathogenic microorganism contamination incidents
             </p>
           </div>
         </div>
@@ -18,12 +18,12 @@ export default function Header() {
         <div className="score-display">
           <span className="score-icon">⭐</span>
           <span className="score-label">目前得分</span>
-          <span className="score-value">| 0</span>
+          <span className="score-value">| 100</span>
         </div>
         <div className="timer-display">
           <span className="timer-icon">🕐</span>
           <span className="timer-label">操作用时</span>
-          <span className="timer-value">| 00:00</span>
+          <span className="timer-value">| 20:00</span>
         </div>
         <div className="tool-buttons">
           <button className="tool-btn" title="帮助">?</button>

@@ -45,7 +45,7 @@ export default function CaseStudyPage() {
           <h2 className="page-title">请按照模块依次操作</h2>
         </div>
         <div className="module-grid">
-          {modules.map((module, index) => (
+          {modules.map((module) => (
             <div
               key={module.id}
               className="module-card"
@@ -53,7 +53,6 @@ export default function CaseStudyPage() {
             >
               <div className="card-image">
                 <img src={module.image} alt={module.title} />
-                {index === 0 && <span className="video-label">视频1</span>}
               </div>
               <div className="card-info">
                 <h3 className="card-title">{module.title}</h3>
