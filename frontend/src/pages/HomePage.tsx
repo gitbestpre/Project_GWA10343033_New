@@ -7,16 +7,14 @@ const modules = [
     id: 'knowledge',
     title: '知识宣教',
     path: '/knowledge',
-    image: '/images/首页.png',
-    imagePosition: 'left center',
+    image: '/images/hospital-scene.png',
     status: '未学习' as const,
   },
   {
     id: 'case-study',
     title: '案例学习',
     path: '/case-study',
-    image: '/images/首页.png',
-    imagePosition: 'right center',
+    image: '/images/kitchen-scene.png',
     status: '未学习' as const,
   },
 ]
@@ -40,7 +38,7 @@ export default function HomePage() {
               onClick={() => navigate(module.path)}
             >
               <div className="card-image">
-                <img src={module.image} alt={module.title} style={{ objectPosition: module.imagePosition }} />
+                <img src={module.image} alt={module.title} />
               </div>
               <div className="card-info">
                 <h3 className="card-title">{module.title}</h3>

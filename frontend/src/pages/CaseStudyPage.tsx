@@ -7,32 +7,28 @@ const modules = [
     id: 'epidemiology',
     title: '流行病学调查',
     path: '/epidemiology',
-    image: '/images/流行病学调查.png',
-    imagePosition: 'center 30%',
+    image: '/images/hospital-scene.png',
     status: '未学习' as const,
   },
   {
     id: 'food-hygiene',
     title: '食品卫生学调查',
     path: '/food-hygiene',
-    image: '/images/案例选择.png',
-    imagePosition: 'center 25%',
+    image: '/images/kitchen-scene.png',
     status: '未学习' as const,
   },
   {
     id: 'lab-testing',
     title: '实验室检测',
     path: '/lab-testing',
-    image: '/images/案例选择.png',
-    imagePosition: 'right 25%',
+    image: '/images/lab-scene.png',
     status: '未学习' as const,
   },
   {
     id: 'analysis',
     title: '资料分析及调查结论',
     path: '/analysis',
-    image: '/images/流行病学调查.png',
-    imagePosition: 'center 30%',
+    image: '/images/hospital-scene.png',
     status: '未学习' as const,
   },
 ]
@@ -56,7 +52,7 @@ export default function CaseStudyPage() {
               onClick={() => navigate(module.path)}
             >
               <div className="card-image">
-                <img src={module.image} alt={module.title} style={{ objectPosition: module.imagePosition }} />
+                <img src={module.image} alt={module.title} />
               </div>
               <div className="card-info">
                 <h3 className="card-title">{module.title}</h3>
