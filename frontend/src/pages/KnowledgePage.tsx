@@ -142,11 +142,10 @@ function ChevronRightIcon() {
   )
 }
 
-function BookIcon() {
+function SpeechBubbleIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
     </svg>
   )
 }
@@ -160,6 +159,7 @@ function CheckIcon() {
 }
 
 export default function KnowledgePage() {
+  const [knowledgeStarted, setKnowledgeStarted] = useState(false)
   const [activeModule, setActiveModule] = useState(0)
   const [aiTutorVisible, setAiTutorVisible] = useState(true)
   const [isPaused, setIsPaused] = useState(false)
@@ -168,29 +168,40 @@ export default function KnowledgePage() {
 
   const currentContent = moduleContent[knowledgeModules[activeModule]]
 
+  const handlePrevModule = () => {
+    setActiveModule((prev) => Math.max(0, prev - 1))
+  }
+
+  const handleNextModule = () => {
+    setActiveModule((prev) => Math.min(knowledgeModules.length - 1, prev + 1))
+  }
+
   return (
     <div className="knowledge-page">
       <Header />
       <div className="knowledge-layout">
         {aiTutorVisible && (
           <aside className="ai-tutor-sidebar">
-            <div className="sidebar-buttons">
-              <button className="sidebar-action-btn">
-                <BookIcon />
-                <span>知识科普</span>
-              </button>
-              <button className="sidebar-action-btn">
-                <CheckIcon />
-                <span>完成学习</span>
-              </button>
-            </div>
             <div className="tutor-image-wrapper">
               <img
                 src="/images/ai-tutor.png"
                 alt="AI导师"
                 className="tutor-image"
               />
-              <div className="tutor-top-controls">
+              <div className="sidebar-buttons">
+                <button
+                  className={`sidebar-action-btn ${knowledgeStarted ? 'active' : ''}`}
+                  onClick={() => setKnowledgeStarted(true)}
+                >
+                  <SpeechBubbleIcon />
+                  <span>知识科普</span>
+                </button>
+                <button className="sidebar-action-btn">
+                  <CheckIcon />
+                  <span>完成学习</span>
+                </button>
+              </div>
+              <div className="tutor-controls">
                 <button className="control-btn" title="音量">
                   <VolumeIcon />
                 </button>
@@ -201,15 +212,15 @@ export default function KnowledgePage() {
                 >
                   {isPaused ? <PlayIcon /> : <PauseIcon />}
                 </button>
-              </div>
-              <div className="volume-slider">
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={volume}
-                  onChange={(e) => setVolume(Number(e.target.value))}
-                />
+                <div className="volume-slider">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={volume}
+                    onChange={(e) => setVolume(Number(e.target.value))}
+                  />
+                </div>
               </div>
               <button
                 className="hide-tutor-btn"
@@ -223,46 +234,67 @@ export default function KnowledgePage() {
         )}
 
         <main className="knowledge-content">
-          <div className="module-tabs">
-            <div className="module-title">
-              <div className="title-bar"></div>
-              <h2>{currentContent.title}</h2>
+          {!knowledgeStarted ? (
+            <div className="welcome-card">
+              <img src="/images/星星.png" alt="欢迎" className="welcome-stars" />
+              <div className="welcome-text">
+                <p>同学，欢迎你来到食品致病性微生物污染事件应急与处置互动环节，请学习完成后进行问答环节。</p>
+                <p>请点击左侧模块选择需要学习了解的知识点！</p>
+                <p>您可在模块中点击左右切换按钮，自由切换小模块进行知识点学习。</p>
+              </div>
             </div>
-            <div className="tab-buttons">
-              {knowledgeModules.map((mod, index) => (
-                <button
-                  key={mod}
-                  className={`tab-btn ${index === activeModule ? 'active' : ''}`}
-                  onClick={() => setActiveModule(index)}
-                >
-                  {mod}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="content-area">
-            <button className="nav-arrow left-arrow" disabled>
-              <ChevronLeftIcon />
-            </button>
-            <div className="content-text">
-              {currentContent.sections.map((section, idx) => (
-                <div key={idx} className="content-section">
-                  <h3 className="section-heading">{section.heading}</h3>
-                  {section.body.split('\n').map((line, lineIdx) =>
-                    line.trim() === '' ? null : /^（\d+）/.test(line.trim()) ? (
-                      <p key={lineIdx} className="point-lead">{line}</p>
-                    ) : (
-                      <p key={lineIdx} className="section-body">{line}</p>
-                    )
-                  )}
+          ) : (
+            <>
+              <div className="module-tabs">
+                <div className="tab-buttons">
+                  {knowledgeModules.map((mod, index) => (
+                    <button
+                      key={mod}
+                      className={`tab-btn ${index === activeModule ? 'active' : ''}`}
+                      onClick={() => setActiveModule(index)}
+                    >
+                      {mod}
+                    </button>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <button className="nav-arrow right-arrow">
-              <ChevronRightIcon />
-            </button>
-          </div>
+              </div>
+
+              <div className="content-area">
+                <button
+                  className="nav-arrow left-arrow"
+                  onClick={handlePrevModule}
+                  disabled={activeModule === 0}
+                  aria-label="上一个模块"
+                  title="上一个模块"
+                >
+                  <ChevronLeftIcon />
+                </button>
+                <div className="content-text">
+                  {currentContent.sections.map((section, idx) => (
+                    <div key={idx} className="content-section">
+                      <h3 className="section-heading">{section.heading}</h3>
+                      {section.body.split('\n').map((line, lineIdx) =>
+                        line.trim() === '' ? null : /^（\d+）/.test(line.trim()) ? (
+                          <p key={lineIdx} className="point-lead">{line}</p>
+                        ) : (
+                          <p key={lineIdx} className="section-body">{line}</p>
+                        )
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <button
+                  className="nav-arrow right-arrow"
+                  onClick={handleNextModule}
+                  disabled={activeModule === knowledgeModules.length - 1}
+                  aria-label="下一个模块"
+                  title="下一个模块"
+                >
+                  <ChevronRightIcon />
+                </button>
+              </div>
+            </>
+          )}
 
           <div className="ai-dialog">
             <button className="voice-btn" title="语音输入">
