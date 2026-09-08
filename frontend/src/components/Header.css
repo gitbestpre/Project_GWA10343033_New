@@ -2,10 +2,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 24px;
-  background: #ffffff;
-  border-bottom: 1px solid #e0e0e0;
-  height: 70px;
+  padding: 0 24px;
+  background: #fcfcfc;
+  border-bottom: none;
+  height: 73px;
+  flex-shrink: 0;
 }
 
 .header-left {
