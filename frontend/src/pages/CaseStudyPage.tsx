@@ -40,7 +40,7 @@ export default function CaseStudyPage() {
     <div className="case-study-page">
       <Header />
       <main className="case-study-content">
-        <div className="title-section">
+        <div className="page-title-section">
           <div className="title-bar"></div>
           <h2 className="page-title">请按照模块依次操作</h2>
         </div>
