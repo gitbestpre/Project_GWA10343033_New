@@ -26,7 +26,7 @@ export default function HomePage() {
     <div className="home-page">
       <Header />
       <main className="home-content">
-        <div className="title-section">
+        <div className="page-title-section">
           <div className="title-bar"></div>
           <h2 className="page-title">请按照模块依次操作</h2>
         </div>
