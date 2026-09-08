@@ -2,87 +2,94 @@ import { useState } from 'react'
 import Header from '../components/Header'
 import './KnowledgePage.css'
 
-const knowledgeModules = [
-  '基础知识',
-  '传播途径与污染机制',
-  '临床表现与诊断鉴别',
-  '预防策略与控制体系',
-  '应急响应与流行病学调查',
-  '实验室检测与分子溯源',
-]
+type Section = { heading: string; body: string }
 
-const moduleContent: Record<string, { title: string; sections: { heading: string; body: string }[] }> = {
-  基础知识: {
-    title: '基础知识',
-    sections: [
-      {
-        heading: '（一）食源性疾病',
-        body: '食源性疾病是指通过摄食进入人体的各种致病因子引起的、通常具有感染或中毒性质的一类疾病。WHO定义为食品中致病因素进入人体引起的感染性、中毒性疾病，涵盖食物中毒、经食物传播的传染病/寄生虫病及长期低剂量污染物导致的慢性危害。\n\n致病因子分五大类：细菌性、病毒性、寄生虫性、化学性和动植物毒素性。细菌性和病毒性占报告事件绝大多数，化学性和动植物毒素性病死率更高。据WHO 2015年报告，全球每年约6亿例食源性疾病，约42万人死亡；5岁以下儿童占死亡人数30%（约12.5万），非洲和东南亚负担最重。临床表现从轻微胃肠炎到败血症、脑膜炎、肾衰竭、癌症不等，部分可致远期后遗症（如空肠弯曲菌后格林-巴利综合征、EHEC后溶血性尿毒综合征）。',
-      },
-      {
-        heading: '（二）食品安全事故',
-        body: '根据《食品安全法》第一百五十条，指食源性疾病、食品污染等源于食品，对人体健康有危害或可能有危害的事故，将"可能有危害"纳入体现预防为主原则。四大特征：突发性（难以预测，需快速响应）、群体性（共同暴露常致暴发）、危害性（健康损害、经济损失、社会恐慌）、复杂性（涉及多环节多因子，溯源难度大）。按《国家食品安全事故应急预案》分四级：Ⅰ级（特别重大）、Ⅱ级（重大）、Ⅲ级（较大）、Ⅳ级（一般）。',
-      },
-      {
-        heading: '（三）食物中毒',
-        body: '食物中毒是食源性疾病的特殊类型，特指食用被有毒有害物质污染或含有毒有害物质的食品后出现的急性、亚急性疾病。不包括暴饮暴食引起的急性胃肠炎、食源性肠道传染病和寄生虫病，也不包括慢性毒害为主的疾病。五大特征：潜伏期短（数分钟至数十小时）、发病急、临床表现相似（以胃肠道症状为主）、与进食有关（未食者不发病）、无传染性（诺如病毒等可经呕吐物气溶胶二代传播）。',
-      },
-      {
-        heading: '（四）食源性疾病暴发',
-        body: '指因食用共同食物出现2例及以上类似临床表现的病例；肉毒中毒等严重疾病1例即按暴发处理。核心任务是3W：确定致病因子（What）、污染食品（Which food）和污染环节（Where）。按规模分为家庭暴发（2~3例）、集体单位暴发、餐饮单位暴发、跨区域暴发。',
-      },
-      {
-        heading: '（五）概念辨析要点',
-        body: '食源性疾病食品安全事故食物中毒。食源性疾病最宽泛，包括经食物传播的所有疾病；食品安全事故强调事故属性和应急响应；食物中毒最窄，特指急性、亚急性中毒性疾病。三者在法律定性和统计口径上有严格区分。',
-      },
+const knowledgeModules: { name: string; pages: Section[][] }[] = [
+  {
+    name: '基础知识',
+    pages: [
+      [
+        {
+          heading: '（一）食源性疾病',
+          body: '食源性疾病是指通过摄食进入人体的各种致病因子引起的、通常具有感染或中毒性质的一类疾病。WHO定义为食品中致病因素进入人体引起的感染性、中毒性疾病，涵盖食物中毒、经食物传播的传染病/寄生虫病及长期低剂量污染物导致的慢性危害。\n致病因子分五大类：细菌性、病毒性、寄生虫性、化学性和动植物毒素性。细菌性和病毒性占报告事件绝大多数，化学性和动植物毒素性病死率更高。据WHO 2015年报告，全球每年约6亿例食源性疾病，约42万人死亡；5岁以下儿童占死亡人数30%（约12.5万），非洲和东南亚负担最重。临床表现从轻微胃肠炎到败血症、脑膜炎、肾衰竭、癌症不等，部分可致远期后遗症（如空肠弯曲菌后格林-巴利综合征、EHEC后溶血性尿毒综合征）。',
+        },
+        {
+          heading: '（二）食品安全事故',
+          body: '根据《食品安全法》第一百五十条，指食源性疾病、食品污染等源于食品，对人体健康有危害或可能有危害的事故，将"可能有危害"纳入体现预防为主原则。四大特征：突发性（难以预测，需快速响应）、群体性（共同暴露常致暴发）、危害性（健康损害、经济损失、社会恐慌）、复杂性（涉及多环节多因子，溯源难度大）。按《国家食品安全事故应急预案》分四级：Ⅰ级（特别重大）、Ⅱ级（重大）、Ⅲ级（较大）、Ⅳ级（一般）。',
+        },
+        {
+          heading: '（三）食物中毒',
+          body: '食物中毒是食源性疾病的特殊类型，特指食用被有毒有害物质污染或含有毒有害物质的食品后出现的急性、亚急性疾病。不包括暴饮暴食引起的急性胃肠炎、食源性肠道传染病和寄生虫病，也不包括慢性毒害为主的疾病。五大特征：潜伏期短（数分钟至数十小时）、发病急、临床表现相似（以胃肠道症状为主）、与进食有关（未食者不发病）、无传染性（诺如病毒等可经呕吐物气溶胶二代传播）。',
+        },
+        {
+          heading: '（四）食源性疾病暴发',
+          body: '指因食用共同食物出现2例及以上类似临床表现的病例；肉毒中毒等严重疾病1例即按暴发处理。核心任务是3W：确定致病因子（What）、污染食品（Which food）和污染环节（Where）。按规模分为家庭暴发（2~3例）、集体单位暴发、餐饮单位暴发、跨区域暴发。',
+        },
+        {
+          heading: '（五）概念辨析要点',
+          body: '食源性疾病食品安全事故食物中毒。食源性疾病最宽泛，包括经食物传播的所有疾病；食品安全事故强调事故属性和应急响应；食物中毒最窄，特指急性、亚急性中毒性疾病。三者在法律定性和统计口径上有严格区分。',
+        },
+      ],
     ],
   },
-  传播途径与污染机制: {
-    title: '传播途径与污染机制',
-    sections: [
-      { heading: '（一）主要传播途径', body: '食源性致微生物主要通过食物链传播，包括原料污染、加工过程交叉污染、储存不当导致的增殖、以及食用前的处理不当。' },
-      { heading: '（二）常见污染机制', body: '细菌性污染主要通过接触传播，病毒性污染可通过气溶胶和接触传播，寄生虫通过未煮熟的肉类或水产品传播。' },
+  {
+    name: '传播途径与污染机制',
+    pages: [
+      [
+        { heading: '（一）主要传播途径', body: '食源性致微生物主要通过食物链传播，包括原料污染、加工过程交叉污染、储存不当导致的增殖、以及食用前的处理不当。' },
+        { heading: '（二）常见污染机制', body: '细菌性污染主要通过接触传播，病毒性污染可通过气溶胶和接触传播，寄生虫通过未煮熟的肉类或水产品传播。' },
+      ],
     ],
   },
-  临床表现与诊断鉴别: {
-    title: '临床表现与诊断鉴别',
-    sections: [
-      { heading: '（一）常见临床表现', body: '胃肠道症状是最常见的临床表现，包括恶心、呕吐、腹痛、腹泻等。严重病例可出现脱水、电解质紊乱、甚至休克。' },
-      { heading: '（二）诊断与鉴别', body: '诊断需结合流行病学史、临床表现和实验室检查。需与非食源性疾病进行鉴别诊断。' },
+  {
+    name: '临床表现与诊断鉴别',
+    pages: [
+      [
+        { heading: '（一）常见临床表现', body: '胃肠道症状是最常见的临床表现，包括恶心、呕吐、腹痛、腹泻等。严重病例可出现脱水、电解质紊乱、甚至休克。' },
+        { heading: '（二）诊断与鉴别', body: '诊断需结合流行病学史、临床表现和实验室检查。需与非食源性疾病进行鉴别诊断。' },
+      ],
     ],
   },
-  预防策略与控制体系: {
-    title: '预防策略与控制体系',
-    sections: [
-      {
-        heading: '一、WHO食品安全五要点',
-        body: '（1）保持清洁\n勤洗手（处理食品前、如厕后、接触生食品后用肥皂和流动水洗手至少20秒，可降低约50%腹泻性疾病风险），清洗消毒器具（刀具砧板餐具定期煮沸10分钟或含氯消毒剂浸泡）；防虫鼠，保持厨房卫生（抹布海绵每周煮沸消毒或更换）。\n（2）生熟分开\n冰箱内生肉生海鲜放最下层，即食食品放上层；至少准备两套刀具砧板（可用颜色区分：红色=生肉，蓝色=海鲜，绿色=蔬果，白色=即食），生食品用密封容器包裹防止汁液滴落。\n（3）烧熟煮透\n肉类禽海产品中心温度≥70℃保持至少2分钟；剩菜剩饭彻底加热（中心温度≥75℃）且只加热一次；避免生食/半生食高风险食品（肉类、蛋类、淡水鱼虾）。\n（4）安全温度\n熟食室温放置≤2小时（夏季≥32℃时≤1小时）；冷藏≤4℃，冷冻≤-18℃，热藏≥60℃；冷冻食品在冰箱冷藏层或微波炉解冻，不要室温解冻；避免反复冻融。\n（5）安全原料\n查看保质期，选择正规渠道，不采食野生蘑菇（预防毒蘑菇中毒唯一可靠方法），不喝生水，不食用变色变味发霉包装破损食品。',
-      },
-      {
-        heading: '二、HACCP体系与分环节控制',
-        body: '危害分析与关键控制点（HACCP）是国际公认的预防性管理体系，通过识别显著危害、确定关键控制点（CCP）并制定预防措施，将风险消除或降低到可接受水平。七项原理：危害分析（HA）、确定CCP、建立关键限值（CL）、建立监控程序、建立纠偏措施、建立验证程序、建立记录和文件保存系统。\n食品链各环节关键控制：原料采购（查验资质和检验报告，高风险原料抽样检测）；储存（分类分区、生熟分开、温度控制、先进先出）；粗加工（动植物水产品分池清洗，蔬菜一洗二泡三烫，冷冻食品正确解冻）；烹饪（中心温度≥70℃，烹饪后至食用≤2小时）；冷却和再加热（2h内从60℃降至21℃，再4h内降至4℃以下，再加热≥75℃）；备餐供餐（人员洗手消毒戴口罩手套，热藏≥60℃冷藏≤8℃，备餐到食用≤2小时）；餐用具清洗消毒（一刮二洗三冲四消毒五保洁，首选煮沸100℃10分钟，化学消毒有效氯≥250mg/L浸泡5分钟以上）。',
-      },
+  {
+    name: '预防策略与控制体系',
+    pages: [
+      [
+        {
+          heading: '一、WHO食品安全五要点',
+          body: '（1）保持清洁\n勤洗手（处理食品前、如厕后、接触生食品后用肥皂和流动水洗手至少20秒，可降低约50%腹泻性疾病风险），清洗消毒器具（刀具砧板餐具定期煮沸10分钟或含氯消毒剂浸泡）；防虫鼠，保持厨房卫生（抹布海绵每周煮沸消毒或更换）。\n（2）生熟分开\n冰箱内生肉生海鲜放最下层，即食食品放上层；至少准备两套刀具砧板（可用颜色区分：红色=生肉，蓝色=海鲜，绿色=蔬果，白色=即食），生食品用密封容器包裹防止汁液滴落。\n（3）烧熟煮透\n肉类禽海产品中心温度≥70℃保持至少2分钟；剩菜剩饭彻底加热（中心温度≥75℃）且只加热一次；避免生食/半生食高风险食品（肉类、蛋类、淡水鱼虾）。\n（4）安全温度\n熟食室温放置≤2小时（夏季≥32℃时≤1小时）；冷藏≤4℃，冷冻≤-18℃，热藏≥60℃；冷冻食品在冰箱冷藏层或微波炉解冻，不要室温解冻；避免反复冻融。\n（5）安全原料\n查看保质期，选择正规渠道，不采食野生蘑菇（预防毒蘑菇中毒唯一可靠方法），不喝生水，不食用变色变味发霉包装破损食品。',
+        },
+      ],
+      [
+        {
+          heading: '二、HACCP体系与分环节控制',
+          body: '危害分析与关键控制点（HACCP）是国际公认的预防性管理体系，通过识别显著危害、确定关键控制点（CCP）并制定预防措施，将风险消除或降低到可接受水平。七项原理：危害分析（HA）、确定CCP、建立关键限值（CL）、建立监控程序、建立纠偏措施、建立验证程序、建立记录和文件保存系统。\n食品链各环节关键控制：原料采购（查验资质和检验报告，高风险原料抽样检测）；储存（分类分区、生熟分开、温度控制、先进先出）；粗加工（动植物水产品分池清洗，蔬菜一洗二泡三烫，冷冻食品正确解冻）；烹饪（中心温度≥70℃，烹饪后至食用≤2小时）；冷却和再加热（2h内从60℃降至21℃，再4h内降至4℃以下，再加热≥75℃）；备餐供餐（人员洗手消毒戴口罩手套，热藏≥60℃冷藏≤8℃，备餐到食用≤2小时）；餐用具清洗消毒（一刮二洗三冲四消毒五保洁，首选煮沸100℃10分钟，化学消毒有效氯≥250mg/L浸泡5分钟以上）。',
+        },
+      ],
     ],
   },
-  应急响应与流行病学调查: {
-    title: '应急响应与流行病学调查',
-    sections: [
-      { heading: '（一）应急响应流程', body: '发现疑似食源性疾病暴发后，应立即启动应急响应，包括报告、调查、控制和评估四个阶段。' },
-      { heading: '（二）流行病学调查方法', body: '采用病例对照研究、队列研究等方法，确定致病因子、污染食品和污染环节。' },
+  {
+    name: '应急响应与流行病学调查',
+    pages: [
+      [
+        { heading: '（一）应急响应流程', body: '发现疑似食源性疾病暴发后，应立即启动应急响应，包括报告、调查、控制和评估四个阶段。' },
+        { heading: '（二）流行病学调查方法', body: '采用病例对照研究、队列研究等方法，确定致病因子、污染食品和污染环节。' },
+      ],
     ],
   },
-  实验室检测与分子溯源: {
-    title: '实验室检测与分子溯源',
-    sections: [
-      { heading: '（一）实验室检测方法', body: '包括传统培养法、快速检测法和分子生物学方法。分子溯源技术可精确追踪污染源。' },
-      { heading: '（二）分子溯源技术', body: '全基因组测序（WGS）是目前最精确的分子溯源方法，可实现菌株水平的溯源。' },
+  {
+    name: '实验室检测与分子溯源',
+    pages: [
+      [
+        { heading: '（一）实验室检测方法', body: '包括传统培养法、快速检测法和分子生物学方法。分子溯源技术可精确追踪污染源。' },
+        { heading: '（二）分子溯源技术', body: '全基因组测序（WGS）是目前最精确的分子溯源方法，可实现菌株水平的溯源。' },
+      ],
     ],
   },
-}
+]
 
 function MicrophoneIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
       <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
       <line x1="12" y1="19" x2="12" y2="23" />
@@ -93,18 +100,19 @@ function MicrophoneIcon() {
 
 function SendIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="22" y1="2" x2="11" y2="13" />
+      <polygon points="22 2 15 22 11 13 2 9 22 2" />
     </svg>
   )
 }
 
 function VolumeIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" fill="none" />
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" fill="none" />
     </svg>
   )
 }
@@ -128,7 +136,7 @@ function PlayIcon() {
 
 function ChevronLeftIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="15 18 9 12 15 6" />
     </svg>
   )
@@ -136,24 +144,36 @@ function ChevronLeftIcon() {
 
 function ChevronRightIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="9 18 15 12 9 6" />
+    </svg>
+  )
+}
+
+function BackTriangleIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+      <polygon points="20 4 4 12 20 20 20 4" />
     </svg>
   )
 }
 
 function SpeechBubbleIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
       <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+      <circle cx="8.5" cy="11.5" r="1.1" fill="#ffffff" />
+      <circle cx="12" cy="11.5" r="1.1" fill="#ffffff" />
+      <circle cx="15.5" cy="11.5" r="1.1" fill="#ffffff" />
     </svg>
   )
 }
 
-function CheckIcon() {
+function CheckCircleIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="20 6 9 17 4 12" />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="16.5 9.5 10.8 15.2 7.5 11.9" fill="none" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
@@ -161,66 +181,58 @@ function CheckIcon() {
 export default function KnowledgePage() {
   const [knowledgeStarted, setKnowledgeStarted] = useState(false)
   const [activeModule, setActiveModule] = useState(0)
+  const [activePage, setActivePage] = useState(0)
   const [aiTutorVisible, setAiTutorVisible] = useState(true)
   const [isPaused, setIsPaused] = useState(false)
-  const [volume, setVolume] = useState(80)
   const [dialogInput, setDialogInput] = useState('')
 
-  const currentContent = moduleContent[knowledgeModules[activeModule]]
+  const currentModule = knowledgeModules[activeModule]
+  const pageCount = currentModule.pages.length
+  const currentSections = currentModule.pages[Math.min(activePage, pageCount - 1)]
 
-  const handlePrevModule = () => {
-    setActiveModule((prev) => Math.max(0, prev - 1))
+  const selectModule = (index: number) => {
+    setActiveModule(index)
+    setActivePage(0)
   }
 
-  const handleNextModule = () => {
-    setActiveModule((prev) => Math.min(knowledgeModules.length - 1, prev + 1))
-  }
+  const handlePrevPage = () => setActivePage((prev) => Math.max(0, prev - 1))
+  const handleNextPage = () => setActivePage((prev) => Math.min(pageCount - 1, prev + 1))
 
   return (
     <div className="knowledge-page">
       <Header />
       <div className="knowledge-layout">
         {aiTutorVisible && (
-          <aside className="ai-tutor-sidebar">
-            <div className="tutor-image-wrapper">
-              <img
-                src="/images/ai-tutor.png"
-                alt="AI导师"
-                className="tutor-image"
-              />
-              <div className="sidebar-buttons">
-                <button
-                  className={`sidebar-action-btn ${knowledgeStarted ? 'active' : ''}`}
-                  onClick={() => setKnowledgeStarted(true)}
-                >
-                  <SpeechBubbleIcon />
-                  <span>知识科普</span>
-                </button>
-                <button className="sidebar-action-btn">
-                  <CheckIcon />
-                  <span>完成学习</span>
-                </button>
-              </div>
+          <aside className="tutor-zone">
+            <div className="tutor-action-col">
+              <button
+                className={`sidebar-action-btn ${knowledgeStarted ? 'active' : ''}`}
+                onClick={() => setKnowledgeStarted(true)}
+              >
+                <SpeechBubbleIcon />
+                <span>知识科普</span>
+              </button>
+              <button className="sidebar-action-btn">
+                <CheckCircleIcon />
+                <span>完成学习</span>
+              </button>
+            </div>
+            <div className="tutor-photo-panel">
+              <img src="/images/ai-tutor.png" alt="AI导师" className="tutor-image" />
               <div className="tutor-controls">
-                <button className="control-btn" title="音量">
+                <button className="control-btn" aria-label="音量" title="音量">
                   <VolumeIcon />
                 </button>
-                <button
-                  className="control-btn"
-                  onClick={() => setIsPaused(!isPaused)}
-                  title={isPaused ? '播放' : '暂停'}
-                >
-                  {isPaused ? <PlayIcon /> : <PauseIcon />}
-                </button>
-                <div className="volume-slider">
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={volume}
-                    onChange={(e) => setVolume(Number(e.target.value))}
-                  />
-                </div>
+                {knowledgeStarted && (
+                  <button
+                    className="control-btn"
+                    aria-label={isPaused ? '播放' : '暂停'}
+                    title={isPaused ? '播放' : '暂停'}
+                    onClick={() => setIsPaused(!isPaused)}
+                  >
+                    {isPaused ? <PlayIcon /> : <PauseIcon />}
+                  </button>
+                )}
               </div>
               <button
                 className="hide-tutor-btn"
@@ -245,15 +257,27 @@ export default function KnowledgePage() {
             </div>
           ) : (
             <>
-              <div className="module-tabs">
+              <div className="module-head">
+                <div className="module-title">
+                  <span className="title-bar" />
+                  <span className="module-title-text">{currentModule.name}</span>
+                </div>
+                <button
+                  className="back-to-welcome-btn"
+                  onClick={() => setKnowledgeStarted(false)}
+                  aria-label="返回欢迎页"
+                  title="返回欢迎页"
+                >
+                  <BackTriangleIcon />
+                </button>
                 <div className="tab-buttons">
                   {knowledgeModules.map((mod, index) => (
                     <button
-                      key={mod}
+                      key={mod.name}
                       className={`tab-btn ${index === activeModule ? 'active' : ''}`}
-                      onClick={() => setActiveModule(index)}
+                      onClick={() => selectModule(index)}
                     >
-                      {mod}
+                      {mod.name}
                     </button>
                   ))}
                 </div>
@@ -262,15 +286,19 @@ export default function KnowledgePage() {
               <div className="content-area">
                 <button
                   className="nav-arrow left-arrow"
-                  onClick={handlePrevModule}
-                  disabled={activeModule === 0}
-                  aria-label="上一个模块"
-                  title="上一个模块"
+                  onClick={handlePrevPage}
+                  disabled={activePage === 0}
+                  aria-label="上一页"
+                  title="上一页"
                 >
                   <ChevronLeftIcon />
                 </button>
-                <div className="content-text">
-                  {currentContent.sections.map((section, idx) => (
+                <div className="narrator">
+                  <span className="narrator-dot" />
+                  <img src="/images/Ellipse 33.png" alt="讲解头像" className="narrator-avatar" />
+                </div>
+                <div className="content-card">
+                  {currentSections.map((section, idx) => (
                     <div key={idx} className="content-section">
                       <h3 className="section-heading">{section.heading}</h3>
                       {section.body.split('\n').map((line, lineIdx) =>
@@ -285,21 +313,25 @@ export default function KnowledgePage() {
                 </div>
                 <button
                   className="nav-arrow right-arrow"
-                  onClick={handleNextModule}
-                  disabled={activeModule === knowledgeModules.length - 1}
-                  aria-label="下一个模块"
-                  title="下一个模块"
+                  onClick={handleNextPage}
+                  disabled={activePage === pageCount - 1}
+                  aria-label="下一页"
+                  title="下一页"
                 >
                   <ChevronRightIcon />
                 </button>
               </div>
             </>
           )}
+        </main>
+      </div>
 
-          <div className="ai-dialog">
-            <button className="voice-btn" title="语音输入">
-              <MicrophoneIcon />
-            </button>
+      <footer className="ai-dialog-bar">
+        <div className="ai-dialog">
+          <button className="voice-btn" title="语音输入">
+            <MicrophoneIcon />
+          </button>
+          <div className="dialog-input-wrap">
             <input
               type="text"
               className="dialog-input"
@@ -307,12 +339,12 @@ export default function KnowledgePage() {
               value={dialogInput}
               onChange={(e) => setDialogInput(e.target.value)}
             />
-            <button className="send-btn" title="发送">
+            <button className="send-btn" aria-label="发送" title="发送">
               <SendIcon />
             </button>
           </div>
-        </main>
-      </div>
+        </div>
+      </footer>
     </div>
   )
 }
