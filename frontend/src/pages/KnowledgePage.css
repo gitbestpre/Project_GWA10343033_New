@@ -16,44 +16,57 @@
 /* ---------- 左侧：按钮列 + 导师照片面板 ---------- */
 
 .tutor-zone {
+  position: relative;
   display: flex;
   width: 555px;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.tutor-zone::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/images/ai-tutor.png") center top / cover no-repeat;
+  filter: blur(28px);
+  transform: scale(1.08);
 }
 
 .tutor-action-col {
-  width: 168px;
+  position: relative;
+  width: 167px;
   flex-shrink: 0;
-  background: #d7dfeb;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid #d7dfeb;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  padding: 26px 14px;
-  gap: 26px;
+  padding: 32px 13px;
+  gap: 28px;
 }
 
 .sidebar-action-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
-  height: 46px;
+  gap: 12px;
+  height: 55px;
   padding: 0 14px;
   border: none;
-  border-radius: 8px;
-  background: #ffffff;
-  color: #555555;
-  font-size: 15px;
+  border-radius: 10px;
+  background: #f7f8fa;
+  color: #66707f;
+  font-size: 16px;
   font-weight: 500;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(31, 60, 110, 0.1);
+  box-shadow: 0 2px 6px rgba(31, 60, 110, 0.08);
   transition: background 0.2s, color 0.2s;
   white-space: nowrap;
 }
 
-.sidebar-action-btn:hover,
-.sidebar-action-btn.active {
-  background: #4a90d9;
-  color: #ffffff;
+.sidebar-action-btn:hover {
+  background: #eef1f6;
+  color: #4a90d9;
 }
 
 .tutor-photo-panel {
@@ -75,11 +88,11 @@
 
 .tutor-controls {
   position: absolute;
-  top: 22px;
-  right: 20px;
+  top: 10px;
+  right: 10px;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 26px;
   z-index: 2;
 }
 
@@ -87,18 +100,19 @@
   width: 40px;
   height: 40px;
   border: 2px solid rgba(255, 255, 255, 0.9);
-  background: rgba(214, 226, 246, 0.55);
+  background: rgba(226, 234, 255, 0.45);
   border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6f9bf5;
+  color: #d1ddff;
   box-shadow: 0 2px 6px rgba(31, 60, 110, 0.18);
 }
 
 .control-btn:hover {
-  background: rgba(214, 226, 246, 0.85);
+  background: rgba(226, 234, 255, 0.8);
+  color: #ffffff;
 }
 
 .hide-tutor-btn {
