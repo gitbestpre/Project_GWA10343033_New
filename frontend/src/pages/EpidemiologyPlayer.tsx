@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import StageLayout from '../components/layout/StageLayout'
-import PlayerTopBar from '../components/player/PlayerTopBar'
+import Header from '../components/Header'
 import QuizModal from '../components/player/QuizModal'
 import type { QuizOption } from '../components/player/QuizModal'
 import './EpidemiologyPlayer.css'
@@ -22,8 +21,6 @@ const QUESTIONS: { question: string; options: QuizOption[]; answer: number }[] =
 ]
 
 export default function EpidemiologyPlayer() {
-  const navigate = useNavigate()
-
   const [score] = useState(100)
   const qIndex = 0
   const [feedback, setFeedback] = useState<string | null>(null)
@@ -54,8 +51,8 @@ export default function EpidemiologyPlayer() {
           <span className="epi-badge-pill">案例描述</span>
         </div>
 
-        {/* 顶部状态栏 */}
-        <PlayerTopBar score={score} timeText="20:00" onBack={() => navigate('/case-study')} />
+        {/* 顶部状态栏（全站统一 Header，含阶段标签） */}
+        <Header variant="stats" score={score} timeText="20:00" stageLabel="现场流行病学调查" />
 
         {/* 视频角标 */}
         <span className="epi-video-tag">视频1</span>
