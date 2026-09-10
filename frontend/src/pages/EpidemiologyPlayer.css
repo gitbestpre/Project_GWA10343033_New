@@ -208,6 +208,22 @@
   background: #f4f8ff;
 }
 
+/* 判题后：正确选项 绿 */
+.epi-option.is-correct {
+  border-color: #4caf6f;
+  background: #eefaf2;
+}
+
+/* 判题后：错选 红 */
+.epi-option.is-wrong {
+  border-color: #e06a5b;
+  background: #fdeeee;
+}
+
+.epi-option:disabled {
+  cursor: default;
+}
+
 .epi-option-key {
   flex: none;
   margin-left: 16px;
@@ -226,6 +242,18 @@
 .epi-option-key.is-selected {
   border-color: #618dcf;
   background: #618dcf;
+  color: #fff;
+}
+
+.epi-option-key.is-correct {
+  border-color: #4caf6f;
+  background: #4caf6f;
+  color: #fff;
+}
+
+.epi-option-key.is-wrong {
+  border-color: #e06a5b;
+  background: #e06a5b;
   color: #fff;
 }
 
@@ -269,19 +297,54 @@
   cursor: not-allowed;
 }
 
-/* 反馈条（临时交互提示） */
-.epi-feedback {
+/* 判题结果条（答错时展示正确答案 + 倒计时停留；答对瞬间即跳转） */
+.epi-quiz-result {
   position: absolute;
-  left: 50%;
-  bottom: 36px;
-  transform: translateX(-50%);
-  z-index: 30;
-  border: none;
-  border-radius: 24px;
-  background: rgba(30, 45, 80, 0.85);
-  color: #fff;
-  font-size: 22px;
-  line-height: 48px;
-  padding: 0 34px;
-  cursor: pointer;
+  left: 36px;
+  top: 512px;
+  width: 778px;
+  min-height: 56px;
+  border-radius: 10px;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.epi-quiz-result.is-ok {
+  background: #eefaf2;
+  border: 1px solid #4caf6f;
+}
+
+.epi-quiz-result.is-bad {
+  background: #fdeeee;
+  border: 1px solid #e06a5b;
+}
+
+.epi-quiz-result-text {
+  font-size: 23px;
+  font-weight: 500;
+  line-height: 30px;
+  color: #494e58;
+}
+
+.epi-quiz-result.is-ok .epi-quiz-result-text {
+  color: #2f8a52;
+}
+
+.epi-quiz-result.is-bad .epi-quiz-result-text {
+  color: #c84a3b;
+}
+
+.epi-quiz-result-text b {
+  font-weight: 700;
+}
+
+.epi-quiz-result-count {
+  flex: none;
+  font-size: 20px;
+  color: #c84a3b;
+  white-space: nowrap;
 }
