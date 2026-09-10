@@ -84,46 +84,52 @@ export default function InquiryPanel({ onEnd }: { onEnd?: () => void }) {
   const remaining = PRESET_QA.map((qa, i) => ({ qa, i })).filter(({ i }) => !asked[i])
 
   return (
-    <aside className="inq-panel">
-      {/* 头部 */}
-      <div className="inq-head">
-        <span className="inq-head-icon">💬</span>
-        <span className="inq-head-title">疾病预防控制中心</span>
-      </div>
+    <>
+      {/* 右侧聊天面板：头部 + 消息流（底部操作条为通栏，单独渲染在面板外） */}
+      <aside className="inq-panel">
+        <div className="inq-head">
+          <span className="inq-head-icon">💬</span>
+          <span className="inq-head-title">疾病预防控制中心</span>
+        </div>
 
-      {/* 消息滚动区 */}
-      <div className="inq-scroll" ref={scrollRef}>
-        {messages.map((m) =>
-          m.side === 'prompt' ? (
-            <div key={m.id} className="inq-prompt">
-              {m.text}
+        <div className="inq-scroll" ref={scrollRef}>
+          {messages.map((m) =>
+            m.side === 'prompt' ? (
+              <div key={m.id} className="inq-prompt">
+                {m.text}
+              </div>
+            ) : (
+              <div key={m.id} className={`inq-msg inq-${m.side}`}>
+                {m.side === 'left' && <span className="inq-ava inq-mic">🎙</span>}
+                <div className={`inq-bubble ${m.side === 'right' ? 'is-doctor' : ''}`}>{m.text}</div>
+                {m.side === 'right' && <span className="inq-ava inq-doc">张</span>}
+              </div>
+            ),
+          )}
+          {typing && <div className="inq-typing">对方正在输入…</div>}
+
+          {/* 推荐问题（还有未问项时展示） */}
+          {remaining.length > 0 && !typing && (
+            <div className="inq-suggest">
+              {remaining.map(({ qa, i }) => (
+                <button
+                  key={i}
+                  type="button"
+                  className="inq-suggest-item"
+                  onClick={() => askPreset(i)}
+                >
+                  <span className="inq-mic-dot">🎙</span>
+                  <span className="inq-suggest-text">{qa.question}</span>
+                </button>
+              ))}
             </div>
-          ) : (
-            <div key={m.id} className={`inq-msg inq-${m.side}`}>
-              {m.side === 'left' && <span className="inq-ava inq-mic">🎙</span>}
-              <div className={`inq-bubble ${m.side === 'right' ? 'is-doctor' : ''}`}>{m.text}</div>
-              {m.side === 'right' && <span className="inq-ava inq-doc">张</span>}
-            </div>
-          ),
-        )}
-        {typing && <div className="inq-typing">对方正在输入…</div>}
+          )}
+        </div>
+      </aside>
 
-        {/* 推荐问题（还有未问项时展示） */}
-        {remaining.length > 0 && !typing && (
-          <div className="inq-suggest">
-            {remaining.map(({ qa, i }) => (
-              <button key={i} type="button" className="inq-suggest-item" onClick={() => askPreset(i)}>
-                <span className="inq-mic-dot">🎙</span>
-                <span className="inq-suggest-text">{qa.question}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* 底部：输入 + 发送 + 按住讲话 + 结束问询 */}
-      <div className="inq-foot">
-        <div className="inq-input-row">
+      {/* 底部通栏操作条：左侧工具卡压在视频上，右侧与面板列对齐放“结束问询” */}
+      <div className="inq-dock">
+        <div className="inq-compose">
           <input
             className="inq-input"
             type="text"
@@ -134,19 +140,26 @@ export default function InquiryPanel({ onEnd }: { onEnd?: () => void }) {
               if (e.key === 'Enter') sendFree()
             }}
           />
-          <button type="button" className="inq-send" onClick={sendFree} disabled={!draft.trim() || typing}>
-            <span className="inq-send-arrow">➤</span> 发送
+          <button
+            type="button"
+            className="inq-send"
+            onClick={sendFree}
+            disabled={!draft.trim() || typing}
+          >
+            <span className="inq-send-arrow">✈</span>
+            <span>发送</span>
           </button>
           <button type="button" className="inq-voice">
-            🎙 按住讲话
+            <span className="inq-voice-icon">🎙</span>
+            <span>按住讲话</span>
           </button>
         </div>
-        <div className="inq-end-row">
+        <div className="inq-dock-end">
           <button type="button" className="inq-end-btn" onClick={() => onEnd?.()}>
             结束问询
           </button>
         </div>
       </div>
-    </aside>
+    </>
   )
 }
