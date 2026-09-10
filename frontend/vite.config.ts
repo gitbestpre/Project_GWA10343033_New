@@ -6,32 +6,46 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const frontendDir = fileURLToPath(new URL('.', import.meta.url))
-// 视频素材放在仓库根的 Video/（与 frontend 平级），统一以 /Video/* 访问
+// 媒体素材放在仓库根（与 frontend 平级），统一以 /Video/*、/Audio/* 访问
 const videoSourceDir = path.resolve(frontendDir, '../Video')
+const audioSourceDir = path.resolve(frontendDir, '../Audio')
 
 const MIME: Record<string, string> = {
   '.mp4': 'video/mp4',
   '.webm': 'video/webm',
   '.mov': 'video/quicktime',
   '.m4v': 'video/x-m4v',
+  '.mp3': 'audio/mpeg',
+  '.wav': 'audio/wav',
+  '.m4a': 'audio/mp4',
+  '.aac': 'audio/aac',
+  '.ogg': 'audio/ogg',
 }
 
+/** URL 前缀 -> 仓库内媒体源目录 */
+const MOUNTS: { prefix: string; dir: string }[] = [
+  { prefix: '/Video/', dir: videoSourceDir },
+  { prefix: '/Audio/', dir: audioSourceDir },
+]
+
 /**
- * 让 /Video/* 指向仓库根 Video 目录：
+ * 让 /Video/*、/Audio/* 指向仓库根对应目录：
  * - dev：自定义中间件提供静态文件，支持 HTTP Range（视频拖动 / 分段加载）
- * - build：构建结束后把 Video 拷贝到 dist/Video
+ * - build：构建结束后把媒体目录拷贝到 dist
  * 不依赖 Windows 软链接（此前 public/Video 的 MSYS 相对链接对原生 Node 不可见）。
  */
-function videoAssets(): Plugin {
+function mediaAssets(): Plugin {
   return {
-    name: 'video-assets',
+    name: 'media-assets',
     apply: () => true,
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
-        if (!req.url || !req.url.startsWith('/Video/')) return next()
+        if (!req.url) return next()
         const urlPath = decodeURIComponent(req.url.split('?')[0] || '')
-        const filePath = path.join(videoSourceDir, urlPath.slice('/Video/'.length))
-        if (!filePath.startsWith(videoSourceDir)) return next()
+        const mount = MOUNTS.find((m) => urlPath.startsWith(m.prefix))
+        if (!mount) return next()
+        const filePath = path.join(mount.dir, urlPath.slice(mount.prefix.length))
+        if (!filePath.startsWith(mount.dir)) return next()
         fs.stat(filePath, (err, stat) => {
           if (err || !stat.isFile()) return next()
           const ext = path.extname(filePath).toLowerCase()
@@ -64,16 +78,18 @@ function videoAssets(): Plugin {
     },
     closeBundle() {
       const outDir = path.resolve(frontendDir, 'dist')
-      const dest = path.join(outDir, 'Video')
-      if (fs.existsSync(videoSourceDir)) {
-        fs.cpSync(videoSourceDir, dest, { recursive: true })
+      for (const { prefix, dir } of MOUNTS) {
+        const dest = path.join(outDir, prefix.replace(/^\/|\/$/g, ''))
+        if (fs.existsSync(dir)) {
+          fs.cpSync(dir, dest, { recursive: true })
+        }
       }
     },
   }
 }
 
 export default defineConfig({
-  plugins: [react(), videoAssets()],
+  plugins: [react(), mediaAssets()],
   cacheDir: '/tmp/.vite',
   server: {
     host: '0.0.0.0',

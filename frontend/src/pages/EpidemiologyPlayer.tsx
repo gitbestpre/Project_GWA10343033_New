@@ -2,24 +2,34 @@ import { useEffect, useRef, useState } from 'react'
 import StageLayout from '../components/layout/StageLayout'
 import Header from '../components/Header'
 import QuizModal, { type QuizResult } from '../components/player/QuizModal'
+import DialogueOverlay from '../components/player/DialogueOverlay'
 import { getQuestionById } from '../data/questions'
+import { FIELD_DIALOGUES } from '../data/dialogues'
+import type { DialogueLine } from '../data/dialogues'
 import './EpidemiologyPlayer.css'
 
 /** 答错后正确答案停留时长（秒），到时自动进入下一个视频 */
 const WRONG_HOLD_SECONDS = 5
 
 /**
- * 本阶段编排（顺序播放）：
- * 视频1（案例描述 1.mp4）→ 选择题 H_01 → 视频2（接到报告 2.mp4）。
+ * 本阶段编排（顺序）：
+ * 视频1（案例描述 1.mp4）→ 选择题 H_01 → 视频2（接到报告 2.mp4）→ 接报通话对话
+ * （背景 3.mp4 循环 + 语音 + 字幕，2 条）。
  * 答对立即进入下一视频；答错展示正确答案停留 5 秒后自动进入。
  */
-type Phase =
-  | { kind: 'video'; stage: number }
-  | { kind: 'quiz'; stage: number }
+type PhaseKind = 'video' | 'quiz' | 'dialog'
 
-const STAGES = [
+interface Stage {
+  video: string
+  badge: string
+  quizId?: string | null
+  /** 该视频结束后播放的对话（无则停留在结束画面） */
+  dialogues?: DialogueLine[]
+}
+
+const STAGES: Stage[] = [
   { video: '/Video/1.mp4', badge: '案例描述', quizId: 'H_01' },
-  { video: '/Video/2.mp4', badge: '接到报告', quizId: null },
+  { video: '/Video/2.mp4', badge: '接到报告', quizId: null, dialogues: FIELD_DIALOGUES },
 ]
 
 /** 判断所选集合是否与标准答案集合完全一致（顺序无关，兼容单选/多选） */
@@ -31,17 +41,15 @@ function isCorrectAnswer(selected: string[], answerKeys: string[]) {
 export default function EpidemiologyPlayer() {
   const [score] = useState(100)
 
-  // 当前阶段（0=视频1及考核，1=视频2）与阶段内是"放视频"还是"答题"
   const [stage, setStage] = useState(0)
-  const [phaseKind, setPhaseKind] = useState<'video' | 'quiz'>('video')
-  const phase: Phase = { kind: phaseKind, stage }
+  const [phaseKind, setPhaseKind] = useState<PhaseKind>('video')
   const current = STAGES[stage]
 
   // 判题结果与倒计时
   const [result, setResult] = useState<QuizResult | null>(null)
   const [countdown, setCountdown] = useState(WRONG_HOLD_SECONDS)
 
-  // 视频播放状态：进入视频阶段即播，播放结束后：有题则出题，无题为最后一阶段
+  // 视频播放状态：进入视频阶段即播，播放结束后：有题出题，有对话进对话，否则停留
   const videoRef = useRef<HTMLVideoElement>(null)
   const [videoEnded, setVideoEnded] = useState(false)
   const [needPlay, setNeedPlay] = useState(false)
@@ -73,8 +81,10 @@ export default function EpidemiologyPlayer() {
     setVideoEnded(true)
     if (current.quizId) {
       setPhaseKind('quiz') // 本视频后有考核 → 出题
+    } else if (current.dialogues && current.dialogues.length > 0) {
+      setPhaseKind('dialog') // 视频2 → 接报通话对话
     }
-    // 无考核即最后视频，停留在结束画面
+    // 否则停留在结束画面
   }
 
   const goNextVideo = () => {
@@ -88,7 +98,7 @@ export default function EpidemiologyPlayer() {
     const q = current.quizId ? getQuestionById(current.quizId) : null
     const correct = !!q && isCorrectAnswer(selectedKeys, q.answerKeys)
     if (correct) {
-      // 答对：立即切到下一个视频（结果条不展示倒计时）
+      // 答对：立即切到下一个视频
       setResult({ correct: true })
       goNextVideo()
     } else {
@@ -99,26 +109,30 @@ export default function EpidemiologyPlayer() {
   }
 
   const q = current.quizId ? getQuestionById(current.quizId) : null
-  const showQuiz = phase.kind === 'quiz' && q
+  const showQuiz = phaseKind === 'quiz' && q
+  const showDialog = phaseKind === 'dialog' && current.dialogues
+  const quizTotal = STAGES.filter((s) => s.quizId).length
 
   return (
     <StageLayout background="#000">
       <div className="epi-stage">
-        {/* 视频层：每个视频阶段铺满 1920x1080 舞台，进入即自动播放 */}
-        <video
-          key={current.video}
-          ref={videoRef}
-          className="epi-video"
-          src={current.video}
-          autoPlay
-          muted
-          playsInline
-          preload="auto"
-          onEnded={handleVideoEnded}
-          onPlay={() => setNeedPlay(false)}
-        />
+        {/* 主视频层：视频/答题阶段铺满舞台；对话阶段由 DialogueOverlay 自带 3.mp4 背景 */}
+        {phaseKind !== 'dialog' && (
+          <video
+            key={current.video}
+            ref={videoRef}
+            className="epi-video"
+            src={current.video}
+            autoPlay
+            muted
+            playsInline
+            preload="auto"
+            onEnded={handleVideoEnded}
+            onPlay={() => setNeedPlay(false)}
+          />
+        )}
 
-        {/* 左上角阶段胶囊徽标（随视频阶段变化） */}
+        {/* 左上角阶段胶囊徽标（随阶段变化） */}
         <div className="epi-badge">
           <img
             className="epi-badge-avatar"
@@ -143,16 +157,19 @@ export default function EpidemiologyPlayer() {
         )}
 
         {/* 知识考核弹窗：仅在当前视频播放结束、且该视频配有考题时出现 */}
-        {showQuiz && (
+        {showQuiz && q && (
           <QuizModal
             key={`${stage}-${q.id}`}
             index={stage + 1}
-            total={STAGES.filter((s) => s.quizId).length}
+            total={quizTotal}
             question={q}
             result={result ? { ...result, countdown } : null}
             onSubmit={handleSubmit}
           />
         )}
+
+        {/* 视频2 结束后的接报通话对话：背景 3.mp4 循环 + 语音 + 字幕（2 条） */}
+        {showDialog && <DialogueOverlay lines={current.dialogues!} />}
       </div>
     </StageLayout>
   )

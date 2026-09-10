@@ -348,3 +348,249 @@
   color: #c84a3b;
   white-space: nowrap;
 }
+
+/* ============================================================
+   接报通话对话（视频2 结束后；背景 3.mp4 循环 + 语音 + 字幕）
+   ============================================================ */
+.dlg-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  width: 1920px;
+  height: 1080px;
+}
+
+.dlg-bg {
+  position: absolute;
+  inset: 0;
+  width: 1920px;
+  height: 1080px;
+  object-fit: fill;
+  background: #000;
+}
+
+/* 上下渐变压暗，保证字幕/控件可读 */
+.dlg-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0) 22%),
+    linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 34%);
+  pointer-events: none;
+}
+
+/* 顶部通话状态 + 进度点 */
+.dlg-top {
+  position: absolute;
+  top: 104px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 3;
+}
+
+.dlg-call-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #4caf6f;
+  box-shadow: 0 0 0 4px rgba(76, 175, 111, 0.28);
+}
+
+.dlg-call-title {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.dlg-dots {
+  display: flex;
+  gap: 8px;
+  margin-left: 6px;
+}
+
+.dlg-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.38);
+}
+
+.dlg-dot.is-active {
+  background: #6ab3ff;
+  box-shadow: 0 0 0 3px rgba(106, 179, 255, 0.3);
+}
+
+.dlg-dot.is-done {
+  background: #4caf6f;
+}
+
+/* 对话行 */
+.dlg-row {
+  position: absolute;
+  bottom: 156px;
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  z-index: 3;
+  max-width: 1180px;
+}
+
+.dlg-left {
+  left: 70px;
+}
+
+.dlg-right {
+  right: 70px;
+  flex-direction: row-reverse;
+}
+
+.dlg-center {
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 新气泡入场动画 */
+.dlg-row {
+  animation: dlg-in 0.32s ease both;
+}
+
+@keyframes dlg-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dlg-right.dlg-row {
+  animation-name: dlg-in-r;
+}
+
+@keyframes dlg-in-r {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dlg-avatar {
+  flex: none;
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 38px;
+  font-weight: 600;
+  line-height: 82px;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.32);
+  user-select: none;
+}
+
+.dlg-bubble-wrap {
+  display: flex;
+  flex-direction: column;
+  max-width: 1040px;
+}
+
+.dlg-right .dlg-bubble-wrap {
+  align-items: flex-end;
+}
+
+.dlg-role {
+  margin: 0 6px 8px;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 500;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+}
+
+.dlg-bubble {
+  position: relative;
+  background: rgba(255, 255, 255, 0.96);
+  color: #2b3038;
+  border-radius: 18px;
+  padding: 22px 30px;
+  font-size: 27px;
+  line-height: 1.55;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+}
+
+.dlg-bubble.is-light {
+  background: rgba(207, 231, 255, 0.97);
+}
+
+/* 气泡小尖角 */
+.dlg-left .dlg-bubble::before {
+  content: '';
+  position: absolute;
+  left: -14px;
+  bottom: 26px;
+  border: 8px solid transparent;
+  border-right-color: rgba(255, 255, 255, 0.96);
+  border-left: 0;
+}
+
+.dlg-right .dlg-bubble::after {
+  content: '';
+  position: absolute;
+  right: -14px;
+  bottom: 26px;
+  border: 8px solid transparent;
+  border-left-color: rgba(207, 231, 255, 0.97);
+  border-right: 0;
+}
+
+/* 底部操作区 */
+.dlg-bottom {
+  position: absolute;
+  left: 0;
+  bottom: 44px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  z-index: 4;
+}
+
+.dlg-next-btn,
+.dlg-start-btn {
+  border: none;
+  border-radius: 40px;
+  padding: 16px 58px;
+  background: rgba(70, 120, 200, 0.92);
+  color: #fff;
+  font-size: 26px;
+  line-height: 1.2;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.dlg-start-btn {
+  background: rgba(30, 45, 80, 0.9);
+}
+
+.dlg-next-btn:hover,
+.dlg-start-btn:hover {
+  filter: brightness(1.08);
+}
+
+.dlg-end {
+  color: #fff;
+  font-size: 26px;
+  letter-spacing: 4px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
