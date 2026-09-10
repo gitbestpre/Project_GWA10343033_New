@@ -20,9 +20,20 @@ export default function Header({
 }) {
   const navigate = useNavigate()
   const location = useLocation()
-  const isHomePage = location.pathname === '/'
 
-  const handleBack = () => navigate(-1)
+  // 返回目标按应用导航层级固定映射，避免依赖浏览历史
+  //（刷新或直接打开 URL 时 navigate(-1) 会失效或返回到应用外）。
+  const BACK_TARGETS: Record<string, string> = {
+    '/case-study': '/',
+    '/knowledge': '/',
+  }
+  const backTo = BACK_TARGETS[location.pathname]
+  const isHomePage = location.pathname === '/'
+  const backDisabled = isHomePage || backTo === undefined
+
+  const handleBack = () => {
+    if (backTo !== undefined) navigate(backTo)
+  }
 
   return (
     <header className="app-header">
@@ -72,10 +83,10 @@ export default function Header({
           <button
             type="button"
             className="hd-tool"
-            title={isHomePage ? '撤销' : '返回上一页'}
+            title={backDisabled ? '返回' : '返回上一页'}
             aria-label="返回"
-            onClick={isHomePage ? undefined : handleBack}
-            disabled={isHomePage}
+            onClick={backDisabled ? undefined : handleBack}
+            disabled={backDisabled}
           >
             <img src="/images/icons/nav/nav-redo.svg" alt="" className="hd-tool-img" />
           </button>
