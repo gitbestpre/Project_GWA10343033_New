@@ -1,6 +1,18 @@
+import { useNavigate, useLocation } from 'react-router-dom'
 import './Header.css'
 
 export default function Header() {
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  // 判断是否在首页
+  const isHomePage = location.pathname === '/'
+
+  // 返回上一页
+  const handleBack = () => {
+    navigate(-1)
+  }
+
   return (
     <header className="app-header">
       <div className="header-left">
@@ -29,7 +41,14 @@ export default function Header() {
         <div className="tool-buttons">
           <button className="tool-btn" title="帮助">?</button>
           <button className="tool-btn" title="设置">⚙</button>
-          <button className="tool-btn" title="撤销">↺</button>
+          <button
+            className="tool-btn"
+            title={isHomePage ? "撤销" : "返回上一页"}
+            onClick={isHomePage ? undefined : handleBack}
+            disabled={isHomePage}
+          >
+            ↺
+          </button>
           <button className="tool-btn" title="最小化">—</button>
           <button className="tool-btn" title="关闭">✕</button>
         </div>
@@ -37,3 +56,4 @@ export default function Header() {
     </header>
   )
 }
+
