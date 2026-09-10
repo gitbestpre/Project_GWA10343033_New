@@ -182,10 +182,9 @@
 .epi-nav-btn {
   width: 31px;
   height: 31px;
+  border: none;
   border-radius: 50%;
-  border: 1px solid #e5eaf2;
-  background: rgba(255, 255, 255, 0.92);
-  color: #a5b0c5;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -193,9 +192,24 @@
   cursor: pointer;
 }
 
+.epi-tool-img {
+  display: block;
+  height: 20px;
+  width: auto;
+  pointer-events: none;
+}
+
+/* 齿轮切图 32x36 留白较多、横线 19x5，按 Figma 视觉校正 */
+.epi-tool-gear {
+  height: 38px;
+}
+
+.epi-tool-minus {
+  height: 5px;
+}
+
 .epi-nav-btn:hover {
-  color: #618dcf;
-  border-color: #cdd8ea;
+  background: rgba(255, 255, 255, 0.35);
 }
 
 /* ---------- 左上角阶段胶囊徽标 ---------- */
