@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
+import StageLayout from '../components/layout/StageLayout'
 import './KnowledgePage.css'
 
 type Section = { heading: string; body: string }
@@ -215,14 +216,6 @@ function ChevronRightIcon() {
   )
 }
 
-function BackTriangleIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-      <polygon points="20 4 4 12 20 20 20 4" />
-    </svg>
-  )
-}
-
 function SpeechBubbleIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
@@ -270,6 +263,7 @@ export default function KnowledgePage() {
   }
 
   return (
+    <StageLayout background="#e9eff9">
     <div className="knowledge-page">
       <Header />
       <div className="knowledge-layout">
@@ -406,5 +400,6 @@ export default function KnowledgePage() {
         </div>
       </footer>
     </div>
+    </StageLayout>
   )
 }

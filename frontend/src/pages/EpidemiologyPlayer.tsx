@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import StageLayout from '../components/layout/StageLayout'
 import PlayerTopBar from '../components/player/PlayerTopBar'
 import QuizModal from '../components/player/QuizModal'
 import type { QuizOption } from '../components/player/QuizModal'
-import { useStageScale } from '../components/player/useStageScale'
 import './EpidemiologyPlayer.css'
 
 /** #2(171:5493) 知识考核 01/02 的题目数据，取自 Figma 文案 */
@@ -23,7 +23,6 @@ const QUESTIONS: { question: string; options: QuizOption[]; answer: number }[] =
 
 export default function EpidemiologyPlayer() {
   const navigate = useNavigate()
-  const scale = useStageScale(1920, 1080)
 
   const [score] = useState(100)
   const qIndex = 0
@@ -40,11 +39,8 @@ export default function EpidemiologyPlayer() {
   }
 
   return (
-    <div className="epi-viewport">
-      <div
-        className="epi-stage"
-        style={{ transform: `translate(-50%, -50%) scale(${scale})` }}
-      >
+    <StageLayout background="#000">
+      <div className="epi-stage">
         {/* 视频层（以 #2 场景帧占位，接入时替换为 <video src="/Video/1.mp4" />） */}
         <img className="epi-video" src="/images/epidemiology/scene-1.png" alt="案例视频" />
 
@@ -81,6 +77,6 @@ export default function EpidemiologyPlayer() {
           </button>
         )}
       </div>
-    </div>
+    </StageLayout>
   )
 }

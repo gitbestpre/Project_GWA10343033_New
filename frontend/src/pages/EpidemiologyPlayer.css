@@ -1,21 +1,10 @@
-/* 流行病学调查 - 1920x1080 仿真播放器（对齐 Figma 171:5493） */
+/* 流行病学调查 - 1920x1080 仿真播放器（对齐 Figma 171:5493）
+   固定舞台 / 等比缩放由公共 StageLayout 提供，这里只铺满舞台画布。 */
 
-.epi-viewport {
-  position: fixed;
-  inset: 0;
-  background: #000;
-  overflow: hidden;
-  font-family: 'HarmonyOS Sans SC', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-}
-
-/* 固定设计尺寸的舞台，由 JS 计算 scale 后等比缩放居中 */
 .epi-stage {
-  position: absolute;
-  top: 50%;
-  left: 50%;
+  position: relative;
   width: 1920px;
   height: 1080px;
-  transform-origin: center center;
   background: #000;
   overflow: hidden;
   color: #494e58;

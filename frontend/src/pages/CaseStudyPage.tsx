@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
+import StageLayout from '../components/layout/StageLayout'
 import './CaseStudyPage.css'
 
 const modules = [
@@ -37,6 +38,7 @@ export default function CaseStudyPage() {
   const navigate = useNavigate()
 
   return (
+    <StageLayout scroll background="linear-gradient(135deg, #E8EDF2 0%, #F0F4F8 100%)">
     <div className="case-study-page">
       <Header variant="stats" />
       <main className="case-study-content">
@@ -66,5 +68,6 @@ export default function CaseStudyPage() {
         </div>
       </main>
     </div>
+    </StageLayout>
   )
 }

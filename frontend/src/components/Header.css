@@ -164,55 +164,8 @@
   opacity: 0.7;
 }
 
-/* ---------- 响应式 ---------- */
-@media (max-width: 1280px) {
-  .hd-title-cn {
-    font-size: 19px;
-  }
-  .hd-title-en {
-    font-size: 9px;
-  }
-  .hd-logo {
-    height: 44px;
-  }
-  .hd-stat-label,
-  .hd-stat-value {
-    font-size: 18px;
-  }
-}
+/* ---------- 适配说明 ----------
+   全站已锁定 1920x1080 固定舞台（StageLayout 等比缩放），顶栏不再需要
+   基于浏览器视口宽度的媒体查询——窄窗口下由舞台整体缩放，内部保持 1:1，
+   此前的 @media (max-width) 断点会让舞台内部误缩小，已移除。 */
 
-@media (max-width: 1024px) {
-  .hd-divider {
-    margin: 0 12px;
-  }
-  .hd-tools {
-    gap: 8px;
-  }
-  .hd-right {
-    gap: 12px;
-  }
-}
-
-@media (max-width: 768px) {
-  .app-header {
-    height: 60px;
-    padding: 0 12px;
-  }
-  .hd-logo {
-    height: 36px;
-  }
-  .hd-title-en {
-    display: none;
-  }
-  .hd-title-cn {
-    font-size: 16px;
-  }
-  .hd-stat {
-    height: 36px;
-    padding: 0 10px;
-  }
-  .hd-stat-label,
-  .hd-stat-value {
-    font-size: 15px;
-  }
-}

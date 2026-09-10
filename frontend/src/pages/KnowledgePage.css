@@ -1,5 +1,7 @@
 .knowledge-page {
-  height: 100vh;
+  position: relative;
+  width: 1920px;
+  height: 1080px;
   overflow: hidden;
   background: #e9eff9;
   display: flex;
@@ -435,7 +437,7 @@
   align-items: center;
   gap: 14px;
   width: 908px;
-  max-width: calc(100vw - 80px);
+  max-width: calc(1920px - 80px);
 }
 
 .voice-btn {

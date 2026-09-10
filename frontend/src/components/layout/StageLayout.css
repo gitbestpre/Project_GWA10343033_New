@@ -1,0 +1,39 @@
+/* ==========================================================================
+   全站固定舞台布局（1920x1080 设计稿 + 等比缩放 + 居中黑边）
+   所有页面统一套用 StageLayout，内部坐标恒为 1920x1080。
+   ========================================================================== */
+
+/* 视口层：铺满整个浏览器窗口，黑底，裁掉舞台之外的区域（黑边） */
+.stage-viewport {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  overflow: hidden;
+}
+
+/* 画布层：恒定设计尺寸，JS 通过 transform 等比缩放并居中。
+   transform 会创建新的包含块，内部 position:fixed/sticky 都相对此舞台计算。 */
+.stage-canvas {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: center center;
+  overflow: hidden;
+  background: #f0f4f8;
+  color: #333333;
+  font-family: 'HarmonyOS Sans SC', -apple-system, BlinkMacSystemFont,
+    'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 流式页面：内容超过 1080 高时在舞台内部纵向滚动（滚动条随舞台等比缩放） */
+.stage-canvas.is-scrollable {
+  overflow-y: auto;
+  overflow-x: hidden;
+}

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
+import StageLayout from '../components/layout/StageLayout'
 import './HomePage.css'
 
 const modules = [
@@ -23,6 +24,7 @@ export default function HomePage() {
   const navigate = useNavigate()
 
   return (
+    <StageLayout scroll background="linear-gradient(135deg, #E8EDF2 0%, #F0F4F8 100%)">
     <div className="home-page">
       <Header />
       <main className="home-content">
@@ -52,5 +54,6 @@ export default function HomePage() {
         </div>
       </main>
     </div>
+    </StageLayout>
   )
 }
