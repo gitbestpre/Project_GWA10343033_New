@@ -31,6 +31,14 @@ AUDIO_SUBDIR = "现场流行病学调查"
 # 本阶段只取前 2 条对话（王医师、张医生）；后续阶段需要更多时调整此处
 LIMIT = 2
 
+# 每条对话对应的背景视频（3.mp4 / 4.mp4 本身无音轨，仅作画面）。
+# 未列出的 ID 默认用 3.mp4。
+VIDEO_BY_ID = {
+    "0": "/Video/3.mp4",  # 王医师（接听方）
+    "1": "/Video/4.mp4",  # 张医生（报告方）
+}
+DEFAULT_VIDEO = "/Video/3.mp4"
+
 NS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
 ns = {"a": NS}
 
@@ -96,6 +104,7 @@ def main():
             "gender": gender or None,
             "text": content,
             "audio": f"/Audio/{AUDIO_SUBDIR}/{audio_name_for_id(raw_id)}",
+            "video": VIDEO_BY_ID.get(raw_id, DEFAULT_VIDEO),
         })
 
     dialogues = parsed[:LIMIT]
@@ -116,6 +125,8 @@ def main():
     lines.append("  text: string")
     lines.append("  /** 语音文件地址（/Audio/...） */")
     lines.append("  audio: string")
+    lines.append("  /** 该条对话的背景视频（3.mp4 / 4.mp4 本身无音轨） */")
+    lines.append("  video: string")
     lines.append("}")
     lines.append("")
     lines.append("/** 视频2（接报电话）结束后的对话，仅前 2 条 */")

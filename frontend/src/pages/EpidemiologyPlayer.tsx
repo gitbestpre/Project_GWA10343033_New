@@ -54,7 +54,8 @@ export default function EpidemiologyPlayer() {
   const [videoEnded, setVideoEnded] = useState(false)
   const [needPlay, setNeedPlay] = useState(false)
 
-  // 切到新视频阶段时重置并尝试自动播放
+  // 切到新视频阶段时重置并尝试有声自动播放；
+  // 首次进入若被浏览器自动播放策略拦截（带声音需用户手势），显示“点击播放视频”。
   useEffect(() => {
     if (phaseKind !== 'video') return
     setVideoEnded(false)
@@ -124,7 +125,6 @@ export default function EpidemiologyPlayer() {
             className="epi-video"
             src={current.video}
             autoPlay
-            muted
             playsInline
             preload="auto"
             onEnded={handleVideoEnded}
@@ -150,7 +150,12 @@ export default function EpidemiologyPlayer() {
           <button
             type="button"
             className="epi-play-hint"
-            onClick={() => videoRef.current?.play().catch(() => {})}
+            onClick={() => {
+              const el = videoRef.current
+              if (!el) return
+              el.muted = false // 用户手势后带声音播放
+              el.play().catch(() => {})
+            }}
           >
             点击播放视频
           </button>

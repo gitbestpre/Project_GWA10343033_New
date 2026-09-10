@@ -51,6 +51,8 @@ export default function DialogueOverlay({
   const line = !finished && index < lines.length ? lines[index] : null
   const side = line ? (ROLE_SIDE[line.role] ?? 'left') : 'left'
   const color = line ? (ROLE_COLOR[line.role] ?? '#3f7fd6') : '#3f7fd6'
+  // 背景视频随当前条切换（3.mp4 / 4.mp4）；结束后停在最后一条的画面
+  const bgVideo = lines[Math.min(index, Math.max(lines.length - 1, 0))]?.video ?? '/Video/3.mp4'
 
   const playCurrent = () => {
     const el = audioRef.current
@@ -115,12 +117,12 @@ export default function DialogueOverlay({
 
   return (
     <div className="dlg-layer">
-      {/* 背景视频：3.mp4 静音循环，铺满舞台 */}
+      {/* 背景视频：随对话条切换（3.mp4 / 4.mp4，本身无音轨），循环铺满舞台 */}
       <video
+        key={bgVideo}
         className="dlg-bg"
-        src="/Video/3.mp4"
+        src={bgVideo}
         autoPlay
-        muted
         loop
         playsInline
         preload="auto"
