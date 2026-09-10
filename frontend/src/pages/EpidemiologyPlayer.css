@@ -17,6 +17,24 @@
   width: 1920px;
   height: 1080px;
   object-fit: fill;
+  background: #000;
+}
+
+/* 自动播放被拦截时的居中点播提示（正常自动播放成功时不出现） */
+.epi-play-hint {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 30;
+  border: none;
+  border-radius: 40px;
+  padding: 22px 56px;
+  background: rgba(30, 45, 80, 0.82);
+  color: #fff;
+  font-size: 30px;
+  line-height: 1.2;
+  cursor: pointer;
 }
 
 .epi-video-tag {
