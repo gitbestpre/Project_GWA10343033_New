@@ -38,7 +38,7 @@ export default function CaseStudyPage() {
 
   return (
     <div className="case-study-page">
-      <Header />
+      <Header variant="stats" />
       <main className="case-study-content">
         <div className="page-title-section">
           <div className="title-bar"></div>
