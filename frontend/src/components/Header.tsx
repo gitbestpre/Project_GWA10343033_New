@@ -5,8 +5,9 @@ type HeaderVariant = 'simple' | 'stats'
 
 /**
  * 全局顶部栏 —— 对齐 Figma 顶栏规范（73px 高）
- * - simple：仅右侧 5 个线性图标（首页 / 知识宣教等浏览页）
+ * - simple：仅右侧 5 个图标（首页 / 知识宣教等浏览页）
  * - stats：右侧含「目前得分 / 操作用时」浅蓝卡片（案例学习 / 学习页）
+ * 右侧 5 个图标使用从 Figma 导出的原始 SVG 切图（含微投影）。
  */
 export default function Header({
   variant = 'simple',
@@ -63,17 +64,10 @@ export default function Header({
 
         <nav className="hd-tools">
           <button type="button" className="hd-tool" title="帮助" aria-label="帮助">
-            <svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="9.2" />
-              <path d="M9.6 9.2a2.4 2.4 0 1 1 3.2 2.3c-.8.3-1 .8-1 1.6" strokeLinecap="round" />
-              <circle cx="12" cy="17" r="0.6" fill="currentColor" stroke="none" />
-            </svg>
+            <img src="/images/icons/nav/nav-help.svg" alt="" className="hd-tool-img" />
           </button>
           <button type="button" className="hd-tool" title="设置" aria-label="设置">
-            <svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <circle cx="12" cy="12" r="3.2" />
-              <path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.4 5.4l1.7 1.7M16.9 16.9l1.7 1.7M18.6 5.4l-1.7 1.7M7.1 16.9l-1.7 1.7" strokeLinecap="round" />
-            </svg>
+            <img src="/images/icons/nav/nav-gear.svg" alt="" className="hd-tool-img hd-tool-gear" />
           </button>
           <button
             type="button"
@@ -83,20 +77,13 @@ export default function Header({
             onClick={isHomePage ? undefined : handleBack}
             disabled={isHomePage}
           >
-            <svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M9 5L4 10l5 5" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M4 10h10a6 6 0 0 1 6 6v2" strokeLinecap="round" />
-            </svg>
+            <img src="/images/icons/nav/nav-redo.svg" alt="" className="hd-tool-img" />
           </button>
           <button type="button" className="hd-tool" title="最小化" aria-label="最小化">
-            <svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M5 12h14" strokeLinecap="round" />
-            </svg>
+            <img src="/images/icons/nav/nav-minus.svg" alt="" className="hd-tool-img hd-tool-minus" />
           </button>
           <button type="button" className="hd-tool" title="关闭" aria-label="关闭">
-            <svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
-            </svg>
+            <img src="/images/icons/nav/nav-close.svg" alt="" className="hd-tool-img" />
           </button>
         </nav>
       </div>

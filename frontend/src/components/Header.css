@@ -117,7 +117,7 @@
   letter-spacing: 0.5px;
 }
 
-/* ---------- 工具图标组（Figma：浅蓝灰线性图标，无圆底） ---------- */
+/* ---------- 工具图标组（Figma 切图，#A5B0C5 线性图标含微投影） ---------- */
 .hd-tools {
   display: flex;
   align-items: center;
@@ -125,28 +125,43 @@
 }
 
 .hd-tool {
-  width: 34px;
-  height: 34px;
+  width: 31px;
+  height: 31px;
   padding: 0;
   border: none;
   background: transparent;
-  color: #a5b0c5;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   border-radius: 50%;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition: background 0.15s ease;
+}
+
+.hd-tool-img {
+  display: block;
+  height: 20px;
+  width: auto;
+  pointer-events: none;
+}
+
+/* 齿轮切图为 32x36 双齿轮叠层、实际图形约 18x19，放大使其视觉尺寸与问号等大；
+   横线按原始 19x5 比例 */
+.hd-tool-gear {
+  height: 38px;
+}
+
+.hd-tool-minus {
+  height: 5px;
 }
 
 .hd-tool:hover:not(:disabled) {
-  color: #618dcf;
   background: #f2f5fa;
 }
 
 .hd-tool:disabled {
   cursor: default;
-  opacity: 0.85;
+  opacity: 0.7;
 }
 
 /* ---------- 响应式 ---------- */
