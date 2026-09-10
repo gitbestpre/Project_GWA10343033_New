@@ -37,18 +37,6 @@
   cursor: pointer;
 }
 
-.epi-video-tag {
-  position: absolute;
-  left: 966px;
-  top: 927px;
-  font-size: 64px;
-  font-weight: 700;
-  line-height: 96px;
-  color: #fff;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
-  pointer-events: none;
-}
-
 /* ---------- 左上角阶段胶囊徽标 ---------- */
 .epi-badge {
   position: absolute;

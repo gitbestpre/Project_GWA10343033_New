@@ -79,9 +79,6 @@ export default function EpidemiologyPlayer() {
         {/* 顶部状态栏（全站统一 Header，含阶段标签） */}
         <Header variant="stats" score={score} timeText="20:00" stageLabel="现场流行病学调查" />
 
-        {/* 视频角标 */}
-        <span className="epi-video-tag">视频1</span>
-
         {/* 自动播放被浏览器拦截时的点击播放提示（正常情况下不出现） */}
         {needPlay && !videoEnded && (
           <button
