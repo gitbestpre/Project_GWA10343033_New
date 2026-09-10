@@ -2,26 +2,24 @@ import { useEffect, useRef, useState } from 'react'
 import StageLayout from '../components/layout/StageLayout'
 import Header from '../components/Header'
 import QuizModal from '../components/player/QuizModal'
-import type { QuizOption } from '../components/player/QuizModal'
+import { getQuestionById } from '../data/questions'
 import './EpidemiologyPlayer.css'
 
 /** 本阶段视频：进入流行病学调查即播放，播完弹出知识考核 */
 const VIDEO_SRC = '/Video/1.mp4'
 
-/** #2(171:5493) 知识考核 01/02 的题目数据，取自 Figma 文案 */
-const QUESTIONS: { question: string; options: QuizOption[]; answer: number }[] = [
-  {
-    question: '如果您是接诊医生，您觉得现在最应该做什么?',
-    options: [
-      { key: 'A', text: '向医院院长报告' },
-      { key: 'B', text: '找其他医生来帮忙' },
-      { key: 'C', text: '向当地食品安全监督管理、卫生行政部门报告情况' },
-      { key: 'D', text: '联系患者所在社区或单位' },
-      { key: 'E', text: '联系酒店' },
-    ],
-    answer: 2,
-  },
-]
+/**
+ * 本视频对应的考核题（题号取自《...选择题.xlsx》）。
+ * 视频1（案例描述）后考 H_01；后续若按视频配题，把对应题号加入此数组即可，
+ * 题目与答案均来自 src/data/questions.ts（由 xlsx 自动生成）。
+ */
+const QUIZ_IDS = ['H_01']
+
+/** 判断所选集合是否与标准答案集合完全一致（顺序无关，兼容单选/多选） */
+function isCorrectAnswer(selected: string[], answerKeys: string[]) {
+  if (selected.length !== answerKeys.length) return false
+  return answerKeys.every((k) => selected.includes(k))
+}
 
 export default function EpidemiologyPlayer() {
   const [score] = useState(100)
@@ -40,10 +38,10 @@ export default function EpidemiologyPlayer() {
     el.play().catch(() => setNeedPlay(true))
   }, [])
 
-  const q = QUESTIONS[qIndex]
+  const q = getQuestionById(QUIZ_IDS[qIndex])
 
-  const handleSubmit = (selected: number) => {
-    if (selected === q.answer) {
+  const handleSubmit = (selectedKeys: string[]) => {
+    if (q && isCorrectAnswer(selectedKeys, q.answerKeys)) {
       setFeedback('回答正确')
     } else {
       setFeedback('回答错误，请重新选择')
@@ -90,14 +88,13 @@ export default function EpidemiologyPlayer() {
           </button>
         )}
 
-        {/* 知识考核弹窗：仅在视频播放结束后出现 */}
-        {videoEnded && (
+        {/* 知识考核弹窗：仅在视频播放结束后出现，题目来自 xlsx 题库 */}
+        {videoEnded && q && (
           <QuizModal
-            key={qIndex}
+            key={q.id}
             index={qIndex + 1}
-            total={2}
-            question={q.question}
-            options={q.options}
+            total={QUIZ_IDS.length}
+            question={q}
             onSubmit={handleSubmit}
           />
         )}

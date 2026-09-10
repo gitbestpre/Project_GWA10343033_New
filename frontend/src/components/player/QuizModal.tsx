@@ -1,27 +1,35 @@
 import { useState } from 'react'
+import type { QuizQuestion } from '../../data/questions'
 
-export interface QuizOption {
-  /** 选项字母，如 A / B / C */
-  key: string
-  text: string
-}
+export type { QuizOption, QuizQuestion } from '../../data/questions'
 
 export default function QuizModal({
   index,
   total,
   question,
-  options,
   onSubmit,
 }: {
   /** 当前题号（从 1 开始） */
   index: number
   total: number
-  question: string
-  options: QuizOption[]
-  onSubmit: (selectedIndex: number) => void
+  question: QuizQuestion
+  /** 提交所选选项字母（单选 1 个，多选多个），由父组件判题 */
+  onSubmit: (selectedKeys: string[]) => void
 }) {
-  const [selected, setSelected] = useState<number | null>(null)
+  const multiple = question.type === 'multiple'
+  const [selected, setSelected] = useState<string[]>([])
 
+  const toggle = (key: string) => {
+    if (multiple) {
+      setSelected((prev) =>
+        prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
+      )
+    } else {
+      setSelected([key])
+    }
+  }
+
+  const isChosen = (key: string) => selected.includes(key)
   const pad = (n: number) => String(n).padStart(2, '0')
 
   return (
@@ -36,25 +44,25 @@ export default function QuizModal({
               <span className="epi-quiz-page-total"> / {pad(total)}</span>
             </span>
           </div>
-          <span className="epi-quiz-type">单选题</span>
+          <span className="epi-quiz-type">{multiple ? '多选题' : '单选题'}</span>
         </div>
 
         {/* 题干 */}
         <h2 className="epi-quiz-question">
           <span className="epi-quiz-qdot" />
-          {question}
+          {question.question}
         </h2>
 
         {/* 选项列表 */}
         <ul className="epi-quiz-options">
-          {options.map((opt, i) => (
+          {question.options.map((opt) => (
             <li key={opt.key}>
               <button
                 type="button"
-                className={`epi-option ${selected === i ? 'is-selected' : ''}`}
-                onClick={() => setSelected(i)}
+                className={`epi-option ${isChosen(opt.key) ? 'is-selected' : ''}`}
+                onClick={() => toggle(opt.key)}
               >
-                <span className={`epi-option-key ${selected === i ? 'is-selected' : ''}`}>
+                <span className={`epi-option-key ${isChosen(opt.key) ? 'is-selected' : ''}`}>
                   {opt.key}
                 </span>
                 <span className="epi-option-text">{opt.text}</span>
@@ -67,8 +75,8 @@ export default function QuizModal({
         <button
           type="button"
           className="epi-quiz-submit"
-          disabled={selected === null}
-          onClick={() => selected !== null && onSubmit(selected)}
+          disabled={selected.length === 0}
+          onClick={() => onSubmit(selected)}
         >
           提交
         </button>
