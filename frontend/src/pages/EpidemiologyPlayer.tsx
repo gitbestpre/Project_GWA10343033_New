@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import StageLayout from '../components/layout/StageLayout'
 import Header from '../components/Header'
 import QuizModal, { type QuizResult } from '../components/player/QuizModal'
 import DialogueOverlay from '../components/player/DialogueOverlay'
+import InquiryPanel from '../components/player/InquiryPanel'
 import { getQuestionById } from '../data/questions'
 import { FIELD_DIALOGUES } from '../data/dialogues'
 import type { DialogueLine } from '../data/dialogues'
@@ -17,7 +19,10 @@ const WRONG_HOLD_SECONDS = 5
  * （背景 3.mp4 循环 + 语音 + 字幕，2 条）。
  * 答对立即进入下一视频；答错展示正确答案停留 5 秒后自动进入。
  */
-type PhaseKind = 'video' | 'quiz' | 'dialog'
+type PhaseKind = 'video' | 'quiz' | 'dialog' | 'inquiry'
+
+/** 问询页背景视频（4.mp4 双人分屏，本身无音轨）与左上徽标文案 */
+const INQUIRY_VIDEO = '/Video/4.mp4'
 
 interface Stage {
   video: string
@@ -39,6 +44,7 @@ function isCorrectAnswer(selected: string[], answerKeys: string[]) {
 }
 
 export default function EpidemiologyPlayer() {
+  const navigate = useNavigate()
   const [score] = useState(100)
 
   const [stage, setStage] = useState(0)
@@ -112,13 +118,24 @@ export default function EpidemiologyPlayer() {
   const q = current.quizId ? getQuestionById(current.quizId) : null
   const showQuiz = phaseKind === 'quiz' && q
   const showDialog = phaseKind === 'dialog' && current.dialogues
+  const showInquiry = phaseKind === 'inquiry'
   const quizTotal = STAGES.filter((s) => s.quizId).length
+
+  // 接报通话对话全部播完 → 进入问询交互页
+  const handleDialogFinish = () => {
+    setPhaseKind('inquiry')
+  }
+
+  // 结束问询 → 返回案例模块页
+  const handleInquiryEnd = () => {
+    navigate('/case-study')
+  }
 
   return (
     <StageLayout background="#000">
       <div className="epi-stage">
-        {/* 主视频层：视频/答题阶段铺满舞台；对话阶段由 DialogueOverlay 自带 3.mp4 背景 */}
-        {phaseKind !== 'dialog' && (
+        {/* 主视频层：仅视频/答题阶段用主视频铺满舞台 */}
+        {(phaseKind === 'video' || phaseKind === 'quiz') && (
           <video
             key={current.video}
             ref={videoRef}
@@ -130,6 +147,23 @@ export default function EpidemiologyPlayer() {
             onEnded={handleVideoEnded}
             onPlay={() => setNeedPlay(false)}
           />
+        )}
+
+        {/* 问询阶段：背景 4.mp4 无声循环，右侧停靠问询面板（视频区域让出右侧） */}
+        {showInquiry && (
+          <>
+            <video
+              key="inquiry-bg"
+              className="epi-video inq-bg-video"
+              src={INQUIRY_VIDEO}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+            />
+            <InquiryPanel onEnd={handleInquiryEnd} />
+          </>
         )}
 
         {/* 左上角阶段胶囊徽标（随阶段变化） */}
@@ -173,8 +207,8 @@ export default function EpidemiologyPlayer() {
           />
         )}
 
-        {/* 视频2 结束后的接报通话对话：背景 3.mp4 循环 + 语音 + 字幕（2 条） */}
-        {showDialog && <DialogueOverlay lines={current.dialogues!} />}
+        {/* 视频2 结束后的接报通话对话：背景 3/4.mp4 循环 + 语音 + 字幕（2 条），播完进入问询页 */}
+        {showDialog && <DialogueOverlay lines={current.dialogues!} onFinish={handleDialogFinish} />}
       </div>
     </StageLayout>
   )
