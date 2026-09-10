@@ -1,0 +1,448 @@
+/* 流行病学调查 - 1920x1080 仿真播放器（对齐 Figma 171:5493） */
+
+.epi-viewport {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  overflow: hidden;
+  font-family: 'HarmonyOS Sans SC', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+/* 固定设计尺寸的舞台，由 JS 计算 scale 后等比缩放居中 */
+.epi-stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: center center;
+  background: #000;
+  overflow: hidden;
+  color: #494e58;
+}
+
+/* ---------- 视频层 ---------- */
+.epi-video {
+  position: absolute;
+  inset: 0;
+  width: 1920px;
+  height: 1080px;
+  object-fit: fill;
+}
+
+.epi-video-tag {
+  position: absolute;
+  left: 966px;
+  top: 927px;
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 96px;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+/* ---------- 顶部状态栏（高 73） ---------- */
+.epi-topbar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 73px;
+  background: #fcfcfc;
+  display: flex;
+  align-items: center;
+}
+
+.epi-logo {
+  position: absolute;
+  left: 15px;
+  top: 7px;
+  width: 231px;
+  height: 58px;
+  object-fit: contain;
+}
+
+.epi-titles {
+  position: absolute;
+  left: 275px;
+  top: 16px;
+}
+
+.epi-title-cn {
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 26px;
+  color: #494e58;
+  white-space: nowrap;
+}
+
+.epi-title-en {
+  margin-top: 0;
+  font-size: 9px;
+  font-weight: 300;
+  line-height: 13px;
+  color: #1d2129;
+  white-space: nowrap;
+  letter-spacing: 0.1px;
+}
+
+.epi-topbar-divider {
+  position: absolute;
+  top: 16px;
+  width: 2px;
+  height: 40px;
+  background: #a5b0c5;
+}
+
+.epi-divider-left {
+  left: 261px;
+}
+
+.epi-divider-right {
+  left: 1052px;
+}
+
+.epi-stage-tag {
+  position: absolute;
+  left: 771px;
+  top: 11px;
+  width: 240px;
+  height: 50px;
+  border-radius: 6px;
+  background: #618dcf;
+  color: #fff;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 50px;
+  text-align: center;
+}
+
+/* 得分 / 用时 卡片 */
+.epi-stat {
+  position: absolute;
+  top: 9px;
+  height: 41px;
+  border-radius: 8px;
+  background: #e9eff9;
+  display: flex;
+  align-items: center;
+  color: #5d89cc;
+}
+
+.epi-score-card {
+  left: 1108px;
+  width: 226px;
+  padding: 0 12px;
+  gap: 10px;
+}
+
+.epi-time-card {
+  left: 1364px;
+  width: 273px;
+  padding: 0 12px;
+  gap: 10px;
+}
+
+.epi-stat .epi-icon-star {
+  flex: none;
+}
+
+.epi-stat-label {
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 28px;
+  color: #5d89cc;
+}
+
+.epi-stat-sep {
+  width: 2px;
+  height: 28px;
+  background: #618dcf;
+  flex: none;
+}
+
+.epi-stat-value {
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 28px;
+  color: #5d89cc;
+}
+
+/* 圆形操作按钮 */
+.epi-nav {
+  position: absolute;
+  right: 15px;
+  top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.epi-nav-btn {
+  width: 31px;
+  height: 31px;
+  border-radius: 50%;
+  border: 1px solid #e5eaf2;
+  background: rgba(255, 255, 255, 0.92);
+  color: #a5b0c5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.epi-nav-btn:hover {
+  color: #618dcf;
+  border-color: #cdd8ea;
+}
+
+/* ---------- 左上角阶段胶囊徽标 ---------- */
+.epi-badge {
+  position: absolute;
+  left: 27px;
+  top: 89px;
+  width: 275px;
+  height: 95px;
+  z-index: 5;
+}
+
+.epi-badge-avatar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 95px;
+  height: 95px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.epi-badge-pill {
+  position: absolute;
+  left: 55px;
+  top: 21px;
+  width: 218px;
+  height: 63px;
+  background: #fff;
+  border-radius: 0 33px 33px 0;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 63px;
+  color: #494e58;
+  padding-left: 28px;
+  white-space: nowrap;
+}
+
+/* ---------- 知识考核弹窗（850 x 600） ---------- */
+.epi-quiz-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.epi-quiz {
+  position: absolute;
+  left: 535px;
+  top: 240px;
+  width: 850px;
+  height: 600px;
+  background: #e9eff9;
+  border-radius: 18px;
+  box-shadow: 0 12px 40px rgba(30, 50, 90, 0.18);
+  pointer-events: auto;
+}
+
+/* 头部 */
+.epi-quiz-head {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 73px;
+}
+
+.epi-quiz-title {
+  position: absolute;
+  left: 36px;
+  top: 19px;
+  display: flex;
+  align-items: baseline;
+}
+
+.epi-quiz-name {
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 32px;
+  color: #618dcf;
+}
+
+.epi-quiz-page {
+  margin-left: 14px;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 32px;
+}
+
+.epi-quiz-page-now {
+  color: #494e58;
+}
+
+.epi-quiz-page-total {
+  color: #494e58;
+}
+
+.epi-quiz-type {
+  position: absolute;
+  left: 261px;
+  top: 20px;
+  width: 100px;
+  height: 40px;
+  border-radius: 4px;
+  background: #618dcf;
+  color: #fff;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 40px;
+  text-align: center;
+}
+
+/* 题干 */
+.epi-quiz-question {
+  position: absolute;
+  left: 36px;
+  top: 80px;
+  width: 778px;
+  margin: 0;
+  display: flex;
+  align-items: flex-start;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 31px;
+  color: #494e58;
+}
+
+.epi-quiz-qdot {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 9px;
+  margin-right: 12px;
+  border-radius: 50%;
+  background: #618dcf;
+}
+
+/* 选项 */
+.epi-quiz-options {
+  position: absolute;
+  left: 36px;
+  top: 126px;
+  width: 780px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.epi-option {
+  width: 780px;
+  height: 56px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: #fcfcfc;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.epi-option:hover {
+  border-color: #cdd8ea;
+}
+
+.epi-option.is-selected {
+  border-color: #618dcf;
+  background: #f4f8ff;
+}
+
+.epi-option-key {
+  flex: none;
+  margin-left: 16px;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: 1.3px solid #a7b2c3;
+  background: #d7dfeb;
+  color: #494e58;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 33px;
+  text-align: center;
+}
+
+.epi-option-key.is-selected {
+  border-color: #618dcf;
+  background: #618dcf;
+  color: #fff;
+}
+
+.epi-option-text {
+  margin-left: 12px;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 28px;
+  color: #494e58;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 20px;
+}
+
+/* 提交按钮 */
+.epi-quiz-submit {
+  position: absolute;
+  left: 335px;
+  top: 518px;
+  width: 180px;
+  height: 52px;
+  border: 2px solid #cad6e6;
+  border-radius: 10px;
+  background: #fcfcfc;
+  color: #494e58;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 48px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.epi-quiz-submit:hover:not(:disabled) {
+  border-color: #618dcf;
+  color: #618dcf;
+}
+
+.epi-quiz-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* 反馈条（临时交互提示） */
+.epi-feedback {
+  position: absolute;
+  left: 50%;
+  bottom: 36px;
+  transform: translateX(-50%);
+  z-index: 30;
+  border: none;
+  border-radius: 24px;
+  background: rgba(30, 45, 80, 0.85);
+  color: #fff;
+  font-size: 22px;
+  line-height: 48px;
+  padding: 0 34px;
+  cursor: pointer;
+}
