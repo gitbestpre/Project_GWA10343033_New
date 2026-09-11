@@ -1,0 +1,22 @@
+# ===== 本地缓存 / 工具产物 =====
+# Figma MCP 本地取数缓存（JSON、切图脚本、缩略图），不入库
+.figma-cache/
+
+# 失效的 MSYS 相对软链（Windows 原生 Node/Vite 无法跟随）；
+# dev/build 由 frontend/vite.config.ts 的 mediaAssets 映射 /Video、/Audio
+frontend/public/Video
+frontend/public/Audio
+
+# ===== 未启用的旧原型 =====
+# 流行病学调查旧版“步骤机”原型，App.tsx 未引用；现行页面为 EpidemiologyPlayer.tsx
+frontend/src/pages/EpidemiologyPage.tsx
+frontend/src/pages/EpidemiologyPage.css
+
+# ===== 依赖与构建产物 =====
+node_modules/
+frontend/node_modules/
+frontend/dist/
+dist/
+
+# ===== 日志 =====
+*.log
