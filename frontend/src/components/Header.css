@@ -1,0 +1,223 @@
+/* ==========================================================================
+   全局顶部栏 —— 全站唯一一套，严格对齐 Figma「Group 427321485」(1920x73)
+   所有元素按帧内绝对坐标摆放；元素显隐只做显示与否，不改变共有元素位置。
+   ========================================================================== */
+
+.app-header {
+  position: sticky;
+  top: 0;
+  width: 1920px;
+  height: 73px;
+  flex-shrink: 0;
+  background: #fcfcfc;
+  border-bottom: 1px solid #eef1f5;
+  z-index: 100;
+  font-family: 'HarmonyOS Sans SC', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  overflow: hidden;
+}
+
+/* ---------- 校徽（Figma x15 y6, 232x58） ---------- */
+.hd-logo {
+  position: absolute;
+  left: 15px;
+  top: 6px;
+  width: 232px;
+  height: 58px;
+  object-fit: contain;
+}
+
+/* ---------- 竖分割线（统一弱灰蓝） ---------- */
+.hd-divider {
+  position: absolute;
+  width: 2px;
+  background: #a5b0c5;
+  flex-shrink: 0;
+}
+
+/* 标题竖线（Figma x262 y16, 2x39） */
+.hd-divider-brand {
+  left: 262px;
+  top: 16px;
+  height: 40px;
+}
+
+/* ---------- 中英标题（Figma 组 x275 y20, 宽470） ---------- */
+.hd-titles {
+  position: absolute;
+  left: 275px;
+  top: 13px;
+  width: 470px;
+  display: flex;
+  flex-direction: column;
+}
+
+.hd-title-cn {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 27px;
+  color: #494e58;
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+
+.hd-title-en {
+  margin: 1px 0 0 2px;
+  font-size: 9px;
+  font-weight: 300;
+  line-height: 13px;
+  color: #8a93a3;
+  letter-spacing: 0.1px;
+  white-space: nowrap;
+}
+
+/* ---------- 当前阶段标签（Figma 区 x771 y11, 284x50） ---------- */
+.hd-stage {
+  position: absolute;
+  left: 771px;
+  top: 11px;
+  width: 284px;
+  height: 50px;
+}
+
+.hd-divider-stage-l {
+  left: 0;
+  top: 5px;
+  height: 40px;
+}
+
+.hd-divider-stage-r {
+  left: 282px;   /* Figma x1053 - 771 */
+  top: 5px;
+  height: 40px;
+}
+
+.hd-stage-tag {
+  position: absolute;
+  left: 22px;    /* Figma 蓝底 x793 - 771 */
+  top: 0;
+  width: 240px;
+  height: 50px;
+  border-radius: 6px;
+  background: #618dcf;
+  color: #fff;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 50px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ---------- 得分 / 用时 卡片（位置固定，不随阶段标签有无变化） ---------- */
+.hd-stat {
+  position: absolute;
+  top: 16px;
+  height: 41px;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  background: #e9eff9;
+  color: #5d89cc;
+  padding: 0 12px;
+  gap: 10px;
+}
+
+/* 得分卡 Figma x1108 宽226 */
+.hd-score-card {
+  left: 1108px;
+  width: 226px;
+}
+
+/* 用时卡 Figma x1364 宽273 */
+.hd-time-card {
+  left: 1364px;
+  width: 273px;
+}
+
+.hd-stat .hd-icon-star,
+.hd-stat .hd-icon-clock {
+  flex: none;
+}
+
+.hd-stat-label {
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 28px;
+  color: #5d89cc;
+  white-space: nowrap;
+}
+
+.hd-stat-sep {
+  width: 2px;
+  height: 28px;
+  background: #618dcf;
+  flex: none;
+}
+
+.hd-stat-value {
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 28px;
+  color: #5d89cc;
+  white-space: nowrap;
+}
+
+/* 数字使用等宽风格，贴近设计稿 Digital Numbers */
+.hd-num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+}
+
+/* ---------- 右侧 5 个操作图标（Figma Component 32：x1673 y19, 224x36） ---------- */
+.hd-tools {
+  position: absolute;
+  left: 1673px;
+  top: 19px;
+  width: 224px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.hd-tool {
+  width: 32px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.15s ease;
+}
+
+.hd-tool-img {
+  display: block;
+  height: 20px;
+  width: auto;
+  pointer-events: none;
+}
+
+/* 齿轮切图为 32x36 双齿轮叠层、实际图形约 18x19，放大使其视觉尺寸与问号等大；
+   横线按原始 19x5 比例 */
+.hd-tool-gear {
+  height: 38px;
+}
+
+.hd-tool-minus {
+  height: 5px;
+}
+
+.hd-tool:hover:not(:disabled) {
+  background: rgba(165, 176, 197, 0.16);
+}
+
+.hd-tool:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+/* 固定 1920x1080 舞台（StageLayout 等比缩放）下不使用视口媒体查询。 */

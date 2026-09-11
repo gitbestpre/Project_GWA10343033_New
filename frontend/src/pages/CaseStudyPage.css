@@ -1,0 +1,231 @@
+.case-study-page {
+  width: 1920px;
+  height: 100%;
+  min-height: 1080px;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #E8EDF2 0%, #F0F4F8 100%);
+}
+
+.case-study-content {
+  flex: 1;
+  padding: var(--spacing-2xl) 60px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.page-title-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: var(--spacing-2xl);
+  text-align: left;
+  animation: slideInDown 0.4s ease-out;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.title-bar {
+  width: 5px;
+  height: 28px;
+  background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 8px rgba(74, 144, 217, 0.3);
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 36px;
+  max-width: 1300px;
+}
+
+.module-grid .module-card:nth-child(4) {
+  grid-column: 1;
+}
+
+.module-card {
+  cursor: pointer;
+  transition: all var(--transition-slow);
+  animation: fadeInUp 0.5s ease-out backwards;
+}
+
+.module-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.module-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.module-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.module-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.module-card:hover {
+  transform: translateY(-8px);
+}
+
+.module-card:active {
+  transform: translateY(-4px);
+}
+
+.card-image {
+  width: 100%;
+  aspect-ratio: 492 / 260;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, #D0D5DB 0%, #E5E7EB 100%);
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  transition: all var(--transition-slow);
+}
+
+.module-card:hover .card-image {
+  box-shadow: var(--shadow-xl);
+  transform: scale(1.02);
+}
+
+.card-image::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.1) 100%);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.module-card:hover .card-image::before {
+  opacity: 1;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--transition-slow);
+}
+
+.module-card:hover .card-image img {
+  transform: scale(1.05);
+}
+
+.card-info {
+  padding: 16px 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  transition: color var(--transition-base);
+}
+
+.module-card:hover .card-title {
+  color: var(--primary);
+}
+
+.card-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--bg-light);
+  border-radius: var(--radius-full);
+  transition: all var(--transition-base);
+}
+
+.module-card:hover .card-status {
+  background: var(--card-bg);
+  box-shadow: var(--shadow-sm);
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transition: transform var(--transition-base);
+  box-shadow: 0 0 0 0 currentColor;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 currentColor;
+  }
+  50% {
+    box-shadow: 0 0 0 4px transparent;
+  }
+}
+
+.module-card:hover .status-dot {
+  transform: scale(1.2);
+}
+
+.status-dot.not-started {
+  background: var(--status-not-started);
+  color: var(--status-not-started);
+}
+
+.status-dot.in-progress {
+  background: var(--status-in-progress);
+  color: var(--status-in-progress);
+}
+
+.status-dot.completed {
+  background: var(--status-completed);
+  color: var(--status-completed);
+}
+
+.status-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: color var(--transition-base);
+}
+
+.module-card:hover .status-text {
+  color: var(--text-primary);
+}
+
+/* 固定 1920x1080 舞台后，适配统一由 StageLayout 等比缩放完成，
+   不再使用基于浏览器视口宽度的媒体查询（会导致舞台内部随窗口误重排）。 */
+

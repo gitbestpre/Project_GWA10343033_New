@@ -1,0 +1,873 @@
+/* 流行病学调查 - 1920x1080 仿真播放器（对齐 Figma 171:5493）
+   固定舞台 / 等比缩放由公共 StageLayout 提供，这里只铺满舞台画布。 */
+
+.epi-stage {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  background: #000;
+  overflow: hidden;
+  color: #494e58;
+}
+
+/* ---------- 视频层 ---------- */
+.epi-video {
+  position: absolute;
+  inset: 0;
+  width: 1920px;
+  height: 1080px;
+  object-fit: fill;
+  background: #000;
+}
+
+/* 问询阶段：背景视频只占左侧，右侧 460px 留给问询面板 */
+.inq-bg-video {
+  inset: 0 auto 0 0;
+  right: auto;
+  width: 1460px;
+  height: 1080px;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* 自动播放被拦截时的居中点播提示（正常自动播放成功时不出现） */
+.epi-play-hint {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 30;
+  border: none;
+  border-radius: 40px;
+  padding: 22px 56px;
+  background: rgba(30, 45, 80, 0.82);
+  color: #fff;
+  font-size: 30px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+/* ---------- 左上角阶段胶囊徽标 ---------- */
+.epi-badge {
+  position: absolute;
+  left: 27px;
+  top: 89px;
+  width: 275px;
+  height: 95px;
+  z-index: 5;
+}
+
+.epi-badge-avatar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 95px;
+  height: 95px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.epi-badge-pill {
+  position: absolute;
+  left: 55px;
+  top: 21px;
+  width: 218px;
+  height: 63px;
+  background: #fff;
+  border-radius: 0 33px 33px 0;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 63px;
+  color: #494e58;
+  padding-left: 28px;
+  white-space: nowrap;
+}
+
+/* ---------- 知识考核弹窗（850 x 600） ---------- */
+.epi-quiz-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.epi-quiz {
+  position: absolute;
+  left: 535px;
+  top: 240px;
+  width: 850px;
+  height: 600px;
+  background: #e9eff9;
+  border-radius: 18px;
+  box-shadow: 0 12px 40px rgba(30, 50, 90, 0.18);
+  pointer-events: auto;
+}
+
+/* 头部 */
+.epi-quiz-head {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 73px;
+}
+
+.epi-quiz-title {
+  position: absolute;
+  left: 36px;
+  top: 19px;
+  display: flex;
+  align-items: baseline;
+}
+
+.epi-quiz-name {
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 32px;
+  color: #618dcf;
+}
+
+.epi-quiz-page {
+  margin-left: 14px;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 32px;
+}
+
+.epi-quiz-page-now {
+  color: #494e58;
+}
+
+.epi-quiz-page-total {
+  color: #494e58;
+}
+
+.epi-quiz-type {
+  position: absolute;
+  left: 261px;
+  top: 20px;
+  width: 100px;
+  height: 40px;
+  border-radius: 4px;
+  background: #618dcf;
+  color: #fff;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 40px;
+  text-align: center;
+}
+
+/* 题干 */
+.epi-quiz-question {
+  position: absolute;
+  left: 36px;
+  top: 80px;
+  width: 778px;
+  margin: 0;
+  display: flex;
+  align-items: flex-start;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 31px;
+  color: #494e58;
+}
+
+.epi-quiz-qdot {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-top: 9px;
+  margin-right: 12px;
+  border-radius: 50%;
+  background: #618dcf;
+}
+
+/* 选项 */
+.epi-quiz-options {
+  position: absolute;
+  left: 36px;
+  top: 126px;
+  width: 780px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.epi-option {
+  width: 780px;
+  height: 56px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: #fcfcfc;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.epi-option:hover {
+  border-color: #cdd8ea;
+}
+
+.epi-option.is-selected {
+  border-color: #618dcf;
+  background: #f4f8ff;
+}
+
+/* 判题后：正确选项 绿 */
+.epi-option.is-correct {
+  border-color: #4caf6f;
+  background: #eefaf2;
+}
+
+/* 判题后：错选 红 */
+.epi-option.is-wrong {
+  border-color: #e06a5b;
+  background: #fdeeee;
+}
+
+.epi-option:disabled {
+  cursor: default;
+}
+
+.epi-option-key {
+  flex: none;
+  margin-left: 16px;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: 1.3px solid #a7b2c3;
+  background: #d7dfeb;
+  color: #494e58;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 33px;
+  text-align: center;
+}
+
+.epi-option-key.is-selected {
+  border-color: #618dcf;
+  background: #618dcf;
+  color: #fff;
+}
+
+.epi-option-key.is-correct {
+  border-color: #4caf6f;
+  background: #4caf6f;
+  color: #fff;
+}
+
+.epi-option-key.is-wrong {
+  border-color: #e06a5b;
+  background: #e06a5b;
+  color: #fff;
+}
+
+.epi-option-text {
+  margin-left: 12px;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 28px;
+  color: #494e58;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 20px;
+}
+
+/* 提交按钮 */
+.epi-quiz-submit {
+  position: absolute;
+  left: 335px;
+  top: 518px;
+  width: 180px;
+  height: 52px;
+  border: 2px solid #cad6e6;
+  border-radius: 10px;
+  background: #fcfcfc;
+  color: #494e58;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 48px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.epi-quiz-submit:hover:not(:disabled) {
+  border-color: #618dcf;
+  color: #618dcf;
+}
+
+.epi-quiz-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* 判题结果条（答错时展示正确答案 + 倒计时停留；答对瞬间即跳转） */
+.epi-quiz-result {
+  position: absolute;
+  left: 36px;
+  top: 512px;
+  width: 778px;
+  min-height: 56px;
+  border-radius: 10px;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.epi-quiz-result.is-ok {
+  background: #eefaf2;
+  border: 1px solid #4caf6f;
+}
+
+.epi-quiz-result.is-bad {
+  background: #fdeeee;
+  border: 1px solid #e06a5b;
+}
+
+.epi-quiz-result-text {
+  font-size: 23px;
+  font-weight: 500;
+  line-height: 30px;
+  color: #494e58;
+}
+
+.epi-quiz-result.is-ok .epi-quiz-result-text {
+  color: #2f8a52;
+}
+
+.epi-quiz-result.is-bad .epi-quiz-result-text {
+  color: #c84a3b;
+}
+
+.epi-quiz-result-text b {
+  font-weight: 700;
+}
+
+.epi-quiz-result-count {
+  flex: none;
+  font-size: 20px;
+  color: #c84a3b;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   接报通话对话（视频2 结束后；背景 3.mp4 循环 + 语音 + 字幕）
+   ============================================================ */
+.dlg-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  width: 1920px;
+  height: 1080px;
+}
+
+.dlg-bg {
+  position: absolute;
+  inset: 0;
+  width: 1920px;
+  height: 1080px;
+  object-fit: fill;
+  background: #000;
+}
+
+/* 上下渐变压暗，保证字幕/控件可读 */
+.dlg-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0) 22%),
+    linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 34%);
+  pointer-events: none;
+}
+
+/* 顶部通话状态 + 进度点 */
+.dlg-top {
+  position: absolute;
+  top: 104px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 3;
+}
+
+.dlg-call-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #4caf6f;
+  box-shadow: 0 0 0 4px rgba(76, 175, 111, 0.28);
+}
+
+.dlg-call-title {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.dlg-dots {
+  display: flex;
+  gap: 8px;
+  margin-left: 6px;
+}
+
+.dlg-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.38);
+}
+
+.dlg-dot.is-active {
+  background: #6ab3ff;
+  box-shadow: 0 0 0 3px rgba(106, 179, 255, 0.3);
+}
+
+.dlg-dot.is-done {
+  background: #4caf6f;
+}
+
+/* 对话行 */
+.dlg-row {
+  position: absolute;
+  bottom: 156px;
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  z-index: 3;
+  max-width: 1180px;
+}
+
+.dlg-left {
+  left: 70px;
+}
+
+.dlg-right {
+  right: 70px;
+  flex-direction: row-reverse;
+}
+
+.dlg-center {
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 新气泡入场动画 */
+.dlg-row {
+  animation: dlg-in 0.32s ease both;
+}
+
+@keyframes dlg-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dlg-right.dlg-row {
+  animation-name: dlg-in-r;
+}
+
+@keyframes dlg-in-r {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dlg-avatar {
+  flex: none;
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 38px;
+  font-weight: 600;
+  line-height: 82px;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.32);
+  user-select: none;
+}
+
+.dlg-bubble-wrap {
+  display: flex;
+  flex-direction: column;
+  max-width: 1040px;
+}
+
+.dlg-right .dlg-bubble-wrap {
+  align-items: flex-end;
+}
+
+.dlg-role {
+  margin: 0 6px 8px;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 500;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+}
+
+.dlg-bubble {
+  position: relative;
+  background: rgba(255, 255, 255, 0.96);
+  color: #2b3038;
+  border-radius: 18px;
+  padding: 22px 30px;
+  font-size: 27px;
+  line-height: 1.55;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+}
+
+.dlg-bubble.is-light {
+  background: rgba(207, 231, 255, 0.97);
+}
+
+/* 气泡小尖角 */
+.dlg-left .dlg-bubble::before {
+  content: '';
+  position: absolute;
+  left: -14px;
+  bottom: 26px;
+  border: 8px solid transparent;
+  border-right-color: rgba(255, 255, 255, 0.96);
+  border-left: 0;
+}
+
+.dlg-right .dlg-bubble::after {
+  content: '';
+  position: absolute;
+  right: -14px;
+  bottom: 26px;
+  border: 8px solid transparent;
+  border-left-color: rgba(207, 231, 255, 0.97);
+  border-right: 0;
+}
+
+/* 底部操作区 */
+.dlg-bottom {
+  position: absolute;
+  left: 0;
+  bottom: 44px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  z-index: 4;
+}
+
+.dlg-next-btn,
+.dlg-start-btn {
+  border: none;
+  border-radius: 40px;
+  padding: 16px 58px;
+  background: rgba(70, 120, 200, 0.92);
+  color: #fff;
+  font-size: 26px;
+  line-height: 1.2;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.dlg-start-btn {
+  background: rgba(30, 45, 80, 0.9);
+}
+
+.dlg-next-btn:hover,
+.dlg-start-btn:hover {
+  filter: brightness(1.08);
+}
+
+.dlg-end {
+  color: #fff;
+  font-size: 26px;
+  letter-spacing: 4px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================================
+   问询交互页（对话结束后；右侧“疾病预防控制中心”面板）
+   ============================================================ */
+.inq-panel {
+  position: absolute;
+  top: 73px; /* 顶栏高度 */
+  right: 0;
+  width: 460px;
+  height: 1007px; /* 1080 - 73 */
+  z-index: 18;
+  background: #f3f6fb;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -8px 0 30px rgba(20, 40, 80, 0.18);
+}
+
+/* 面板头部 */
+.inq-head {
+  flex: none;
+  height: 66px;
+  padding: 0 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border-bottom: 1px solid #e4e9f1;
+}
+
+.inq-head-icon {
+  font-size: 24px;
+  color: #618dcf;
+}
+
+.inq-head-title {
+  font-size: 25px;
+  font-weight: 700;
+  color: #33383f;
+}
+
+/* 消息滚动区（底部为通栏停靠条预留 140px，避免末条被遮挡） */
+.inq-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 22px 20px 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* 单条消息行 */
+.inq-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.inq-right {
+  flex-direction: row-reverse;
+}
+
+.inq-ava {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  user-select: none;
+}
+
+.inq-mic {
+  background: #e6eefb;
+  color: #5a86c9;
+}
+
+.inq-doc {
+  background: #5a86c9;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* 聊天气泡（无明显底板，贴近 Figma 的浅色文字风） */
+.inq-bubble {
+  max-width: 330px;
+  font-size: 20px;
+  line-height: 1.5;
+  color: #7d8ba3;
+  letter-spacing: 0.5px;
+}
+
+.inq-right .inq-bubble {
+  text-align: right;
+  color: #7d8ba3;
+}
+
+/* 红色任务提示 */
+.inq-prompt {
+  margin: 2px 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #e0533f;
+}
+
+.inq-typing {
+  font-size: 17px;
+  color: #9aa4b4;
+  padding-left: 48px;
+}
+
+/* 推荐问题 */
+.inq-suggest {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.inq-suggest-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: 1px solid #dfe6f0;
+  border-radius: 10px;
+  background: #fff;
+  padding: 14px 16px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.inq-suggest-item:hover {
+  border-color: #618dcf;
+  background: #f6f9ff;
+}
+
+.inq-mic-dot {
+  flex: none;
+  color: #5a86c9;
+  font-size: 18px;
+}
+
+.inq-suggest-text {
+  font-size: 19px;
+  color: #494e58;
+  line-height: 1.35;
+}
+
+/* ============================================================
+   底部操作条（严格对齐 Figma）：
+   输入/发送/按住讲话是一张悬浮在视频底部的【白色圆角卡片】，
+   左右及底部均留白、不贴边；结束问询在右侧面板列内与白卡同行。
+   ============================================================ */
+.inq-dock {
+  position: absolute;
+  inset: 0;
+  z-index: 19;
+  pointer-events: none;
+}
+
+/* 白色悬浮工具卡：在左侧视频区，按 Figma 绝对坐标，四周留白、不贴边 */
+.inq-compose {
+  position: absolute;
+  left: 262px;
+  bottom: 24px;
+  width: 1036px; /* 右缘 x=1298，距面板(x1460)留白 162 */
+  height: 88px;
+  padding: 0 24px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(30, 50, 90, 0.18);
+  pointer-events: auto;
+}
+
+/* 结束问询：在右侧面板列(1460~1920)内与白卡同高同行，按 Figma 右内边距约 130 */
+.inq-dock-end {
+  position: absolute;
+  left: 1460px;
+  right: 0;
+  bottom: 24px;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 130px;
+  pointer-events: auto;
+}
+
+.inq-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 60px;
+  border: 1px solid #e0e6f0;
+  border-radius: 8px;
+  background: #fff;
+  padding: 0 22px;
+  font-size: 21px;
+  color: #33383f;
+}
+
+.inq-input::placeholder {
+  color: #aeb8c8;
+}
+
+.inq-send,
+.inq-voice {
+  flex: none;
+  height: 60px;
+  border-radius: 8px;
+  font-size: 21px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #fff;
+  color: #555f70;
+  border: 1px solid #e0e6f0;
+}
+
+.inq-send {
+  width: 150px;
+}
+
+.inq-voice {
+  width: 150px;
+}
+
+.inq-send:hover:not(:disabled),
+.inq-voice:hover {
+  border-color: #618dcf;
+  color: #618dcf;
+}
+
+.inq-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.inq-send-arrow,
+.inq-voice-icon {
+  color: #5a86c9;
+  font-size: 20px;
+}
+
+.inq-end-btn {
+  width: 165px;
+  height: 60px;
+  border: none;
+  border-radius: 8px;
+  background: #4f7fc7;
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.inq-end-btn:hover {
+  background: #436db0;
+}
