@@ -28,26 +28,58 @@ const FALLBACK_ANSWER =
 let _seq = 0
 const uid = () => `m${++_seq}`
 
+/** 面板可配置内容：现场调查阶段的 AI 问询复用同一布局，但种子问答/任务提示不同 */
+export interface InquiryConfig {
+  /** 初始消息：值班员开场白（左）→ 张医生答复（右），按顺序交替 */
+  seed?: { side: Exclude<Side, 'prompt'>; text: string }[]
+  /** 红色任务提示文案 */
+  taskPrompt?: string
+  /** 推荐问题（值班员逐项询问，问完后不再展示） */
+  presets?: { question: string; answer: string }[]
+  /** 自由提问的占位应答（接入真实 Dify / 数字人前的本地引导） */
+  fallbackAnswer?: string
+  /** “结束问询”按钮文案 */
+  endText?: string
+}
+
+const DEFAULT_SEED: { side: Exclude<Side, 'prompt'>; text: string }[] = FIELD_DIALOGUES.map((d, i) => ({
+  side: i === 0 ? 'left' : 'right',
+  text: d.text,
+}))
+
 /**
  * 接报通话结束后的问询页右侧面板“疾病预防控制中心”：
  * 值班员（学员）依红色任务提示向张医生询问主要信息，问完后可“结束问询”。
+ * 不传 config 时沿用市场监督管理局值班员问询（接报通话后）的默认内容。
  */
-export default function InquiryPanel({ onEnd }: { onEnd?: () => void }) {
+export default function InquiryPanel({
+  onEnd,
+  config,
+}: {
+  onEnd?: () => void
+  config?: InquiryConfig
+}) {
+  const seedLines = config?.seed ?? DEFAULT_SEED
+  const taskPrompt = config?.taskPrompt ?? '身为市场监督管理局的值班员，请询问主要信息'
+  const presetQa = config?.presets ?? PRESET_QA
+  const fallbackAnswer = config?.fallbackAnswer ?? FALLBACK_ANSWER
+  const endText = config?.endText ?? '结束问询'
+
   // 初始消息：前序通话记录（值班员开场白在左、张医生报告在右）+ 红色任务提示
   const [messages, setMessages] = useState<ChatMsg[]>(() => {
-    const seed: ChatMsg[] = FIELD_DIALOGUES.map((d, i) => ({
-      id: `seed-${d.id}`,
-      side: i === 0 ? 'left' : 'right',
+    const seed: ChatMsg[] = seedLines.map((d, i) => ({
+      id: `seed-${i}`,
+      side: d.side,
       text: d.text,
     }))
     seed.push({
       id: 'task-prompt',
       side: 'prompt',
-      text: '身为市场监督管理局的值班员，请询问主要信息',
+      text: taskPrompt,
     })
     return seed
   })
-  const [asked, setAsked] = useState<boolean[]>(() => PRESET_QA.map(() => false))
+  const [asked, setAsked] = useState<boolean[]>(() => presetQa.map(() => false))
   const [draft, setDraft] = useState('')
   const [typing, setTyping] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -71,17 +103,17 @@ export default function InquiryPanel({ onEnd }: { onEnd?: () => void }) {
   const askPreset = (i: number) => {
     if (asked[i] || typing) return
     setAsked((prev) => prev.map((v, idx) => (idx === i ? true : v)))
-    ask(PRESET_QA[i].question, PRESET_QA[i].answer)
+    ask(presetQa[i].question, presetQa[i].answer)
   }
 
   const sendFree = () => {
     const q = draft.trim()
     if (!q || typing) return
     setDraft('')
-    ask(q, FALLBACK_ANSWER)
+    ask(q, fallbackAnswer)
   }
 
-  const remaining = PRESET_QA.map((qa, i) => ({ qa, i })).filter(({ i }) => !asked[i])
+  const remaining = presetQa.map((qa, i) => ({ qa, i })).filter(({ i }) => !asked[i])
 
   return (
     <>
@@ -156,7 +188,7 @@ export default function InquiryPanel({ onEnd }: { onEnd?: () => void }) {
         </div>
         <div className="inq-dock-end">
           <button type="button" className="inq-end-btn" onClick={() => onEnd?.()}>
-            结束问询
+            {endText}
           </button>
         </div>
       </div>

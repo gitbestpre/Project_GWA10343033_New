@@ -97,7 +97,7 @@ export const QUESTIONS: QuizQuestion[] = [
   {
     "id": "H_03",
     "type": "single",
-    "question": "如果你是区市场监督管理局接到报案(或卫生行政部门应急值班室)值班人员，记录",
+    "question": "如果你是区市场监督管理局接到报案(或卫生行政部门应急值班室)值班人员，记录上述情况后，您接下来应该如何做?",
     "options": [
       {
         "key": "A",

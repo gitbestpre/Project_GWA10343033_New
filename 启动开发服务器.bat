@@ -15,7 +15,7 @@ if not exist "node_modules" (
 )
 
 echo 启动开发服务器...
-echo 服务器将在 http://localhost:5173 启动
+echo 服务器将在 http://localhost:5174 启动
 echo 按 Ctrl+C 可以停止服务器
 echo.
 
