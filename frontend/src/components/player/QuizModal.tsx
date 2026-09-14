@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import type { QuizQuestion } from '../../data/questions'
 
 export type { QuizOption, QuizQuestion } from '../../data/questions'
@@ -15,6 +15,7 @@ export default function QuizModal({
   question,
   result,
   onSubmit,
+  successText = '回答正确，即将进入下一步……',
 }: {
   /** 当前题号（从 1 开始） */
   index: number
@@ -24,9 +25,24 @@ export default function QuizModal({
   result?: QuizResult | null
   /** 提交所选选项字母（单选 1 个，多选多个），由父组件判题 */
   onSubmit: (selectedKeys: string[]) => void
+  /** 答对结果条文案（链路终点题可传“本环节考核完成”等） */
+  successText?: string
 }) {
   const multiple = question.type === 'multiple'
   const [selected, setSelected] = useState<string[]>([])
+
+  // 题干可能折成两行（如 H_03），测量后给卡片加修饰类，选项/提交按钮整体下移避免重叠
+  const questionRef = useRef<HTMLHeadingElement>(null)
+  const [longQuestion, setLongQuestion] = useState(false)
+  useLayoutEffect(() => {
+    const el = questionRef.current
+    if (!el) return
+    const measure = () => setLongQuestion(el.offsetHeight > 42)
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [question.id])
 
   // 提交后锁定，进入判题结果展示（高亮正确/错选，不可再改）
   const locked = result != null
@@ -50,7 +66,12 @@ export default function QuizModal({
 
   return (
     <div className="epi-quiz-mask">
-      <section className="epi-quiz" role="dialog" aria-modal="true" aria-label="知识考核">
+      <section
+        className={`epi-quiz${longQuestion ? ' is-long-q' : ''}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="知识考核"
+      >
         {/* 头部：知识考核 + 页码 + 题型徽标 */}
         <div className="epi-quiz-head">
           <div className="epi-quiz-title">
@@ -64,7 +85,7 @@ export default function QuizModal({
         </div>
 
         {/* 题干 */}
-        <h2 className="epi-quiz-question">
+        <h2 className="epi-quiz-question" ref={questionRef}>
           <span className="epi-quiz-qdot" />
           {question.question}
         </h2>
@@ -124,15 +145,17 @@ export default function QuizModal({
         {locked && (
           <div className={`epi-quiz-result ${result?.correct ? 'is-ok' : 'is-bad'}`}>
             {result?.correct ? (
-              <span className="epi-quiz-result-text">回答正确，即将进入下一步……</span>
+              <span className="epi-quiz-result-text">{successText}</span>
             ) : (
               <>
                 <span className="epi-quiz-result-text">
                   回答错误，正确答案：<b>{answerText}</b>
                 </span>
-                <span className="epi-quiz-result-count">
-                  {result?.countdown ?? 0} 秒后进入下一步
-                </span>
+                {result?.countdown != null && (
+                  <span className="epi-quiz-result-count">
+                    {result.countdown} 秒后进入下一步
+                  </span>
+                )}
               </>
             )}
           </div>

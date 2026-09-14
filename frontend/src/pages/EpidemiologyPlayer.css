@@ -48,13 +48,28 @@
 }
 
 /* ---------- 左上角阶段胶囊徽标 ---------- */
+/* 几何取自 Figma 节点 174:7026（Group 427321486，275×95）：
+   头像 95×95 覆盖左侧；胶囊 186×63 位于 (90,21)，左缘被圆挖切；
+   文字 26px/500/#494E58 垂直居中于胶囊。层级：胶囊→文字→头像。 */
 .epi-badge {
   position: absolute;
   left: 27px;
   top: 89px;
   width: 275px;
   height: 95px;
-  z-index: 5;
+  /* 需常驻在对话层(.dlg-layer=15)与问询面板(.inq-panel=18/.inq-dock=19)之上，
+     但低于顶部 Header(100)；徽标居左上，不与覆盖层控件重叠 */
+  z-index: 40;
+}
+
+.epi-badge-pill {
+  position: absolute;
+  left: 90px;
+  top: 21px;
+  width: 186px;
+  height: 63px;
+  pointer-events: none;
+  user-select: none;
 }
 
 .epi-badge-avatar {
@@ -65,22 +80,31 @@
   height: 95px;
   border-radius: 50%;
   object-fit: cover;
+  pointer-events: none;
+  user-select: none;
 }
 
-.epi-badge-pill {
+.epi-badge-text {
   position: absolute;
-  left: 55px;
+  left: 125px;
   top: 21px;
-  width: 218px;
+  width: 151px;
   height: 63px;
-  background: #fff;
-  border-radius: 0 33px 33px 0;
+  display: flex;
+  align-items: center;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: 26px;
   font-weight: 500;
-  line-height: 63px;
+  line-height: 1;
   color: #494e58;
-  padding-left: 28px;
   white-space: nowrap;
+}
+
+/* 5 字及以上的阶段文案（如“开展调查工作”）等比缩小以适配胶囊文字区 151px */
+.epi-badge--long .epi-badge-text {
+  left: 112px;
+  width: 164px;
+  font-size: 23px;
 }
 
 /* ---------- 知识考核弹窗（850 x 600） ---------- */
@@ -170,6 +194,12 @@
   font-weight: 500;
   line-height: 31px;
   color: #494e58;
+}
+
+/* 题干折成两行（如 H_03）时：选项区整体下移避免与题干重叠（对齐 Figma 175:7353，
+   选项 A 由 126 → 157；5 个选项加间距到 477，提交按钮仍在 518，无需移动） */
+.epi-quiz.is-long-q .epi-quiz-options {
+  top: 157px;
 }
 
 .epi-quiz-qdot {
@@ -870,4 +900,1302 @@
 
 .inq-end-btn:hover {
   background: #436db0;
+}
+
+/* ============================================================
+   问询后考核 / 反馈阶段
+   ============================================================ */
+
+/* 非问询阶段（两题考核、反馈弹窗）背景视频恢复全屏铺满 */
+.inq-bg-video.is-full {
+  inset: 0;
+  width: 1920px;
+  object-fit: fill;
+}
+
+/* ---------- 处置反馈弹窗（对齐 Figma 288:488，1000×600） ---------- */
+.pf-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 22;
+  display: flex;
+}
+
+.pf-card {
+  position: absolute;
+  left: 460px;
+  top: 240px;
+  width: 1000px;
+  height: 600px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(30, 50, 90, 0.18);
+  overflow: hidden;
+}
+
+/* 标题栏：浅蓝底 64px */
+.pf-head {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 64px;
+  background: #f4f8fd;
+  display: flex;
+  align-items: center;
+}
+
+.pf-head-bar {
+  position: absolute;
+  left: 30px;
+  top: 20px;
+  width: 8px;
+  height: 24px;
+  border-radius: 2px;
+  background: #395ba8;
+}
+
+.pf-head-title {
+  margin-left: 58px;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 33px;
+  color: #395ba8;
+}
+
+.pf-divider {
+  position: absolute;
+  left: 0;
+  top: 63px;
+  width: 100%;
+  height: 1px;
+  background: #d7dfeb;
+}
+
+/* 关闭按钮（右上） */
+.pf-close {
+  position: absolute;
+  right: 22px;
+  top: 16px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.pf-close:hover {
+  background: #eef2f8;
+}
+
+/* 正文 */
+.pf-body {
+  position: absolute;
+  left: 45px;
+  top: 88px;
+  width: 910px;
+  margin: 0;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 45px;
+  color: #494e58;
+  text-indent: 2em;
+}
+
+/* “我已了解”主按钮：蓝色圆角，居中靠下 */
+.pf-ack-btn {
+  position: absolute;
+  left: 50%;
+  bottom: 47px;
+  transform: translateX(-50%);
+  width: 191px;
+  height: 60px;
+  border: none;
+  border-radius: 12px;
+  background: #618dcf;
+  color: #fcfcfc;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.pf-ack-btn:hover {
+  background: #4f7fc7;
+}
+
+/* ============================================================
+   逐级汇报遮罩页（处置反馈后；对齐 Figma 289:564）
+   ============================================================ */
+.brf-layer {
+  position: absolute;
+  inset: 0;
+  /* 需覆盖左上角徽标(.epi-badge=40)，但仍低于顶部 Header(100)，
+     使压暗遮罩盖住徽标、顶栏保持可点可见 */
+  z-index: 45;
+  width: 1920px;
+  height: 1080px;
+}
+
+.brf-bg {
+  position: absolute;
+  inset: 0;
+  width: 1920px;
+  height: 1080px;
+  object-fit: fill;
+}
+
+/* 顶栏(0~73)以下整层 60% 黑压暗，整块可点击进入对话 */
+.brf-shade {
+  position: absolute;
+  left: 0;
+  top: 73px;
+  width: 1920px;
+  height: 1007px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brf-shade:hover {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.brf-title {
+  margin: 0;
+  padding: 0 120px;
+  color: #ffffff;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 64px;
+  font-weight: 500;
+  line-height: 1.25;
+  text-align: center;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+}
+
+/* ============================================================
+   疾控汇报后单题考核背景（过渡6.mp4，全屏静音循环）
+   ============================================================ */
+.cdc-quiz-bg {
+  z-index: 0;
+}
+
+/* ============================================================
+   突发公共卫生事件报告流程终页（对齐 Figma 180:1054）
+   ============================================================ */
+.rpt-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  width: 1920px;
+  height: 1080px;
+  background: #e8edf5;
+}
+
+.rpt-title {
+  position: absolute;
+  left: 0;
+  top: 147px;
+  width: 1920px;
+  margin: 0;
+  color: #494e58;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 48px;
+  font-weight: 500;
+  line-height: 48px;
+  text-align: center;
+}
+
+.rpt-chart {
+  position: absolute;
+  left: 60px;
+  top: 284px;
+  width: 1801px;
+  height: 674px;
+  object-fit: contain;
+}
+
+/* “继 续”按钮（Figma 180:1054 新增，(871,962) 178×60 #4c79bd 圆角 8，白字 26px） */
+.rpt-continue {
+  position: absolute;
+  left: 871px;
+  top: 962px;
+  width: 178px;
+  height: 60px;
+  border: none;
+  border-radius: 8px;
+  background: #4c79bd;
+  color: #ffffff;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 60px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.rpt-continue:hover {
+  background: #3f6aa8;
+}
+
+/* ============================================================
+   H_05 完成后的调查组准备静态页（对齐 Figma 184:1286 / 184:1344）
+   ============================================================ */
+.ird-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  width: 1920px;
+  height: 1080px;
+  background: #000;
+}
+
+.ird-bg {
+  position: absolute;
+  inset: 0;
+  width: 1920px;
+  height: 1080px;
+  object-fit: fill;
+}
+
+.ird-subtitle {
+  position: absolute;
+  left: 287px;
+  top: 995px;
+  width: 1347px;
+  margin: 0;
+  color: #ffffff;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 45px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+
+/* “继 续”按钮（(1664,965) 178×60 #4c79bd 圆角 8，白字 26px，点击播放 20.mp4） */
+.ird-continue {
+  position: absolute;
+  left: 1664px;
+  top: 965px;
+  width: 178px;
+  height: 60px;
+  border: none;
+  border-radius: 8px;
+  background: #4c79bd;
+  color: #ffffff;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 60px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.ird-continue:hover {
+  background: #3f6aa8;
+}
+
+/* ============================================================
+   AI 问询结束后的“相关信息”弹窗（对齐 Figma 184:2015，550×340）
+   ============================================================ */
+.ri-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 22;
+  display: flex;
+}
+
+.ri-card {
+  position: absolute;
+  left: 685px;
+  top: 370px;
+  width: 550px;
+  height: 340px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 12px 40px rgba(30, 50, 90, 0.22);
+  overflow: hidden;
+}
+
+/* 头部：浅蓝底 64px，圆角仅顶部 */
+.ri-head {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 64px;
+  background: #f4f8fd;
+  display: flex;
+  align-items: center;
+}
+
+.ri-head::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: #d7dfeb;
+}
+
+.ri-head-bar {
+  position: absolute;
+  left: 30px;
+  top: 20px;
+  width: 8px;
+  height: 24px;
+  border-radius: 2px;
+  background: #395ba8;
+}
+
+.ri-head-title {
+  margin-left: 58px;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 33px;
+  color: #395ba8;
+}
+
+/* 正文 */
+.ri-body {
+  position: absolute;
+  left: 0;
+  top: 129px;
+  width: 100%;
+  margin: 0;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 45px;
+  color: #494e58;
+  text-align: center;
+}
+
+/* “我已了解”按钮：191×60 居中靠下 */
+.ri-ack-btn {
+  position: absolute;
+  left: 50%;
+  top: 240px;
+  transform: translateX(-50%);
+  width: 191px;
+  height: 60px;
+  border: 1px solid #f2f3f5;
+  border-radius: 12px;
+  background: #618dcf;
+  color: #fcfcfc;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 26px;
+  cursor: pointer;
+}
+
+.ri-ack-btn:hover {
+  background: #4f7fc7;
+}
+
+/* ============================================================
+   9.mp4 后“现场调查信息”弹窗（对齐 Figma 301:445，1200×700）
+   ============================================================ */
+.si-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 22;
+}
+
+.si-card {
+  position: absolute;
+  left: 360px;
+  top: 223px;
+  width: 1200px;
+  height: 700px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 12px 40px rgba(30, 50, 90, 0.22);
+  overflow: hidden;
+}
+
+/* 头部：浅蓝底 64px + 底部分割线 */
+.si-head {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 64px;
+  background: #f4f8fd;
+}
+
+.si-head::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: #d7dfeb;
+}
+
+.si-head-bar {
+  position: absolute;
+  left: 30px;
+  top: 20px;
+  width: 8px;
+  height: 24px;
+  border-radius: 2px;
+  background: #395ba8;
+}
+
+.si-head-title {
+  position: absolute;
+  left: 58px;
+  top: 16px;
+  margin: 0;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 33px;
+  color: #395ba8;
+}
+
+.si-close {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.si-close:hover {
+  background: #eef2f8;
+}
+
+/* 正文区：引导句 + 可滚动长文（底部留给按钮） */
+.si-body {
+  position: absolute;
+  left: 45px;
+  top: 88px;
+  width: 1110px;
+  height: 488px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+}
+
+.si-intro {
+  margin: 0 0 12px;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 45px;
+  color: #494e58;
+}
+
+.si-text {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 45px;
+  color: #494e58;
+  text-align: justify;
+}
+
+.si-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.si-body::-webkit-scrollbar-thumb {
+  background: #a5b0c5;
+  border-radius: 4px;
+}
+
+/* “我已了解”：191×60 居中靠下 */
+.si-ack-btn {
+  position: absolute;
+  left: 50%;
+  top: 600px;
+  transform: translateX(-50%);
+  width: 191px;
+  height: 60px;
+  border: 1px solid #f2f3f5;
+  border-radius: 12px;
+  background: #618dcf;
+  color: #fcfcfc;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 26px;
+  cursor: pointer;
+}
+
+.si-ack-btn:hover {
+  background: #4f7fc7;
+}
+
+/* “模块完成”提示卡（复用 .ri-*，正文为双行，对齐 Figma 301:729 local y104） */
+.mf-body {
+  top: 104px;
+  width: 360px;
+  left: 95px;
+}
+
+/* ============================================================
+   记录页左侧“记录｜个案调查表”入口卡片（对齐 Figma 194:1140，204×170）
+   ============================================================ */
+.rec-entry {
+  position: absolute;
+  left: 20px;
+  top: 210px;
+  width: 204px;
+  height: 170px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  z-index: 21;
+}
+
+.rec-entry img {
+  display: block;
+  width: 204px;
+  height: 170px;
+  border-radius: 10px;
+}
+
+.rec-entry:hover {
+  filter: brightness(1.08);
+}
+
+.rec-entry:active {
+  transform: scale(0.98);
+}
+
+/* ============================================================
+   《食品安全事故病例访谈提纲》弹窗（对齐 Figma 184:2357，1000×881）
+   ============================================================ */
+.io-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+}
+
+.io-card {
+  position: absolute;
+  left: 460px;
+  top: 128px;
+  width: 1000px;
+  height: 881px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 12px 44px rgba(30, 50, 90, 0.28);
+  overflow: hidden;
+}
+
+/* 标题栏：55px 高（Figma 301:439） */
+.io-head {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 55px;
+  background: #ffffff;
+  z-index: 2;
+}
+
+.io-head-bar {
+  position: absolute;
+  left: 28px;
+  top: 16px;
+  width: 7px;
+  height: 23px;
+  border-radius: 2px;
+  background: #6883bb;
+}
+
+.io-head-title {
+  position: absolute;
+  left: 63px;
+  top: 13px;
+  margin: 0;
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 30px;
+  color: #4f4f4f;
+}
+
+.io-close {
+  position: absolute;
+  right: 15px;
+  top: 17px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.io-close:hover {
+  background: #eef2f8;
+}
+
+/* 文档滚动区：标题栏(55)下方 826px，浅蓝底 #e8edf5（Figma 300:420） */
+.io-doc {
+  position: absolute;
+  left: 0;
+  top: 55px;
+  width: 1000px;
+  height: 826px;
+  background: #e8edf5;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* 白色表单内容卡 950×2420，左右各留 25px、上 20px、下 10px（Figma 301:443） */
+.io-doc-img {
+  display: block;
+  width: 950px;
+  margin: 20px 25px 10px;
+}
+
+/* 8px 实心灰蓝滚动条（对齐 Figma “滑条” 300:422 #A5B0C5） */
+.io-doc::-webkit-scrollbar {
+  width: 8px;
+}
+
+.io-doc::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.io-doc::-webkit-scrollbar-thumb {
+  background: #a5b0c5;
+  border-radius: 4px;
+}
+
+.io-doc {
+  scrollbar-width: thin;
+  scrollbar-color: #a5b0c5 transparent;
+}
+
+/* ---------- 徽标双按钮热区（机器人头像 / 胶囊文字） ---------- */
+.epi-badge-btn {
+  position: absolute;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.epi-badge-btn:focus-visible {
+  outline: 2px solid #618dcf;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* 机器人头像热区：95×95 圆形 */
+.epi-badge-btn--robot {
+  left: 0;
+  top: 0;
+  width: 95px;
+  height: 95px;
+  border-radius: 50%;
+}
+
+/* 胶囊文字热区：覆盖胶囊 186×63 区域 */
+.epi-badge-btn--pill {
+  left: 90px;
+  top: 21px;
+  width: 186px;
+  height: 63px;
+  border-radius: 31px;
+}
+
+/* ---------- AI学伴对话窗（Figma 230:288 / 遮罩 230:500） ---------- */
+.ac-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* 639×680 白卡 @ (641,206) */
+.ac-card {
+  position: absolute;
+  left: 641px;
+  top: 206px;
+  width: 639px;
+  height: 680px;
+  background: #fcfcfc;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* 顶部 60px 头部 */
+.ac-head {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 639px;
+  height: 60px;
+  background: #f4f8fd;
+  border-bottom: 1px solid #d7dfeb;
+}
+
+.ac-head-icon {
+  position: absolute;
+  left: 27px;
+  top: 17px;
+}
+
+.ac-head-title {
+  position: absolute;
+  left: 67px;
+  top: 19px;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 23px;
+  color: #4c79bd;
+}
+
+.ac-head-avatar {
+  position: absolute;
+  left: 142px;
+  top: 11px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.ac-head-status {
+  position: absolute;
+  left: 192px;
+  top: 22px;
+  font-size: 14px;
+  line-height: 17px;
+  color: #494e58;
+}
+
+/* 右上圆形关闭（31.6 圆 #000@25% 底 + X） */
+.ac-close {
+  position: absolute;
+  right: 18px;
+  top: 14px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.ac-close-disc {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.ac-close svg {
+  position: absolute;
+  left: 8.5px;
+  top: 8.5px;
+}
+
+/* 消息区：头部 60px 以下可纵向滚动，消息按文档流自上而下排列 */
+.ac-msgs {
+  position: absolute;
+  left: 0;
+  top: 60px;
+  width: 639px;
+  height: 620px;
+  box-sizing: border-box;
+  padding: 28px 35px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.ac-msgs::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ac-msgs::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ac-msgs::-webkit-scrollbar-thumb {
+  background: #cbd4e4;
+  border-radius: 10px;
+}
+
+.ac-msgs {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd4e4 transparent;
+}
+
+.ac-row {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  flex: none;
+}
+
+/* 学员提问行：右对齐，头像在气泡右侧 */
+.ac-row--user {
+  justify-content: flex-end;
+}
+
+.ac-bubble {
+  position: relative;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  line-height: 19px;
+  border: 1px solid #d7dfeb;
+}
+
+.ac-bubble span {
+  white-space: pre-line;
+}
+
+.ac-bubble--user {
+  max-width: 420px;
+  min-height: 38px;
+  padding: 9px 14px;
+  justify-content: flex-end;
+  background: #618dcf;
+  border-radius: 16px;
+  color: #fcfcfc;
+  text-align: right;
+  box-sizing: border-box;
+  word-break: break-word;
+}
+
+.ac-user-avatar {
+  margin-left: 14px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #8a8e95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+/* 学伴回答行：头像在左，气泡在右 */
+.ac-row--ai {
+  justify-content: flex-start;
+}
+
+.ac-ai-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: none;
+}
+
+.ac-bubble--ai {
+  margin-left: 11px;
+  max-width: 490px;
+  min-height: 38px;
+  padding: 9px 14px;
+  background: #e7f0ff;
+  border-radius: 16px;
+  color: #494e58;
+  text-align: left;
+  box-sizing: border-box;
+  word-break: break-word;
+}
+
+/* 底部悬浮输入栏：923×60 @ (499,1020) */
+.ac-dock {
+  position: absolute;
+  left: 499px;
+  top: 1020px;
+  width: 923px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.ac-dock-sep {
+  width: 1px;
+  height: 50px;
+  background: #d9d9d9;
+  flex: none;
+}
+
+/* “按住说话” 144×32 */
+.ac-hold-btn {
+  margin: 0 12px 0 26px;
+  width: 144px;
+  height: 32px;
+  border: none;
+  border-radius: 20px;
+  background: rgba(152, 176, 210, 0.8);
+  color: rgba(45, 45, 45, 0.6);
+  font-size: 16px;
+  line-height: 19px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  flex: none;
+}
+
+/* 中部蓝色语音区 509×32 */
+.ac-voice-btn {
+  flex: 1;
+  margin: 0 20px;
+  height: 32px;
+  border: none;
+  border-radius: 20px;
+  background: #4c79bd;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 文字输入模式：中部输入框 + 发送（与语音区等宽占位） */
+.ac-text-area {
+  flex: 1;
+  margin: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.ac-text-input {
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  box-sizing: border-box;
+  padding: 0 16px;
+  border: 1px solid #c5d2ea;
+  border-radius: 20px;
+  background: #ffffff;
+  font-size: 15px;
+  line-height: 30px;
+  color: #494e58;
+  outline: none;
+}
+
+.ac-text-input::placeholder {
+  color: #a5b0c5;
+}
+
+.ac-text-input:focus {
+  border-color: #618dcf;
+}
+
+.ac-send-btn {
+  width: 84px;
+  height: 32px;
+  border: none;
+  border-radius: 20px;
+  background: #4c79bd;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 32px;
+  cursor: pointer;
+  flex: none;
+}
+
+.ac-send-btn:disabled {
+  background: #b9c7e0;
+  cursor: not-allowed;
+}
+
+/* “结束帮助” 144×32 */
+.ac-end-btn {
+  margin: 0 18px 0 12px;
+  width: 144px;
+  height: 32px;
+  border: none;
+  border-radius: 20px;
+  background: rgba(191, 191, 191, 0.7);
+  color: #717989;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 22px;
+  cursor: pointer;
+  flex: none;
+}
+
+/* ---------- 任务列表面板（Figma 393:499 / 169:5226） ---------- */
+.tl-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 35;
+  background: #e8edf5;
+}
+
+/* 标题竖条 7×33 @ (80,114) */
+.tl-title-bar {
+  position: absolute;
+  left: 80px;
+  top: 114px;
+  width: 7px;
+  height: 33px;
+  border-radius: 2px;
+  background: #6883bb;
+}
+
+.tl-title {
+  position: absolute;
+  left: 106px;
+  top: 110px;
+  margin: 0;
+  font-size: 36px;
+  font-weight: 500;
+  line-height: 42px;
+  color: #031a79;
+}
+
+/* 右上“返回” 140×56 @ (1721,102) */
+.tl-back {
+  position: absolute;
+  left: 1721px;
+  top: 102px;
+  width: 140px;
+  height: 56px;
+  border: 1px solid #f2f3f5;
+  border-radius: 10px;
+  background: #618dcf;
+  color: #fcfcfc;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px;
+}
+
+.tl-back-disc {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+/* 白色表卡 1785×850 @ (81,187) */
+.tl-card {
+  position: absolute;
+  left: 81px;
+  top: 187px;
+  width: 1785px;
+  height: 850px;
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* 表头 59px #8ab1eb */
+.tl-head {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 59px;
+  background: #8ab1eb;
+}
+
+.tl-col {
+  position: absolute;
+  top: 15px;
+  font-size: 26px;
+  line-height: 30px;
+  color: #fcfcfc;
+}
+
+.tl-col--no {
+  left: 44px;
+}
+
+.tl-col--name {
+  left: 207px;
+}
+
+.tl-col--record {
+  left: 1028px;
+}
+
+.tl-col--action {
+  left: 1613px;
+}
+
+.tl-head-caret {
+  position: absolute;
+  left: 476px;
+  top: 15px;
+}
+
+/* 任务行区域 */
+.tl-rows {
+  position: absolute;
+  left: 0;
+  top: 63px;
+  width: 100%;
+}
+
+.tl-row {
+  position: relative;
+  width: 100%;
+  height: 67px;
+}
+
+/* 隔行浅蓝（Figma：#f4f8fd / #e9eff9 交替） */
+.tl-row:nth-child(odd) {
+  background: #f4f8fd;
+}
+
+.tl-row:nth-child(even) {
+  background: #e9eff9;
+}
+
+/* 当前任务行高亮：#b5cdff 底 + 3px #7f9cd8 描边（Figma 169:5285）。
+   选择器带 .tl-rows 前缀以压过隔行底色规则 */
+.tl-rows .tl-row--current,
+.tl-row--current {
+  background: #b5cdff;
+  box-shadow: inset 0 0 0 3px #7f9cd8;
+  z-index: 1;
+}
+
+/* 拖动指示 14×32（3 条 #cbd4e4） */
+.tl-drag {
+  position: absolute;
+  left: 12px;
+  top: 18px;
+  width: 14px;
+  height: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.tl-drag i {
+  display: block;
+  width: 14px;
+  height: 4px;
+  border-radius: 4px;
+  background: #cbd4e4;
+}
+
+.tl-row--current .tl-drag i {
+  background: #fcfcfc;
+}
+
+.tl-no {
+  position: absolute;
+  left: 44px;
+  top: 16px;
+  font-size: 24px;
+  line-height: 36px;
+  color: #555a66;
+}
+
+.tl-name {
+  position: absolute;
+  left: 207px;
+  top: 15px;
+  font-size: 24px;
+  line-height: 36px;
+  color: #555a66;
+}
+
+/* 记录列文档图标 46×46 居中于 x≈1028 列 */
+.tl-record {
+  position: absolute;
+  left: 1005px;
+  top: 10px;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 执行列按钮 166×56 @ 卡内 x=1563，垂直居中 */
+.tl-action {
+  position: absolute;
+  left: 1563px;
+  top: 5px;
+  width: 166px;
+  height: 56px;
+}
+
+.tl-btn {
+  width: 166px;
+  height: 56px;
+  border: 1px solid #f2f3f5;
+  border-radius: 10px;
+  color: #fcfcfc;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0;
+}
+
+.tl-btn-ico {
+  flex: none;
+}
+
+/* 已完成行：重新开始（灰 70%） */
+.tl-btn--restart {
+  background: rgba(113, 121, 137, 0.7);
+}
+
+/* 当前行：进行中（蓝色渐变） */
+.tl-btn--running {
+  background: linear-gradient(135deg, #6f96d6 0%, #4c79bd 100%);
+}
+
+/* 未开始行：开始执行（绿） */
+.tl-btn--start {
+  background: #009a29;
 }

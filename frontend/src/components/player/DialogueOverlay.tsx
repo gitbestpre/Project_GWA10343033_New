@@ -25,10 +25,19 @@ const ROLE_COLOR: Record<string, string> = {
 export default function DialogueOverlay({
   lines,
   onFinish,
+  title = '流行病学调查 · 接报通话',
+  roleSide,
+  roleColor,
 }: {
   lines: DialogueLine[]
   /** 全部对话播放完成后的回调（可留空，停留结束画面） */
   onFinish?: () => void
+  /** 顶部通话状态标题（不同对话场景可覆盖） */
+  title?: string
+  /** 按场景覆盖角色在画面中的方位（不传则用内置 ROLE_SIDE） */
+  roleSide?: Record<string, 'left' | 'right' | 'center'>
+  /** 按场景覆盖角色头像底色（不传则用内置 ROLE_COLOR） */
+  roleColor?: Record<string, string>
 }) {
   const [index, setIndex] = useState(0)
   const [started, setStarted] = useState(false)
@@ -49,8 +58,10 @@ export default function DialogueOverlay({
   useEffect(() => () => clearAdvanceTimer(), [])
 
   const line = !finished && index < lines.length ? lines[index] : null
-  const side = line ? (ROLE_SIDE[line.role] ?? 'left') : 'left'
-  const color = line ? (ROLE_COLOR[line.role] ?? '#3f7fd6') : '#3f7fd6'
+  const sideMap = roleSide ?? ROLE_SIDE
+  const colorMap = roleColor ?? ROLE_COLOR
+  const side = line ? (sideMap[line.role] ?? 'left') : 'left'
+  const color = line ? (colorMap[line.role] ?? '#3f7fd6') : '#3f7fd6'
   // 背景视频随当前条切换（3.mp4 / 4.mp4）；结束后停在最后一条的画面
   const bgVideo = lines[Math.min(index, Math.max(lines.length - 1, 0))]?.video ?? '/Video/3.mp4'
 
@@ -123,6 +134,7 @@ export default function DialogueOverlay({
         className="dlg-bg"
         src={bgVideo}
         autoPlay
+        muted
         loop
         playsInline
         preload="auto"
@@ -135,7 +147,7 @@ export default function DialogueOverlay({
       {/* 通话状态 + 进度点 */}
       <div className="dlg-top">
         <span className="dlg-call-dot" />
-        <span className="dlg-call-title">流行病学调查 · 接报通话</span>
+        <span className="dlg-call-title">{title}</span>
         <span className="dlg-dots">
           {lines.map((l, i) => (
             <span
