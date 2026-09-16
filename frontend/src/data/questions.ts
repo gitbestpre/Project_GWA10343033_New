@@ -377,23 +377,23 @@ export const QUESTIONS: QuizQuestion[] = [
   {
     "id": "H_11",
     "type": "multiple",
-    "question": "可采集的生物样本有哪些?",
+    "question": "采样是事故调查的重要工作内容，采样的原则有哪些?",
     "options": [
       {
         "key": "A",
-        "text": "粪便(肛拭子)"
+        "text": "及时性原则"
       },
       {
         "key": "B",
-        "text": "血液"
+        "text": "针对性原则"
       },
       {
         "key": "C",
-        "text": "尿液"
+        "text": "适量性原则"
       },
       {
         "key": "D",
-        "text": "呕吐物"
+        "text": "不污染原则"
       }
     ],
     "answerKeys": [
@@ -631,6 +631,40 @@ export const QUESTIONS: QuizQuestion[] = [
       "D",
       "E",
       "F"
+    ],
+    "scoring": "答对得全分，答错不得分",
+    "analysis": ""
+  },
+  {
+    // 从业人员采样阶段（Figma 194:1251，对应《选择题.xlsx》H_12）。
+    // 注：设计稿卡片误标「单选题 / 01/02」，按答题数据表实为多选、四类病人样本全选，
+    // 经负责人确认按多选题实现、单题 01/01。
+    "id": "H_23",
+    "type": "multiple",
+    "question": "可采集的生物样本有哪些?",
+    "options": [
+      {
+        "key": "A",
+        "text": "粪便(肛拭子)"
+      },
+      {
+        "key": "B",
+        "text": "血液"
+      },
+      {
+        "key": "C",
+        "text": "尿液"
+      },
+      {
+        "key": "D",
+        "text": "呕吐物"
+      }
+    ],
+    "answerKeys": [
+      "A",
+      "B",
+      "C",
+      "D"
     ],
     "scoring": "答对得全分，答错不得分",
     "analysis": ""

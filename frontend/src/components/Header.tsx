@@ -41,6 +41,7 @@ export default function Header({
     '/case-study': '/',
     '/knowledge': '/',
     '/epidemiology': '/case-study',
+    '/food-hygiene': '/case-study',
   }
   const backTo = BACK_TARGETS[location.pathname]
   const isHomePage = location.pathname === '/'

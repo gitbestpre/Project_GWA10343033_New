@@ -4,6 +4,7 @@ import KnowledgePage from './pages/KnowledgePage'
 import CaseStudyPage from './pages/CaseStudyPage'
 import EpidemiologyPageV2 from './pages/EpidemiologyPageV2'
 import EpidemiologyPlayer from './pages/EpidemiologyPlayer'
+import FoodHygienePlayer from './pages/FoodHygienePlayer'
 import './index.css'
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
         <Route path="/knowledge" element={<KnowledgePage />} />
         <Route path="/case-study" element={<CaseStudyPage />} />
         <Route path="/epidemiology" element={<EpidemiologyPlayer />} />
+        <Route path="/food-hygiene" element={<FoodHygienePlayer />} />
         <Route path="/epidemiology-v2" element={<EpidemiologyPageV2 />} />
       </Routes>
     </BrowserRouter>

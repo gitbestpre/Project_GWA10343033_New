@@ -26,14 +26,17 @@ export default function DialogueOverlay({
   lines,
   onFinish,
   title = '流行病学调查 · 接报通话',
+  endText = '通话结束',
   roleSide,
   roleColor,
 }: {
   lines: DialogueLine[]
   /** 全部对话播放完成后的回调（可留空，停留结束画面） */
   onFinish?: () => void
-  /** 顶部通话状态标题（不同对话场景可覆盖） */
+  /** 顶部状态标题（不同对话场景可覆盖） */
   title?: string
+  /** 全部播完后停留画面上的结束文案（通话场景用「通话结束」，现场对话用「对话结束」） */
+  endText?: string
   /** 按场景覆盖角色在画面中的方位（不传则用内置 ROLE_SIDE） */
   roleSide?: Record<string, 'left' | 'right' | 'center'>
   /** 按场景覆盖角色头像底色（不传则用内置 ROLE_COLOR） */
@@ -176,7 +179,7 @@ export default function DialogueOverlay({
       {/* 底部操作区 */}
       <div className="dlg-bottom">
         {finished ? (
-          <div className="dlg-end">通话结束</div>
+          <div className="dlg-end">{endText}</div>
         ) : needTap ? (
           <button type="button" className="dlg-start-btn" onClick={startByTap}>
             点击开始对话
