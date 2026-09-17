@@ -6,7 +6,7 @@ type HeaderVariant = 'simple' | 'stats'
 
 /** 四大调查模块（与 /case-study 模块卡片一致），用于顶栏中部下拉切换 */
 const STAGE_MODULES = [
-  { id: 'epidemiology', title: '流行病学调查', path: '/epidemiology' },
+  { id: 'epidemiology', title: '现场流行病学调查', path: '/epidemiology' },
   { id: 'food-hygiene', title: '食品卫生学调查', path: '/food-hygiene' },
   { id: 'lab-testing', title: '实验室检测', path: '/lab-testing' },
   { id: 'analysis', title: '资料分析及调查结论', path: '/analysis' },

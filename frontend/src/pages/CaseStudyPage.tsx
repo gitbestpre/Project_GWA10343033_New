@@ -6,7 +6,7 @@ import './CaseStudyPage.css'
 const modules = [
   {
     id: 'epidemiology',
-    title: '流行病学调查',
+    title: '现场流行病学调查',
     path: '/epidemiology',
     image: '/images/hospital-scene.png',
     status: '未学习' as const,

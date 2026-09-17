@@ -19,7 +19,7 @@ describe('CaseStudyPage', () => {
         <CaseStudyPage />
       </MemoryRouter>
     )
-    expect(screen.getByText('流行病学调查')).toBeInTheDocument()
+    expect(screen.getByText('现场流行病学调查')).toBeInTheDocument()
     expect(screen.getByText('食品卫生学调查')).toBeInTheDocument()
     expect(screen.getByText('实验室检测')).toBeInTheDocument()
     expect(screen.getByText('资料分析及调查结论')).toBeInTheDocument()
