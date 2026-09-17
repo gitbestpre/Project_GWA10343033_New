@@ -1,0 +1,294 @@
+/* 数据表格弹窗（Figma 191:587 / Group 1171275673）
+   帧内绝对位置 left360 top137，1200×908（在原稿 856 基础上底部扩 52 放缩小版提交钮）；
+   浮于实验室房间背景之上。
+   标题栏白底 56（顶部 r15），内容区 #f0f5fb（底部 r12），
+   内嵌 1140 宽白卡表格：白底 + 2px #a5b0c5 描边 + r6。 */
+
+.dt-panel {
+  position: absolute;
+  left: 360px;
+  top: 137px;
+  width: 1200px;
+  height: 908px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  box-shadow: 0 10px 40px rgba(20, 40, 80, 0.25);
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+/* ---------- 标题栏（白底 56，顶部圆角 15） ---------- */
+.dt-head {
+  position: relative;
+  flex: none;
+  height: 56px;
+  background: #ffffff;
+  border-radius: 15px 15px 0 0;
+}
+
+.dt-head-bar {
+  position: absolute;
+  left: 30px;
+  top: 16px;
+  width: 8px;
+  height: 23px;
+  background: #6883bb;
+  border-radius: 2px;
+}
+
+.dt-head-title {
+  position: absolute;
+  left: 54px;
+  top: 13px;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 30px;
+  color: #505050;
+}
+
+.dt-close {
+  position: absolute;
+  right: 20px;
+  top: 16px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- 内容区（#f0f5fb，底部圆角 12） ---------- */
+.dt-body {
+  position: relative;
+  flex: 1 1 auto;
+  background: #f0f5fb;
+  border-radius: 0 0 12px 12px;
+}
+
+.dt-subtitle {
+  margin: 0;
+  text-align: center;
+  padding-top: 25px;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 30px;
+  color: #505050;
+}
+
+/* ---------- 表格白卡（帧内 390,273 → 相对 panel x30 y136；
+   .dt-body 自 panel 内 y56 起，故相对 body 为 left30 top80，1140×692，
+   白底 + 2px #a5b0c5 描边 + r6） ---------- */
+.dt-table {
+  position: absolute;
+  left: 30px;
+  top: 80px;
+  width: 1140px;
+  border-collapse: collapse;
+  border: 2px solid #a5b0c5;
+  border-radius: 6px;
+  overflow: hidden;
+  table-layout: fixed;
+  background: #ffffff;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: #505050;
+}
+
+.dt-th,
+.dt-td {
+  border: 2px solid #a5b0c5;
+  text-align: center;
+  vertical-align: middle;
+  font-weight: 400;
+  padding: 0;
+  color: #505050;
+}
+
+/* 表头底 #e5eeff 80% */
+.dt-th {
+  font-size: 24px;
+  font-weight: 400;
+  color: #505050;
+  background: rgba(229, 238, 255, 0.8);
+  line-height: 1;
+}
+
+/* 表头分组行高 48、子表头高 44 */
+.dt-tr-group .dt-th {
+  height: 48px;
+}
+.dt-tr-sub .dt-th {
+  height: 44px;
+  font-size: 22px;
+}
+
+/* 数据行 50 */
+.dt-tr .dt-td {
+  height: 50px;
+  font-size: 24px;
+  line-height: 50px;
+}
+
+.dt-td-dish {
+  font-size: 24px;
+  line-height: 50px;
+  padding: 0 10px;
+}
+
+/* OR 单元格 */
+.dt-td-or {
+  background: #ffffff;
+}
+
+.dt-or-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 50px;
+}
+
+/* OR 输入盒：189×36 r6，#e9eff9 底 + 1px #618dcf 描边 */
+.dt-or-input {
+  width: 189px;
+  height: 36px;
+  border: 1px solid #618dcf;
+  outline: none;
+  background: #e9eff9;
+  border-radius: 6px;
+  text-align: center;
+  font-family: inherit;
+  font-size: 22px;
+  font-weight: 400;
+  color: #505050;
+  padding: 0;
+}
+
+/* 首行 OR 盒设计稿为 189×40 */
+.dt-tr:first-child .dt-or-input {
+  height: 40px;
+}
+
+.dt-or-input::placeholder {
+  color: rgba(80, 80, 80, 0.4);
+  font-size: 22px;
+}
+
+.dt-or-input:focus {
+  box-shadow: inset 0 0 0 1px #618dcf;
+}
+
+/* 95%CI 两列：各放一个 161×36 白底 + 1px #618dcf 描边 r6 的内嵌盒。
+   两列之间不画通栏竖线（Figma 仅在两盒之间有 36 高 1px 短刻度）。 */
+.dt-td-ci {
+  font-size: 22px;
+  position: relative;
+}
+
+/* 取消两个 CI 单元格之间的竖线（相邻两侧都置 0） */
+.dt-tr .dt-td-ci {
+  border-right-width: 0;
+}
+.dt-tr .dt-td-ci + .dt-td-ci {
+  border-left-width: 0;
+  border-right-width: 2px;
+}
+
+/* 两盒之间的 1px×36 短刻度，在行内垂直居中 */
+.dt-td-ci + .dt-td-ci::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 1px;
+  height: 36px;
+  background: #a5b0c5;
+}
+
+.dt-ci-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 161px;
+  height: 36px;
+  margin: 0 auto;
+  background: #ffffff;
+  border: 1px solid #618dcf;
+  border-radius: 6px;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 36px;
+  color: #505050;
+}
+
+/* ---------- 判题后对错配色（全站统一：绿 #4caf6f / 红 #e06a5b） ---------- */
+.dt-or-input.is-correct,
+.dt-ci-box.is-correct {
+  border-color: #4caf6f;
+  background: #eefaf2;
+  color: #2e7d4f;
+}
+
+.dt-or-input.is-wrong {
+  border-color: #e06a5b;
+  background: #fdeeee;
+  color: #d94836;
+}
+
+.dt-or-input[readonly] {
+  cursor: default;
+}
+
+/* ---------- 底部操作条（提交 / 判题倒计时），沉在白卡下方留白区 ---------- */
+.dt-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 800px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dt-submit {
+  width: 120px;
+  height: 38px;
+  border: 1.5px solid #cad6e6;
+  border-radius: 8px;
+  background: #fcfcfc;
+  color: #494e58;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 35px;
+  text-align: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.dt-submit:hover {
+  border-color: #618dcf;
+  color: #618dcf;
+}
+
+/* 判题后进入知识考核前的 5 秒倒计时提示 */
+.dt-hold-hint {
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  color: #494e58;
+}
+
+.dt-hold-hint b {
+  color: #618dcf;
+  font-size: 20px;
+  margin: 0 2px;
+}

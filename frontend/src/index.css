@@ -1,3 +1,13 @@
+/* Digital Numbers —— 顶部栏得分/用时等数字专用（对齐 Figma DigitalNumbers-Regular） */
+@font-face {
+  font-family: 'Digital Numbers';
+  src: url('/fonts/DigitalNumbers-Regular.woff') format('woff'),
+       url('/fonts/DigitalNumbers-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 * {
   margin: 0;
   padding: 0;

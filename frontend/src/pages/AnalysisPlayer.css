@@ -1,0 +1,125 @@
+/* 资料分析及调查结论 · 15.mp4（徽标「可疑食物分析」）→ 数据表格
+   舞台/视频基底复用 EpidemiologyPlayer.css（.epi-stage / .epi-video / .epi-play-hint），
+   这里补充左上角徽标（几何同 .lab-badge / .fh-badge：left27 top89，头像95 + 鱼尾白胶囊）。 */
+
+/* ---------- 左上角阶段徽标 ---------- */
+.an-badge {
+  position: absolute;
+  left: 27px;
+  top: 89px;
+  height: 95px;
+  display: flex;
+  align-items: flex-start;
+  z-index: 40;
+  pointer-events: none;
+}
+
+.an-badge-avatar {
+  position: relative;
+  z-index: 2;
+  width: 95px;
+  height: 95px;
+  flex: none;
+  border-radius: 50%;
+  object-fit: cover;
+  user-select: none;
+  margin-right: -5px; /* 与胶囊重叠 5px，鱼尾从圆后探出连体 */
+}
+
+.an-badge-pill-slot {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  flex: none;
+  margin-top: 21px;
+}
+
+.an-badge-pill {
+  position: relative;
+  display: inline-block;
+  filter: drop-shadow(0 4px 6px rgba(30, 60, 120, 0.16));
+}
+
+.an-pill-svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  user-select: none;
+}
+
+.an-badge-text {
+  position: absolute;
+  top: 0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 1;
+  color: #494e58;
+  letter-spacing: 1px;
+}
+
+/* ---------- 15.mp4 铺满 1920x1080 舞台（无原生控制条，播完停末帧做表格背景） ---------- */
+.an-stage .an-video {
+  z-index: 1;
+  background: #000;
+}
+
+/* ============================================================
+   知识考核 5 题（H_18~H_22）——长选项自适应排版（仅本模块覆盖）
+   共享模板 .epi-option 固定 56px 高 + nowrap 省略号；H_21/H_22
+   选项文本很长（最长约 75 字）。
+   策略（AnalysisQuizStep 运行时逐档测量）：选项文字超过一行时，
+   自动缩小【选项字号】（24→22→20→18→17→16）直到全部选项在
+   top126/157 → 512 的固定区内一屏放完——无滚动条、不需滚动页面。
+   短选项题（H_18~H_20）24px/56px 与 Figma 194:829 原模板完全一致。
+   仅在 .an-quiz-layer 作用域内生效，不影响流调/食品卫生学模块。
+   ============================================================ */
+.an-quiz-layer {
+  /* 由 AnalysisQuizStep 按题测量后写入；默认 24px（模板原值，未测量前零偏差） */
+  --an-opt-fs: 24px;
+  --an-opt-lh: calc(var(--an-opt-fs) + 6px);
+}
+
+.an-quiz-layer .epi-option {
+  width: 780px;
+  height: auto;
+  /* 24px 时 = 56（与模板一致）；缩字号时单行高同步收窄 */
+  min-height: calc(var(--an-opt-fs) + 32px);
+  box-sizing: border-box;
+  /* 字母圆钮在选项卡内垂直居中（含多行）；文本仍顶对齐，padding 控制其首行位置 */
+  align-items: center;
+  padding: 12px 0;
+}
+
+/* 字母圆钮保持模板 35px 不变，依赖父级 align-items:center 整体垂直居中；
+   margin 仅重置模板的 margin-left 之外的垂直偏移 */
+.an-quiz-layer .epi-option-key {
+  margin-top: 0;
+}
+
+/* 选项文本：字号跟随测量值、换行完整显示，去掉 nowrap + 省略号 */
+.an-quiz-layer .epi-option-text {
+  font-size: var(--an-opt-fs);
+  line-height: var(--an-opt-lh);
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  padding-right: 20px;
+  word-break: break-word;
+}
+
+/* 紧凑档（测量器判定需要缩字号，即 fs<24 时由组件打 data-compact）：
+   仅收紧选项垂直留白帮助长题（如 H_22 的 6 选项）一屏放完；
+   短选项题永远停在 24px 非紧凑档，56px 高 / 10px 间距与模板一致。 */
+.an-quiz-layer[data-compact] .epi-quiz-options {
+  gap: 6px;
+}
+
+.an-quiz-layer[data-compact] .epi-option {
+  padding: 7px 0;
+  min-height: calc(var(--an-opt-fs) + 26px);
+}

@@ -4,6 +4,9 @@ import KnowledgePage from './pages/KnowledgePage'
 import CaseStudyPage from './pages/CaseStudyPage'
 import EpidemiologyPageV2 from './pages/EpidemiologyPageV2'
 import EpidemiologyPlayer from './pages/EpidemiologyPlayer'
+import FoodHygienePlayer from './pages/FoodHygienePlayer'
+import LabTestingPlayer from './pages/LabTestingPlayer'
+import AnalysisPlayer from './pages/AnalysisPlayer'
 import './index.css'
 
 function App() {
@@ -14,6 +17,9 @@ function App() {
         <Route path="/knowledge" element={<KnowledgePage />} />
         <Route path="/case-study" element={<CaseStudyPage />} />
         <Route path="/epidemiology" element={<EpidemiologyPlayer />} />
+        <Route path="/food-hygiene" element={<FoodHygienePlayer />} />
+        <Route path="/lab-testing" element={<LabTestingPlayer />} />
+        <Route path="/analysis" element={<AnalysisPlayer />} />
         <Route path="/epidemiology-v2" element={<EpidemiologyPageV2 />} />
       </Routes>
     </BrowserRouter>

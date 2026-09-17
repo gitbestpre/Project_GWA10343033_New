@@ -7,6 +7,10 @@
 frontend/public/Video
 frontend/public/Audio
 
+# 音视频大资源不入库（仓库根的 Audio/、Video/ 仅本地使用，经 Vite 静态映射访问）
+/Audio/
+/Video/
+
 # ===== 未启用的旧原型 =====
 # 流行病学调查旧版“步骤机”原型，App.tsx 未引用；现行页面为 EpidemiologyPlayer.tsx
 frontend/src/pages/EpidemiologyPage.tsx

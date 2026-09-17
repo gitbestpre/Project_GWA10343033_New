@@ -1,0 +1,155 @@
+/* 《调查报告提纲》弹窗（Figma 370:1988 / Group 1171275685）
+   1200 宽白卡（舞台 left360 top151，高 856）：浅蓝头条 64 + 正文滚动区 + 底部固定确认栏。
+   正文为六部分提纲真实文本（28px），内容超高时在主体内纵向滚动。 */
+
+.rp-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 24;
+}
+
+.rp-panel {
+  position: absolute;
+  left: 360px;
+  top: 151px;
+  width: 1200px;
+  height: 856px;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(30, 50, 90, 0.18);
+  overflow: hidden;
+}
+
+/* ---------- 头条（浅蓝底 64px） ---------- */
+.rp-head {
+  position: relative;
+  flex: none;
+  height: 64px;
+  background: #f4f8fd;
+}
+
+.rp-head-bar {
+  position: absolute;
+  left: 30px;
+  top: 20px;
+  width: 8px;
+  height: 24px;
+  border-radius: 2px;
+  background: #395ba8;
+}
+
+.rp-head-title {
+  position: absolute;
+  left: 58px;
+  top: 16px;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 33px;
+  color: #395ba8;
+}
+
+.rp-close {
+  position: absolute;
+  right: 12px;
+  top: 14px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rp-close:hover {
+  background: #eef2f8;
+}
+
+.rp-divider {
+  flex: none;
+  height: 1px;
+  background: #d7dfeb;
+}
+
+/* ---------- 正文滚动区 ---------- */
+.rp-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 24px 49px 28px 45px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #b9c6dd transparent;
+}
+
+.rp-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.rp-body::-webkit-scrollbar-thumb {
+  background: #b9c6dd;
+  border-radius: 4px;
+}
+
+.rp-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.rp-section {
+  margin: 0 0 26px;
+}
+
+.rp-section:last-child {
+  margin-bottom: 0;
+}
+
+.rp-heading {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 45px;
+  color: #494e58;
+}
+
+.rp-para {
+  margin: 10px 0 0;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 40px;
+  color: #494e58;
+  word-break: break-word;
+}
+
+/* ---------- 底部固定确认栏 ---------- */
+.rp-footer {
+  flex: none;
+  height: 84px;
+  border-top: 1px solid #d7dfeb;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rp-confirm-btn {
+  width: 191px;
+  height: 56px;
+  border: none;
+  border-radius: 12px;
+  background: #618dcf;
+  color: #fcfcfc;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 56px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.rp-confirm-btn:hover {
+  background: #4f7fc7;
+}

@@ -1,0 +1,333 @@
+/* 实验室检测 · 查看实验视频（17.mp4）→ 操作视频 01.mp4 → 右侧检验道具栏
+   舞台/视频基底复用 EpidemiologyPlayer.css（.epi-stage / .epi-video / .epi-play-hint），
+   这里补充左上角徽标（与食品卫生同几何）、右下按钮与右侧道具栏。 */
+
+/* ---------- 左上角阶段徽标（几何同 .fh-badge，left27 top89，头像95 + 鱼尾白胶囊） ---------- */
+.lab-badge {
+  position: absolute;
+  left: 27px;
+  top: 89px;
+  height: 95px;
+  display: flex;
+  align-items: flex-start;
+  z-index: 40;
+  pointer-events: none;
+}
+
+.lab-badge-avatar {
+  position: relative;
+  z-index: 2;
+  width: 95px;
+  height: 95px;
+  flex: none;
+  border-radius: 50%;
+  object-fit: cover;
+  user-select: none;
+  margin-right: -5px; /* 与胶囊重叠 5px，鱼尾从圆后探出连体 */
+}
+
+.lab-badge-pill-slot {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  flex: none;
+  margin-top: 21px;
+}
+
+.lab-badge-pill {
+  position: relative;
+  display: inline-block;
+  filter: drop-shadow(0 4px 6px rgba(30, 60, 120, 0.16));
+}
+
+.lab-pill-svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  user-select: none;
+}
+
+.lab-badge-text {
+  position: absolute;
+  top: 0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 1;
+  color: #494e58;
+  letter-spacing: 1px;
+}
+
+/* ---------- 视频铺满 1920x1080 舞台；原生控制条常驻可交互 ---------- */
+.lab-stage .lab-video {
+  z-index: 1;
+  background: #000;
+  /* 原生 controls 已提供进度/暂停/音量/全屏；不遮挡徽标 */
+}
+
+/* ---------- 阶段三：右侧 10 件检验道具栏（位置/尺寸严格对齐 Figma 355:482 Group1171275637）
+   Figma 帧内（1920×1080）：道具栏 x1640 y160 260×760 → 右边距 20、上下各留 160、垂直居中。
+   结构：白底 r15 浮窗 ｜ 顶部 260×64 #f4f8fd 标题带（蓝竖条 7.4×23 在 x14、标题在 x40）｜
+   内容两列（列 x27/x143、列宽 90、间距 26）：#f0f3f9 r12 圆角方卡 + #618dcf 蓝色标签。
+   Figma 原栏为 9 件短名采样工具（方卡 88、标签 18）；本项目换成 10 件长名检验道具（5×2），
+   为保证【一屏平铺不翻页】，在 260×760 不变的前提下方卡收为 72、标签 16px，长名两行折行。 */
+.lab-tools-rail {
+  position: absolute;
+  top: 160px;
+  right: 20px;
+  width: 260px;
+  height: 760px;
+  z-index: 30;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background: #fcfcfc; /* Figma 对话记录背景 #FCFCFC */
+  border-radius: 15px;
+  box-shadow: 0 14px 40px rgba(20, 50, 110, 0.22);
+  overflow: hidden;
+}
+
+/* 顶部标题带：260×64 #f4f8fd（Figma Rectangle 34624848） */
+.lab-tools-head {
+  position: relative;
+  flex: none;
+  height: 64px;
+  background: #f4f8fd;
+  display: flex;
+  align-items: center;
+}
+
+/* 蓝竖条：7.4×23 r2 #6883bb，栏内 x14、垂直居中（Figma Rectangle 1006 @1654,9040） */
+.lab-tools-head-bar {
+  width: 7px;
+  height: 23px;
+  margin-left: 14px;
+  border-radius: 2px;
+  background: #6883bb;
+  flex: none;
+}
+
+/* 标题「道具栏」26px #4f4f4f，栏内 x40（Figma 文本 6008,9037） */
+.lab-tools-head-title {
+  margin-left: 19px; /* 14 + 7 + 19 = 40 */
+  color: #4f4f4f;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 1px;
+}
+
+/* 两列网格：Figma 内容区上距标题带 20、左右 27、下 16；5 行一屏平铺 */
+.lab-tools-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 20px 20px 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 16px;
+  row-gap: 12px;
+  align-content: space-between;
+  overflow: visible;
+}
+
+.lab-tool {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 当前步骤可点击道具（BPW）：指针 + 悬浮/按下反馈 */
+.lab-tool--clickable {
+  cursor: pointer;
+  border-radius: 12px;
+  transition: transform 0.08s ease;
+}
+
+.lab-tool--clickable:focus-visible {
+  outline: 2px solid #618dcf;
+  outline-offset: 2px;
+}
+
+.lab-tool-chip--hot {
+  background: #e3edfb; /* 可点项用更深一点的浅蓝提示 */
+  box-shadow: 0 0 0 2px rgba(97, 141, 207, 0.55);
+  transition: box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.lab-tool--clickable:hover .lab-tool-chip--hot {
+  background: #d5e6fa;
+  box-shadow: 0 0 0 2px #618dcf;
+}
+
+.lab-tool--clickable:active {
+  transform: scale(0.96);
+}
+
+/* 图标格：圆角方形浅蓝卡 r12 #f0f3f9（Figma 88×88 等比收为 72 以容纳长标签、保证 5 行） */
+.lab-tool-chip {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-width: 72px;
+  border-radius: 12px;
+  background: #f0f3f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.lab-tool-img {
+  width: 82%;
+  height: 82%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* 标签：蓝色 #618dcf（Figma 18px 收为 16px），居中、长名两行折行 */
+.lab-tool-label {
+  margin-top: 8px;
+  min-height: 38px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: center;
+  color: #618dcf;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.2px;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* ---------- 底部引导提示胶囊（延用食品卫生 .st-hint 黑胶囊 + 黄灯泡）
+   样品处理阶段容器常显、相对 1920 舞台水平居中（left:50% + translateX(-50%)）。
+   无文案（data-empty）时保留同样高度占位但完全透明，避免画面忽隐忽现 / 布局跳动；
+   有文案时才呈黑胶囊。胶囊较窄不会压住右侧道具栏。 */
+.lab-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  max-width: 1500px;
+  min-height: 60px;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: #2b2c2e;
+  border-radius: 5px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  z-index: 40;
+  box-sizing: border-box;
+}
+
+.lab-hint[data-empty="true"] {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.lab-hint-bulb {
+  flex: none;
+}
+
+.lab-hint-text {
+  font-size: 26px;
+  font-weight: 500;
+  color: #ffffff;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+/* ---------- 02.mp4 末帧：秤面橙色 Tare 归零按钮热区（透明，光圈呼吸提示可点） ---------- */
+.lab-tare-hotspot {
+  position: absolute;
+  z-index: 38;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 50%;
+  /* 淡白光圈 + 橙色辉光呼吸，提示可点但不遮挡末帧自带的「请点击归零」红箭头；
+     只动画 opacity / 光圈，不动画 transform，保证命中区几何稳定不抖动。 */
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.55), 0 0 18px 6px rgba(255, 138, 36, 0.55);
+  animation: lab-tare-pulse 1.1s ease-in-out infinite;
+}
+
+.lab-tare-hotspot:hover {
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.9), 0 0 26px 12px rgba(255, 138, 36, 0.85);
+}
+
+@keyframes lab-tare-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* ---------- 视频阶段右下操作区（抬离原生控制条，避免重叠） ---------- */
+.lab-actions {
+  position: absolute;
+  right: 40px;
+  bottom: 104px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.lab-next-btn,
+.lab-exit-btn {
+  min-width: 168px;
+  height: 60px;
+  padding: 0 34px;
+  border: none;
+  border-radius: 12px;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 26px;
+  letter-spacing: 4px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(25, 73, 169, 0.28);
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+
+/* 下一步：白底蓝字描边，与实心退出按钮区分主/次 */
+.lab-next-btn {
+  background: #ffffff;
+  color: #4f7fc7;
+  border: 2px solid #618dcf;
+  letter-spacing: 2px;
+  box-shadow: 0 6px 18px rgba(25, 73, 169, 0.18);
+}
+
+.lab-next-btn:hover {
+  background: #eef4fd;
+}
+
+.lab-next-btn:active {
+  transform: translateY(1px);
+}
+
+/* 退出视频：主蓝实心 */
+.lab-exit-btn {
+  background: #618dcf;
+  color: #fff;
+}
+
+.lab-exit-btn:hover {
+  background: #5682c8;
+}
+
+.lab-exit-btn:active {
+  background: #4c76bd;
+  transform: translateY(1px);
+}

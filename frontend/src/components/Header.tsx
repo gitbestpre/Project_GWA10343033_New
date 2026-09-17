@@ -1,7 +1,16 @@
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import './Header.css'
 
 type HeaderVariant = 'simple' | 'stats'
+
+/** 四大调查模块（与 /case-study 模块卡片一致），用于顶栏中部下拉切换 */
+const STAGE_MODULES = [
+  { id: 'epidemiology', title: '流行病学调查', path: '/epidemiology' },
+  { id: 'food-hygiene', title: '食品卫生学调查', path: '/food-hygiene' },
+  { id: 'lab-testing', title: '实验室检测', path: '/lab-testing' },
+  { id: 'analysis', title: '资料分析及调查结论', path: '/analysis' },
+] as const
 
 /**
  * 全局顶部栏 —— 全站唯一一套，严格对齐 Figma「Group 427321485」(1920x73)。
@@ -15,10 +24,11 @@ type HeaderVariant = 'simple' | 'stats'
  * - stageLabel      ：可选的当前阶段标签（如"现场流行病学调查"），
  *                     带左右竖线，固定在标题与得分卡之间
  *
- * 帧内坐标（宽 1920，高 73）：
- *   校徽 x15 y6 (232x58) ｜ 竖线 x262 ｜ 标题 x275
- *   阶段标签 771–1055（蓝底 793–1033，宽240）
- *   得分卡 x1108 (226) ｜ 用时卡 x1364 (273)
+ * 帧内坐标（Figma 230:288 / Group 427321485，宽 1920，高 73）：
+ *   校徽 x15 y6 (232x58) ｜ 竖线 x262 (2x39) ｜ 标题 x275（中文26px/英文9px 字距~1px #1D2129）
+ *   阶段标签 771–1081（左右竖线 771/1079，蓝底 793–1053 宽260，文字26px）
+ *   得分卡 x1108 (226x41) ｜ 用时卡 x1364 (273x41)，均 2px #618DCF 内描边
+ *   数字 100 / 20:00 使用 Digital Numbers 24px（public/fonts，@font-face 见 index.css）
  *   图标簇 x1673 宽224（右内边距 23）
  */
 export default function Header({
@@ -35,12 +45,43 @@ export default function Header({
   const navigate = useNavigate()
   const location = useLocation()
 
+  // 阶段标签下拉菜单
+  const [menuOpen, setMenuOpen] = useState(false)
+  const stageRef = useRef<HTMLDivElement>(null)
+
+  // 路由切换即收起菜单
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [location.pathname])
+
+  // 点击菜单外部 / 按 ESC 关闭
+  useEffect(() => {
+    if (!menuOpen) return
+    const onPointerDown = (e: MouseEvent) => {
+      if (stageRef.current && !stageRef.current.contains(e.target as Node)) setMenuOpen(false)
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false)
+    }
+    document.addEventListener('mousedown', onPointerDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [menuOpen])
+
+  const activeModule = STAGE_MODULES.find((m) => m.path === location.pathname)
+
   // 返回目标按应用导航层级固定映射，避免依赖浏览历史
   //（刷新或直接打开 URL 时 navigate(-1) 会失效或返回到应用外）。
   const BACK_TARGETS: Record<string, string> = {
     '/case-study': '/',
     '/knowledge': '/',
     '/epidemiology': '/case-study',
+    '/food-hygiene': '/case-study',
+    '/lab-testing': '/case-study',
+    '/analysis': '/case-study',
   }
   const backTo = BACK_TARGETS[location.pathname]
   const isHomePage = location.pathname === '/'
@@ -64,11 +105,49 @@ export default function Header({
         </p>
       </div>
 
-      {/* 当前阶段标签（可选，播放页等场景显示） */}
+      {/* 当前阶段标签 —— 可点击下拉切换模块（仅传入 stageLabel 的播放页显示） */}
       {stageLabel && (
-        <div className="hd-stage">
+        <div className={'hd-stage' + (menuOpen ? ' is-open' : '')} ref={stageRef}>
           <span className="hd-divider hd-divider-stage-l" />
-          <span className="hd-stage-tag">{stageLabel}</span>
+          <button
+            type="button"
+            className="hd-stage-tag"
+            aria-haspopup="listbox"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((v) => !v)}
+          >
+            <span className="hd-stage-label">{stageLabel}</span>
+            <svg className="hd-stage-caret" viewBox="0 0 12 8" width="12" height="8" aria-hidden>
+              <path d="M1 1l5 5 5-5" fill="none" stroke="#FFFFFF" strokeWidth="2"
+                strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          {menuOpen && (
+            <ul className="hd-stage-menu" role="listbox" aria-label="切换调查模块">
+              {STAGE_MODULES.map((m) => {
+                const active = activeModule?.id === m.id
+                return (
+                  <li key={m.id} role="option" aria-selected={active}>
+                    <button
+                      type="button"
+                      className={'hd-stage-item' + (active ? ' is-active' : '')}
+                      onClick={() => { setMenuOpen(false); navigate(m.path) }}
+                    >
+                      <span className="hd-stage-item-tick" aria-hidden>
+                        {active && (
+                          <svg viewBox="0 0 12 10" width="12" height="10">
+                            <path d="M1 5l3.5 3.5L11 1" fill="none" stroke="#618dcf"
+                              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        )}
+                      </span>
+                      <span className="hd-stage-item-text">{m.title}</span>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
           <span className="hd-divider hd-divider-stage-r" />
         </div>
       )}

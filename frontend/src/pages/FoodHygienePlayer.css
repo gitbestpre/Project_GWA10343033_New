@@ -1,0 +1,1514 @@
+/* 食品卫生学调查 - 1920x1080 播放器样式
+   舞台/视频/题卡/顶栏复用 EpidemiologyPlayer.css，这里只补充：
+   1) 左上角自适应宽度胶囊徽标（文案“采样前的准备工作”8 字，比固定 186px 胶囊更长）
+   2) “重要环节”弹窗（1000×696 白卡 + 卡片下方悬浮“确 定”按钮） */
+
+/* ---------- 左上角阶段徽标（几何参照 Figma Group 427321486） ---------- */
+.fh-badge {
+  position: absolute;
+  left: 27px;
+  top: 89px;
+  height: 95px;
+  /* 头像 top:0 满高 95；胶囊由自身 margin-top:21 下沉，复刻 epi 徽标几何 */
+  display: flex;
+  align-items: flex-start;
+  z-index: 40;
+}
+
+/* 穿戴记录「操作提示」弹窗（.pr-mask z45）阶段：徽标需可见，抬到遮罩之上（徽标居左上角，不压居中记录卡） */
+.fh-badge--top {
+  z-index: 50;
+}
+
+.fh-badge-avatar {
+  position: relative;
+  z-index: 2;
+  width: 95px;
+  height: 95px;
+  flex: none;
+  border-radius: 50%;
+  object-fit: cover;
+  user-select: none;
+  /* 与流行病学徽标同几何：胶囊从头像 left:90 处起，二者重叠 5px，
+     鱼尾（svg x0 满高、x13.4 收尖）从圆后探出形成连体 */
+  margin-right: -5px;
+}
+
+/* 胶囊外层收缩定位容器：作为 flex 子项与头像重叠 -5px、下沉 21px；
+   宽度收缩到胶囊（按文案动态绘制），胶囊透明热区据此 100% 铺满自适应 */
+.fh-badge-pill-slot {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  flex: none;
+  margin-top: 21px;
+}
+
+/* 胶囊：单条内联 SVG 矢量整体绘制（左鱼尾 + 右圆头 + 2px 内描边），
+   宽高由组件按文案测量后内联给定；由 slot 承接 flex 定位，自身改 inline-block */
+.fh-badge-pill {
+  position: relative;
+  display: inline-block;
+  filter: drop-shadow(0 4px 6px rgba(30, 60, 120, 0.16));
+}
+
+/* ---------- 左上角徽标双热区（对齐现场流行病学调查） ---------- */
+.fh-badge-btn {
+  position: absolute;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.fh-badge-btn:focus-visible {
+  outline: 2px solid #618dcf;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* 机器人头像热区：95×95 圆形，相对徽标左上 */
+.fh-badge-btn--robot {
+  left: 0;
+  top: 0;
+  width: 95px;
+  height: 95px;
+  border-radius: 50%;
+  z-index: 3;
+}
+
+/* 胶囊热区：填满 pill-slot（宽度随文案自适应），64 高、右圆头 */
+.fh-badge-btn--pill {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 31px;
+  z-index: 3;
+}
+
+.fh-pill-svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+}
+
+.fh-badge-text {
+  position: absolute;
+  top: 0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-weight: 500;
+  font-size: 26px;
+  line-height: 1;
+  color: #494e58;
+  letter-spacing: 1px;
+}
+
+/* ---------- “重要环节”弹窗（对齐 Figma 184:3117，1000×696） ---------- */
+/* 无暗色遮罩：白卡直接浮在视频末帧之上（与 Figma 一致，背景画面清晰可见） */
+.ks-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.ks-card {
+  position: absolute;
+  left: 460px;
+  top: 180px;
+  width: 1000px;
+  height: 696px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 18px 60px rgba(25, 45, 90, 0.32);
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+/* 标题栏：高 56px 白底 */
+.ks-head {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 56px;
+}
+
+.ks-head-bar {
+  position: absolute;
+  left: 28px;
+  top: 18px;
+  width: 7px;
+  height: 23px;
+  border-radius: 2px;
+  background: #395ba8;
+}
+
+.ks-head-title {
+  position: absolute;
+  left: 51px;
+  top: 12px;
+  margin: 0;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 32px;
+  color: #494e58;
+}
+
+.ks-close {
+  position: absolute;
+  right: 24px;
+  top: 14px;
+  width: 36px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.ks-close:hover svg path {
+  stroke: #6f7d96;
+}
+
+/* 浅蓝正文区：标题栏下 56px，高 640px */
+.ks-body {
+  position: absolute;
+  left: 0;
+  top: 56px;
+  width: 100%;
+  height: 640px;
+  background: #e9eff9;
+}
+
+.ks-para {
+  position: absolute;
+  left: 45px;
+  top: 20px;
+  width: 910px;
+  margin: 0;
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 40px;
+  color: #494e58;
+  text-indent: 2em;
+}
+
+.ks-subtitle {
+  position: absolute;
+  left: 45px;
+  top: 171px;
+  width: 910px;
+  margin: 0;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 32px;
+  color: #6b7686;
+}
+
+.ks-table {
+  position: absolute;
+  left: 39px;
+  top: 223px;
+  width: 921px;
+  height: 388px;
+  object-fit: contain;
+}
+
+/* 新增“确 定”按钮：悬浮在白卡下方的视频画面上（对应需求截图的独立亮蓝圆角钮）。
+   卡片底边 y=180+696=876，按钮居于其下、舞台水平居中。 */
+.ks-confirm {
+  position: absolute;
+  left: 50%;
+  top: 900px;
+  transform: translateX(-50%);
+  width: 240px;
+  height: 72px;
+  border: 2px solid rgba(170, 222, 255, 0.9);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #3cc6ff 0%, #1c8fe6 100%);
+  box-shadow:
+    0 0 0 2px rgba(80, 170, 245, 0.35),
+    0 10px 26px rgba(24, 130, 220, 0.45);
+  color: #ffffff;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 10px;
+  text-indent: 10px; /* 抵消末字 letter-spacing 以保持视觉居中 */
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.ks-confirm:hover {
+  filter: brightness(1.05);
+}
+
+.ks-confirm:active {
+  transform: translateX(-50%) translateY(1px);
+}
+
+/* ---------- “提示”弹窗（Figma 184:3516 内卡组 184:4012，550×340 @(685,370)） ---------- */
+/* 原帧无暗遮罩，仅场景图上有 20% 黑蒙（Rectangle 701 opacity 0.2）；
+   视频末帧已偏暗，此处只做极轻蒙层保证文字可读 */
+.ph-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.ph-card {
+  position: absolute;
+  left: 685px;
+  top: 370px;
+  width: 550px;
+  height: 340px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 14px 44px rgba(25, 45, 90, 0.28);
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+/* 头部 64px 浅蓝，左右上角 20 圆角 */
+.ph-head {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 64px;
+  background: #f4f8fd;
+  border-radius: 20px 20px 0 0;
+}
+
+.ph-head-bar {
+  position: absolute;
+  left: 30px;
+  top: 20px;
+  width: 8px;
+  height: 24px;
+  border-radius: 2px;
+  background: #395ba8;
+}
+
+.ph-head-title {
+  position: absolute;
+  left: 58px;
+  top: 16px;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 33px;
+  color: #395ba8;
+}
+
+.ph-close {
+  position: absolute;
+  right: 18px;
+  top: 14px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.ph-close:hover svg path {
+  stroke: #6f7d96;
+}
+
+/* 正文：28px @ (108, 114) 相对卡片（Figma 15451-15343=108, 4984-4855=129 视觉居中微调） */
+.ph-body {
+  position: absolute;
+  left: 108px;
+  top: 114px;
+  width: 420px;
+  margin: 0;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 45px;
+  color: #494e58;
+}
+
+/* “我已了解”：191×60 圆角12 蓝底 #618DCF，位于卡内底部居中（Figma 15523-15343=180, 5095-4855=240） */
+.ph-ack {
+  position: absolute;
+  left: 180px;
+  top: 240px;
+  width: 191px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 12px;
+  background: #618dcf;
+  color: #fcfcfc;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: filter 0.12s ease;
+}
+
+.ph-ack:hover {
+  filter: brightness(1.06);
+}
+
+.ph-ack:active {
+  filter: brightness(0.96);
+}
+
+/* ---------- 采样前防护装备穿戴画面（Figma 184:3874） ---------- */
+/* 全屏覆盖层：房间背景 + 15% 黑蒙 + 人物叠加层 + 左侧道具面板 + 提交按钮 */
+.pd-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+}
+
+/* 静态背景组（房间 + 黑蒙 + 基础人物），供穿戴页与“提示”弹窗复用；
+   纯展示不拦截点击（弹窗自身按钮 pointer-events:auto） */
+.pd-backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* 房间背景（Figma 184:3875）：1920×1080 更衣柜房间实拍，铺满舞台 */
+.pd-room {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 全屏 15% 黑蒙（Figma 184:3876，#000 a0.15）压暗房间，突出人物与面板 */
+.pd-dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* 场景叠加图：同尺寸 1767×995 @ (239,85)，DOM 顺序即叠加顺序。
+   --person 修饰类只放“点击后穿戴”的防护层（基础人物已在 backdrop 中） */
+.pd-scene {
+  position: absolute;
+  left: 239px;
+  top: 85px;
+  width: 1767px;
+  height: 995px;
+  pointer-events: none;
+}
+
+.pd-scene img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 左侧穿戴面板：540×944 @ (30,103)（Figma 16930-16900=30, 4588-4485=103） */
+.pd-panel {
+  position: absolute;
+  left: 30px;
+  top: 103px;
+  width: 540px;
+  height: 944px;
+}
+
+.pd-panel-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 标题“防护用品道具栏”：32px 白字 @ 面板内 (76,4)（Figma 舞台 106,107 − 面板 30,103），
+   左对齐紧跟烘在 panel-bg 蓝栏左上的白色 T 恤图标 */
+.pd-panel-title {
+  position: absolute;
+  left: 76px;
+  top: 4px;
+  margin: 0;
+  text-align: left;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 48px;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+/* 道具按钮：232×192，两列×四行，坐标相对面板（Figma 舞台 56/312、189/401/613/825
+   − 面板原点 30,103 → 面板内 x=26/282、y=86/298/510/722）。
+   默认未选中：白底 + 淡蓝描边 + 圆角；选中(.is-on)：贴 Figma 蓝渐变底图，无描边 */
+.pd-item {
+  position: absolute;
+  width: 232px;
+  height: 192px;
+  padding: 0;
+  border: 1.5px solid rgba(97, 141, 207, 0.35);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 4px 14px rgba(40, 70, 130, 0.12);
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.1s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.pd-item:hover {
+  border-color: rgba(97, 141, 207, 0.75);
+  box-shadow: 0 8px 20px rgba(60, 100, 180, 0.22);
+  transform: translateY(-1px);
+}
+
+.pd-item:active {
+  transform: translateY(0);
+}
+
+/* 选中态：蓝渐变切图铺满，去掉 CSS 白底/描边/阴影（底图自带圆角与高光） */
+.pd-item.is-on {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.pd-item.is-on:hover {
+  filter: brightness(1.04);
+  transform: none;
+}
+
+.pd-item-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 白底名条：228×40，位于按钮底部（Figma Rectangle 692 y=+150，圆角仅下侧 18）。
+   选中态用 Figma 浅灰蓝 #d2dce7；未选态用更浅的灰白，避免在白卡上过重 */
+.pd-item-label {
+  position: absolute;
+  left: 2px;
+  top: 150px;
+  width: 228px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #d2dce7;
+  border-radius: 0 0 18px 18px;
+  font-size: 24px;
+  font-weight: 400;
+  color: #494e58;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.pd-item:not(.is-on) .pd-item-label {
+  background: #eef2f8;
+}
+
+/* 道具图标：130×112 居中于按钮上部（Figma 图标各自 130~168 宽，统一 contain 居中） */
+.pd-item-icon {
+  position: absolute;
+  left: 50%;
+  top: 34px;
+  transform: translateX(-50%);
+  width: 150px;
+  height: 108px;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 步骤角标：62×33 圆角左上16.5/左下16.5，位于按钮左上（Figma (16958,4676) 相对按钮 (-,-2)）。
+   角标号 = 规范穿戴顺序 1..7（7 项全部显示），统一主蓝底白字 */
+.pd-item-step {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 62px;
+  height: 33px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16.5px 0 16.5px 0;
+  background: #1949a9;
+  font-size: 20px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+/* “提交”按钮：240×84 圆角42 白底 @ (1640,956)（Figma 18540-16900=1640, 5441-4485=956） */
+.pd-submit {
+  position: absolute;
+  left: 1640px;
+  top: 956px;
+  width: 240px;
+  height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 42px;
+  background: #fcfcfc;
+  box-shadow: 0 8px 24px rgba(20, 40, 80, 0.25);
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 36px;
+  font-weight: 350;
+  color: #494e58;
+  letter-spacing: 6px;
+  text-indent: 6px;
+  cursor: pointer;
+  transition: filter 0.12s ease;
+}
+
+.pd-submit:hover {
+  filter: brightness(0.97);
+}
+
+.pd-submit:active {
+  filter: brightness(0.93);
+}
+
+/* ---------- PPE 穿戴记录对比弹窗（对齐 Figma Group 599:1953，卡 1060×700） ---------- */
+/* 轻遮罩：压住更衣室场景但不做深暗（Figma 原卡为白底浮层）；仅“我已了解”可关闭 */
+.pr-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(12, 24, 50, 0.28);
+}
+
+/* 白卡 1060×700 r20（Figma Rectangle 1172），舞台居中 */
+.pr-card {
+  position: relative;
+  width: 1060px;
+  height: 700px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 22px 70px rgba(20, 40, 85, 0.38);
+  overflow: hidden;
+}
+
+/* 顶部操作提示栏：高 64，底 #F5F7FB + 1px 分隔线（Figma 1257/1960） */
+.pr-head {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 64px;
+  background: #f5f7fb;
+  border-bottom: 1px solid #d6ddea;
+  display: flex;
+  align-items: center;
+}
+
+.pr-head-icon {
+  position: absolute;
+  left: 37px;
+  top: 13px;
+  width: 40px;
+  height: 39px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pr-head-title {
+  position: absolute;
+  left: 87px;
+  top: 14px;
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 36px;
+  color: #4f4f4f;
+}
+
+/* 结果标题：卡内 (50,79)，26px #4A4E59（Figma 1958） */
+.pr-result {
+  position: absolute;
+  left: 50px;
+  top: 79px;
+  margin: 0;
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 37px;
+  color: #4a4e59;
+}
+
+.pr-result--ok {
+  color: #2fae86;
+}
+
+/* 两张记录卡：465×424 r19，左 @(50,128)、右 @(545,128)（间距 30） */
+.pr-panel {
+  position: absolute;
+  top: 128px;
+  width: 465px;
+  height: 424px;
+  border-radius: 19px;
+  background: #e8effa;
+  overflow: hidden;
+}
+
+.pr-panel--mine {
+  left: 50px;
+}
+
+.pr-panel--std {
+  left: 545px;
+}
+
+/* 卡标题条：465×40，#5C8CD2（Figma Rectangle 2601） */
+.pr-panel-head {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 40px;
+  background: #5c8cd2;
+}
+
+.pr-panel-shirt {
+  position: absolute;
+  left: 15px;
+  top: 6px;
+  width: 30px;
+  height: 29px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pr-panel-title {
+  position: absolute;
+  left: 59px;
+  top: 7px;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 28px;
+  color: #ffffff;
+}
+
+/* 行容器：标题条 40 之下，7 行×48（Figma 分隔线 y=88..376，步长 48） */
+.pr-rows {
+  position: absolute;
+  left: 0;
+  top: 40px;
+  width: 100%;
+}
+
+.pr-row {
+  position: relative;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1.5px dashed rgba(96, 106, 128, 0.55);
+}
+
+/* 最后一行不要虚线（与 Figma 一致：最底分隔线 y376 位于第 7 行下，保留也可；
+   卡底留白，此处去掉末行虚线更干净） */
+.pr-row:last-child {
+  border-bottom: none;
+}
+
+.pr-row-text {
+  position: absolute;
+  left: 24px;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 30px;
+  white-space: nowrap;
+}
+
+.pr-row-text--ok {
+  color: #40c29e;
+}
+
+.pr-row-text--bad {
+  color: #ff780d;
+}
+
+.pr-row-icon {
+  position: absolute;
+  right: 21px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pr-empty {
+  margin: 18px 24px 0;
+  font-size: 22px;
+  line-height: 32px;
+  color: #8a93a6;
+}
+
+/* “我已了解”：220×76 r10，卡内 (420,588)（Figma 1956），底 #F0F4FA、字 30 #4A4E59 */
+.pr-ack {
+  position: absolute;
+  left: 420px;
+  top: 588px;
+  width: 220px;
+  height: 76px;
+  border: 1.5px solid #c3cfe0;
+  border-radius: 10px;
+  background: #f0f4fa;
+  color: #4a4e59;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.pr-ack:hover {
+  background: #e6edf8;
+  border-color: #9db2d0;
+}
+
+.pr-ack:active {
+  background: #dde6f4;
+}
+
+/* ============================================================ *
+ * 事故调查原则弹窗（Figma 188:384，卡片 1200×700 居中）
+ * ============================================================ */
+.sp-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(12, 24, 50, 0.28);
+}
+
+.sp-card {
+  position: relative;
+  width: 1200px;
+  height: 700px;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(13, 32, 74, 0.28);
+}
+
+.sp-head {
+  position: relative;
+  height: 64px;
+  background: #f4f8fd;
+  border-bottom: 1px solid #d7dfeb;
+  display: flex;
+  align-items: center;
+}
+
+.sp-head-bar {
+  width: 8px;
+  height: 24px;
+  margin: 0 18px 0 30px;
+  border-radius: 2px;
+  background: #395ba8;
+}
+
+.sp-head-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 500;
+  color: #1f2c44;
+  letter-spacing: 1px;
+}
+
+.sp-close {
+  position: absolute;
+  top: 14px;
+  right: 20px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.sp-close:hover {
+  opacity: 0.7;
+}
+
+.sp-body {
+  padding: 12px 46px 0;
+}
+
+.sp-item {
+  margin-bottom: 14px;
+}
+
+.sp-item-title {
+  margin: 0 0 4px;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #1f2c44;
+}
+
+.sp-item-desc {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #33405a;
+}
+
+/* 底部“我已了解”191×60，居中 */
+.sp-ack {
+  position: absolute;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
+  width: 300px;
+  height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 14px;
+  background: #618dcf;
+  color: #ffffff;
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: 4px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.sp-ack:hover {
+  background: #5682c8;
+}
+
+.sp-ack:active {
+  background: #4c76bd;
+}
+
+/* ============================================================ *
+ * 后厨采样结束 · 标本采集类型提示弹窗（Figma 307:1368）
+ * ============================================================ */
+.sth-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 26;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(12, 24, 50, 0.28);
+}
+
+/* 原 Figma 卡 1070×646 仅含标题+表格；为容纳新增「确 定」按钮加高至 748 */
+.sth-card {
+  position: relative;
+  width: 1070px;
+  height: 748px;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(13, 32, 74, 0.28);
+  display: flex;
+  flex-direction: column;
+}
+
+.sth-head {
+  position: relative;
+  height: 56px;
+  flex: none;
+  background: #fff;
+  border-bottom: 1px solid #d7dfeb;
+  display: flex;
+  align-items: center;
+}
+
+.sth-head-bar {
+  width: 8px;
+  height: 23px;
+  margin: 0 16px 0 30px;
+  border-radius: 2px;
+  background: #6883bb;
+}
+
+.sth-head-title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 500;
+  color: #505050;
+}
+
+.sth-close {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.sth-close:hover {
+  opacity: 0.7;
+}
+
+.sth-body {
+  flex: 1;
+  min-height: 0;
+  padding: 20px 30px 0;
+  background: #f0f5fb;
+}
+
+.sth-subtitle {
+  margin: 0 0 14px;
+  text-align: center;
+  font-size: 26px;
+  font-weight: 500;
+  color: #1949a9;
+}
+
+.sth-table {
+  width: 1010px;
+  margin: 0 auto;
+  border-collapse: collapse;
+  table-layout: fixed;
+  background: #fff;
+  border: 1px solid #a5b0c5;
+}
+
+.sth-table th,
+.sth-table td {
+  border: 1px solid #a5b0c5;
+  font-size: 22px;
+  font-weight: 400;
+  color: #505050;
+  vertical-align: middle;
+}
+
+.sth-table thead th {
+  height: 80px;
+  background: #e5eeff;
+  font-weight: 400;
+}
+
+.sth-col-source {
+  width: 178px;
+  padding: 0 16px;
+  text-align: center;
+}
+
+.sth-col-types {
+  padding: 14px 18px;
+  line-height: 1.5;
+}
+
+.sth-table tbody .sth-col-source {
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* 底部新增主操作区：确 定（200×60 居中，蓝底白字） */
+.sth-actions {
+  flex: none;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+
+.sth-confirm {
+  width: 200px;
+  height: 60px;
+  border: none;
+  border-radius: 8px;
+  background: #618dcf;
+  color: #fff;
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: 4px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.sth-confirm:hover {
+  background: #517cbf;
+}
+
+.sth-confirm:active {
+  background: #486fae;
+}
+
+/* ============================================================ *
+ * 后厨采样完成 ·「你已完成后厨采样工作」弹窗（Figma 307:1576，550×340）
+ * ============================================================ */
+.kd-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 26;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(12, 24, 50, 0.28);
+}
+
+.kd-card {
+  position: relative;
+  width: 550px;
+  height: 340px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 24px 64px rgba(13, 32, 74, 0.28);
+}
+
+.kd-head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+}
+
+.kd-head-bar {
+  width: 8px;
+  height: 23px;
+  margin: 0 14px 0 30px;
+  border-radius: 2px;
+  background: #395ba8;
+}
+
+.kd-head-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 500;
+  color: #395ba8;
+}
+
+.kd-text {
+  position: absolute;
+  top: 128px;
+  left: 0;
+  right: 0;
+  margin: 0;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 400;
+  color: #494e58;
+}
+
+.kd-ack {
+  position: absolute;
+  left: 50%;
+  bottom: 48px;
+  transform: translateX(-50%);
+  width: 180px;
+  height: 60px;
+  border: none;
+  border-radius: 8px;
+  background: #618dcf;
+  color: #fcfcfc;
+  font-size: 26px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.kd-ack:hover {
+  background: #517cbf;
+}
+
+.kd-ack:active {
+  background: #486fae;
+}
+
+/* ============================================================ *
+ * 从业人员生物样本采样完成提示（Figma 324:806，卡片 550×340）
+ * ============================================================ */
+.pdone-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 26;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(12, 24, 50, 0.28);
+}
+
+.pdone-card {
+  position: relative;
+  width: 550px;
+  height: 340px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 24px 64px rgba(13, 32, 74, 0.28);
+  overflow: hidden;
+}
+
+.pdone-head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  background: #f4f8fd;
+}
+
+.pdone-head-bar {
+  width: 8px;
+  height: 24px;
+  margin: 0 22px 0 30px;
+  border-radius: 2px;
+  background: #395ba8;
+}
+
+.pdone-head-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 500;
+  color: #395ba8;
+}
+
+.pdone-close {
+  position: absolute;
+  right: 16px;
+  top: 14px;
+  width: 32px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.pdone-divider {
+  position: absolute;
+  top: 63px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #d7dfeb;
+}
+
+/* 正文：Figma 385 宽、28px / 行高 45、居中两行 */
+.pdone-text {
+  position: absolute;
+  top: 103px;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0 82px;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 45px;
+  text-align: center;
+  color: #494e58;
+}
+
+.pdone-hl {
+  color: #f22626;
+}
+
+.pdone-ack {
+  position: absolute;
+  left: 50%;
+  bottom: 40px;
+  transform: translateX(-50%);
+  width: 191px;
+  height: 60px;
+  border: none;
+  border-radius: 12px;
+  background: #618dcf;
+  color: #fcfcfc;
+  font-size: 26px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.pdone-ack:hover {
+  background: #517cbf;
+}
+
+.pdone-ack:active {
+  background: #486fae;
+}
+
+/* ============================================================ *
+ * 采样工具准备场景（Figma 188:411）：采样台背景 + 右侧道具栏
+ * ============================================================ */
+.st-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  width: 1920px;
+  height: 1080px;
+}
+
+.st-bg {
+  position: absolute;
+  inset: 0;
+  width: 1920px;
+  height: 1080px;
+  object-fit: fill;
+}
+
+/* 道具栏 260×760 @(1640,160)；播放采样视频时仍保持显示，故层级高于全屏视频（视频 z30） */
+.st-panel {
+  position: absolute;
+  left: 1640px;
+  top: 160px;
+  width: 260px;
+  height: 760px;
+  background: #fcfcfc;
+  border-radius: 6px;
+  box-shadow: 0 10px 30px rgba(13, 32, 74, 0.22);
+  overflow: hidden;
+  z-index: 35;
+}
+
+.st-panel-head {
+  position: relative;
+  height: 64px;
+  background: #f4f8fd;
+  display: flex;
+  align-items: center;
+}
+
+.st-panel-bar {
+  width: 7px;
+  height: 23px;
+  margin: 0 19px 0 14px;
+  border-radius: 2px;
+  background: #6883bb;
+}
+
+.st-panel-title {
+  font-size: 26px;
+  font-weight: 400;
+  color: #1f2c44;
+}
+
+/* 2 列 × 5 行；列 x=27/143，首行 y=84，行步距 136 */
+.st-grid {
+  position: absolute;
+  left: 27px;
+  top: 84px;
+  width: 206px;
+  display: grid;
+  grid-template-columns: 90px 90px;
+  column-gap: 26px;
+  row-gap: 20px;
+}
+
+.st-item {
+  width: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.st-item-icon {
+  width: 88px;
+  height: 88px;
+  border-radius: 8px;
+  background: #f0f3fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.st-item-name {
+  margin-top: 8px;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.1;
+  color: #618dcf; /* Figma 307:451：九个道具名称均为 #618dcf */
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* 道具照片切图（来自 031_UI设计/UI图，白底实物图，居中收于 88×88 图标底内） */
+.st-item-img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  border-radius: 6px;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* ============================================================ *
+ * 采样工具页交互（Figma 307:451 / 612:1951）：全部道具可点击 /
+ * 底部深色提示胶囊常显 / 全屏采样视频（道具栏浮于视频之上）
+ * ============================================================ */
+.st-item {
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  width: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.st-item .st-item-icon {
+  transition: box-shadow 0.15s ease, background 0.15s ease;
+}
+
+/* 所有道具都可点：悬停 / 按压反馈 */
+.st-item:hover .st-item-icon {
+  box-shadow: inset 0 0 0 2px rgba(97, 141, 207, 0.45);
+}
+
+.st-item:active .st-item-icon {
+  background: #e3edfb;
+}
+
+/* 底部引导提示胶囊（深色 #2B2C2E + 黄灯泡 + 白字，Figma 612:1951 同款 722×65）
+   始终显示，视频播放期间也悬浮在视频上方 */
+.st-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  min-width: 722px;
+  height: 65px;
+  padding: 0 46px 0 30px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  background: #2b2c2e;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  z-index: 40;
+}
+
+.st-hint-bulb {
+  flex: none;
+}
+
+.st-hint-text {
+  font-size: 26px;
+  font-weight: 400;
+  color: #fff;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+/* 全屏采样视频（播完停在最后一帧：元素不卸载、不循环） */
+.st-video {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  width: 1920px;
+  height: 1080px;
+  object-fit: fill;
+  background: #000;
+}
+
+/* 播完停末帧后不再拦截指针，使底层道具栏仍可继续点击 */
+.st-video[data-ended='true'] {
+  pointer-events: none;
+}
+
+/* 末帧叠加「继续」按钮（位置/样式对齐采样视频末帧自带气泡按钮：金色 #C8902A 白字） */
+.st-continue {
+  position: absolute;
+  z-index: 45;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #d99a34 0%, #c8902a 55%, #b97f22 100%);
+  box-shadow: 0 3px 10px rgba(150, 96, 20, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  color: #fff;
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 4px;
+  text-indent: 4px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.st-continue:hover {
+  filter: brightness(1.06);
+}
+
+.st-continue:active {
+  transform: scale(0.97);
+}
+
+/* 透明热区：视频末帧自带金色「继续」按钮（已烘焙），仅在同位置放透明可点区域承接点击，
+   不额外绘制任何底色/文字，视觉完全使用视频里烘焙好的按钮；hover 给轻微描边以便定位。 */
+.st-continue-hot {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 6px;
+  text-indent: 0;
+}
+
+.st-continue-hot:hover {
+  filter: none;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55);
+}
+
+.st-continue-hot:active {
+  transform: none;
+}

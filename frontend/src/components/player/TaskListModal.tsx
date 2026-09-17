@@ -27,6 +27,7 @@ export default function TaskListModal({
   currentTask,
   onBack,
   onJump,
+  tasks = TASK_LIST,
 }: {
   /** 当前所处任务名称（与徽标文案一致），对应行高亮 */
   currentTask: string
@@ -34,8 +35,10 @@ export default function TaskListModal({
   onBack: () => void
   /** 点击其它行“开始执行/重新开始”：跳转到目标任务 */
   onJump: (taskName: string) => void
+  /** 任务项列表：默认现场流行病学调查 4 项；食品卫生学调查传入自身 3 阶段 */
+  tasks?: TaskListItem[]
 }) {
-  const currentIdx = TASK_LIST.findIndex((t) => t.name === currentTask)
+  const currentIdx = tasks.findIndex((t) => t.name === currentTask)
 
   return (
     <div className="tl-layer" role="dialog" aria-modal="true" aria-label="任务列表">
@@ -71,7 +74,7 @@ export default function TaskListModal({
 
         {/* 任务行 */}
         <div className="tl-rows">
-          {TASK_LIST.map((task, i) => {
+          {tasks.map((task, i) => {
             const state = i < currentIdx ? 'past' : i === currentIdx ? 'current' : 'future'
             return (
               <div key={task.no} className={`tl-row tl-row--${state}`}>
