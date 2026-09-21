@@ -15,9 +15,18 @@ import PatientSamplingScene from '../components/player/PatientSamplingScene'
 import PatientSampleDoneModal from '../components/player/PatientSampleDoneModal'
 import DialogueOverlay from '../components/player/DialogueOverlay'
 import AiCompanionModal from '../components/player/AiCompanionModal'
+import ExitConfirmModal from '../components/player/ExitConfirmModal'
 import TaskListModal from '../components/player/TaskListModal'
 import type { TaskListItem } from '../components/player/TaskListModal'
 import { FH_SAMPLING_DIALOGUES, FH_PRACTITIONER_DIALOGUES } from '../data/dialogues'
+import {
+  MODULE_FIRST_STEP,
+  discardSession,
+  makeStepGuard,
+  markDone,
+  markStudying,
+  readProgress,
+} from '../lib/moduleProgress'
 import './EpidemiologyPlayer.css'
 import './FoodHygienePlayer.css'
 
@@ -104,31 +113,41 @@ function WideStagePill({ text, className = '' }: { text: string; className?: str
  *     → “事故调查原则”弹窗（Figma 188:384，四条原则），点“我已了解”
  *     → 采样工具准备场景（Figma 188:411，采样台 + 右侧 9 件工具道具栏）。
  */
-type Phase =
-  | 'video21'
-  | 'quiz8'
-  | 'dialogue'
-  | 'quiz9'
-  | 'quiz10'
-  | 'keyStep'
-  | 'ppeHint'
-  | 'ppeDressing'
-  | 'ppeRecord'
-  | 'quiz11'
-  | 'principle'
-  | 'tools'
+/**
+ * 全阶段常量表 —— **同时充当断点校验白名单**（见下方 `isFhStep`）。
+ *
+ * 阶段类型由本表派生（`type Phase = (typeof FH_PHASES)[number]`），于是
+ * `makeStepGuard(FH_PHASES)` 天然与类型定义**同源**：新增/改名阶段只改这一处，
+ * 断点白名单不可能忘记同步。顺序 = 链路推进顺序，便于人工核对。
+ */
+const FH_PHASES = [
+  'video21',
+  'quiz8',
+  'dialogue',
+  'quiz9',
+  'quiz10',
+  'keyStep',
+  'ppeHint',
+  'ppeDressing',
+  'ppeRecord',
+  'quiz11',
+  'principle',
+  'tools',
   // —— 后厨采样收尾 → 从业人员采样 ——
-  | 'wrapVideo22' // 采样15 结束后播放 22.mp4（后厨装袋过渡，Figma 307:1364）
-  | 'sampleTypeHint' // 22.mp4 结束后「标本采集类型」提示弹窗（Figma 307:1368）
-  | 'kitchenDone' // 「你已完成后厨采样工作」弹窗（Figma 307:1576）
-  | 'staffVideo12' // 播放 12.mp4（救护车，Figma 307:1695），徽标改「从业人员采样」
-  | 'staffQuiz' // 视频12 结束后知识考核 H_23（Figma 194:1251），13.mp4 静音循环作背景
-  | 'staffDialogue' // 一边播放 13.mp4 一边采样人员↔后厨人员对话（10/11.mp3）
+  'wrapVideo22', // 采样15 结束后播放 22.mp4（后厨装袋过渡，Figma 307:1364）
+  'sampleTypeHint', // 22.mp4 结束后「标本采集类型」提示弹窗（Figma 307:1368）
+  'kitchenDone', // 「你已完成后厨采样工作」弹窗（Figma 307:1576）
+  'staffVideo12', // 播放 12.mp4（救护车，Figma 307:1695），徽标改「从业人员采样」
+  'staffQuiz', // 视频12 结束后知识考核 H_23（Figma 194:1251），13.mp4 静音循环作背景
+  'staffDialogue', // 一边播放 13.mp4 一边采样人员↔后厨人员对话（10/11.mp3）
   // —— 从业人员（患者）生物样本采样 → 收尾视频 ——
-  | 'patientTools' // 对话结束后：房间/采血手臂背景 + 右侧道具栏，点棉签/采集针/试管播患者采样1/2/3（Figma 308:563、324:906/989）
-  | 'wrapVideo16' // 患者采样3 结束后播放 16.mp4（有声，播完停末帧）
-  | 'patientDone' // 16.mp4 末帧上「采样完成」提示弹窗（Figma 324:806，纯文字无视频元素）
-  | 'staffVideo14' // 点我已了解后播放 14.mp4（样本送检/实验室检验录入，Figma 324:1067，播完停末帧）
+  'patientTools', // 对话结束后：房间/采血手臂背景 + 右侧道具栏，点棉签/采集针/试管播患者采样1/2/3（Figma 308:563、324:906/989）
+  'wrapVideo16', // 患者采样3 结束后播放 16.mp4（有声，播完停末帧）
+  'patientDone', // 16.mp4 末帧上「采样完成」提示弹窗（Figma 324:806，纯文字无视频元素）
+  'staffVideo14', // 点我已了解后播放 14.mp4（样本送检/实验室检验录入，Figma 324:1067，播完停末帧）
+] as const
+
+type Phase = (typeof FH_PHASES)[number]
 
 /** 左上角胶囊徽标文案，以 H_11 采样原则考核页（Figma 188:267）为分界：
  *  - 该页之前（视频21 / H_08 / 现场对话 / H_09 / H_10 / 重要环节 / PPE 提示·穿戴·记录）= 采样前「准备工作」；
@@ -163,9 +182,47 @@ const STAFF_SAMPLING_PHASES: Phase[] = [
   'staffVideo14',
 ]
 
+/* ------------------------------------------------------------------ *
+ * 学习进度（断点续做）—— 与 moduleProgress 存储层对接
+ *
+ * 负责人 2026-09-18：点进模块即「学习中」、走到终点（14.mp4 播完自动返回）才是
+ * 「已学习」；中途返回则下次点击进来要**继续上次的进度**（步骤级，不恢复视频秒数）。
+ * ------------------------------------------------------------------ */
+
+const MODULE_ID = 'food-hygiene' as const
+/** 本模块第一步（首次进入 / 「重新学习」的起点，也是断点非法时的兜底） */
+const FIRST_STEP = MODULE_FIRST_STEP[MODULE_ID] as Phase
+/** 断点校验：白名单即 FH_PHASES，与类型定义同源，脏数据/旧版本残留一律判为无断点 */
+const isFhStep = makeStepGuard(FH_PHASES)
+
+/**
+ * 断点 → **恢复时的起步阶段**（需要时回退，其余原样返回）。
+ *
+ * 两类回退，都是「回到该步骤开头重播」的落地：
+ *  ① **叠在视频末帧上的弹窗阶段**（sampleTypeHint / kitchenDone / patientDone）：
+ *     背景视频随阶段挂载即 autoPlay，若直接落进弹窗阶段，弹窗已经显示、底下视频却
+ *     从头再播一遍，状态自相矛盾。故回退到它叠着的那段视频（22 / 16.mp4），
+ *     让视频从开头播完再自然落到弹窗 —— 与第一次走这段时的体验一致。
+ *  ② **穿戴记录弹窗（ppeRecord）**：它的内容 = 学员本次的穿戴顺序（wearOrder），
+ *     而 wearOrder 是页面会话内的临时状态、**不在断点里**（断点只存步骤名）。
+ *     直接落进去会显示一份「什么都没穿」的记录，与背景回显矛盾。故回退到穿戴交互页
+ *     （ppeDressing）从头穿一遍，让记录与事实一致。
+ */
+const RESUME_BACKOFF: Partial<Record<Phase, Phase>> = {
+  sampleTypeHint: 'wrapVideo22',
+  kitchenDone: 'wrapVideo22',
+  patientDone: 'wrapVideo16',
+  ppeRecord: 'ppeDressing',
+}
+
+const resumePhaseOf = (step: string | null | undefined): Phase =>
+  isFhStep(step) ? (RESUME_BACKOFF[step] ?? step) : FIRST_STEP
+
 export default function FoodHygienePlayer() {
   const navigate = useNavigate()
-  const [phase, setPhase] = useState<Phase>('video21')
+  // 断点续做：首次挂载读一次存储 —— 有合法断点就回到该步（需要时回退到该步开头，见
+  // RESUME_BACKOFF），否则从第一步（21.mp4）开始
+  const [phase, setPhase] = useState<Phase>(() => resumePhaseOf(readProgress(MODULE_ID).step))
   // 穿戴页最终提交的道具 key 顺序（学员实际穿戴先后），供记录弹窗对比与背景回显
   const [wearOrder, setWearOrder] = useState<string[]>([])
 
@@ -173,6 +230,38 @@ export default function FoodHygienePlayer() {
   const [needPlay, setNeedPlay] = useState(false)
   // 14.mp4 播完自动返回上一级的单次守卫（防 onEnded 重复触发 / 卸载后重复 navigate）
   const finishedRef = useRef(false)
+  /** 中途退出确认弹窗（Figma 1:7889「退出提示」）：保存进度并退出 / 直接退出 */
+  const [exitPrompt, setExitPrompt] = useState(false)
+
+  // 每推进一步即写回断点：模块选择页据此显示「学习中」/「已学习」，也是下次进入的续做点。
+  // 状态语义见 moduleProgress：已「已学习」的模块不因再进来一次而降级。
+  useEffect(() => {
+    markStudying(MODULE_ID, phase)
+  }, [phase])
+
+  /** 中途退出请求（顶栏返回弯箭头）→ 先弹「退出提示」 */
+  const requestExit = () => setExitPrompt(true)
+
+  /** 保存进度并退出：断点已随 phase 持续写入，直接回模块选择页 */
+  const handleSaveAndExit = () => {
+    setExitPrompt(false)
+    navigate('/case-study')
+  }
+
+  /** 直接退出：本次学习成绩不予记录 —— 清掉本次断点再回模块选择页 */
+  const handleDiscardAndExit = () => {
+    discardSession(MODULE_ID)
+    setExitPrompt(false)
+    navigate('/case-study')
+  }
+
+  /** 走到模块终点（14.mp4 播完自动返回）：标记「已学习」后返回 —— 终点的返回不弹退出确认 */
+  const handleFinish = () => {
+    if (finishedRef.current) return
+    finishedRef.current = true
+    markDone(MODULE_ID)
+    navigate('/case-study')
+  }
 
   // 左上角徽标双热区（与现场流行病学调查一致）：机器人头像 → AI 学伴；胶囊文字 → 任务列表。
   // 与阶段状态机解耦，任何阶段都可打开，关闭即回原阶段，不影响播放进度。
@@ -255,13 +344,10 @@ export default function FoodHygienePlayer() {
     onBgEnded = () => setPhase('patientDone')
   } else if (phase === 'staffVideo14') {
     // 14.mp4（样本送检/实验室检验录入）是本模块最后一段：有声播完【自动返回上一级】
-    // 模块选择页 /case-study（无需点击）。finishedRef 防止 ended 重复触发/卸载后重复导航。
+    // 模块选择页 /case-study（无需点击），并标记该模块「已学习」（handleFinish）。
+    // finishedRef 防止 ended 重复触发/卸载后重复导航。
     bgSrc = '/Video/14.mp4'
-    onBgEnded = () => {
-      if (finishedRef.current) return
-      finishedRef.current = true
-      navigate('/case-study')
-    }
+    onBgEnded = handleFinish
   }
 
   // 需要“带声音自动播放”的阶段（被浏览器策略拦截时显示“点击播放”）
@@ -388,8 +474,14 @@ export default function FoodHygienePlayer() {
           </div>
         )}
 
-        {/* 顶部状态栏（与全站统一；阶段标签为本模块名） */}
-        <Header variant="stats" score={100} timeText="20:00" stageLabel="食品卫生学调查" />
+        {/* 顶部状态栏（与全站统一；阶段标签为本模块名）。
+            返回弯箭头改为先弹「退出提示」（保存进度并退出 / 直接退出），不再直接跳回模块页；
+            走到终点的返回由 14.mp4 播完的 handleFinish 接管，不弹确认。 */}
+        <Header
+          variant="stats"
+          stageLabel="食品卫生学调查"
+          onBack={requestExit}
+        />
 
         {/* 视频21 后：H_08 单题考核（01/01）。答完直接进入现场采样对话（不再先整片播 11.mp4） */}
         {phase === 'quiz8' && (
@@ -537,6 +629,15 @@ export default function FoodHygienePlayer() {
             onBack={handleTaskListBack}
             onJump={handleTaskJump}
             tasks={FH_TASK_LIST}
+          />
+        )}
+
+        {/* 中途退出确认（Figma 1:7889）：顶栏返回弯箭头触发 */}
+        {exitPrompt && (
+          <ExitConfirmModal
+            onSaveAndExit={handleSaveAndExit}
+            onDiscardAndExit={handleDiscardAndExit}
+            onCancel={() => setExitPrompt(false)}
           />
         )}
       </div>

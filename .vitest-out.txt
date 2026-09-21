@@ -1,0 +1,135 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.0 [39m[90mE:/XWJ/GWA10343033_New/frontend[39m
+
+ [32m✓[39m src/__tests__/tts.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m src/__tests__/quizScore.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [31m❯[39m src/__tests__/dify.test.ts [2m([22m[2m48 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[32m 61[2mms[22m[39m
+   [32m✓[39m mergeAnswer [2m(4)[22m
+     [32m✓[39m 增量口径：逐段拼接[32m 3[2mms[22m[39m
+     [32m✓[39m 累计口径：以已有全文开头的片段视为累计，直接替换而不重复[32m 1[2mms[22m[39m
+     [32m✓[39m 空片断不改变已有内容（ping / 无 answer 的事件不该把回答清空）[32m 1[2mms[22m[39m
+     [32m✓[39m 空白开头时不误判为累计[32m 0[2mms[22m[39m
+   [32m✓[39m parseSseFrame [2m(3)[22m
+     [32m✓[39m 取 data: 行并解析 JSON[32m 1[2mms[22m[39m
+     [32m✓[39m 忽略 event: / id: 等非 data 行（以 JSON 内的 event 为准）[32m 0[2mms[22m[39m
+     [32m✓[39m 无 data 行或 JSON 非法时返回 null，而不是抛错[32m 0[2mms[22m[39m
+   [32m✓[39m streamChat [2m(24)[22m
+     [32m✓[39m 把逐块回答聚合成完整文本，并回调每次中间态[32m 7[2mms[22m[39m
+     [32m✓[39m message_end 之后停止消费，并回调 conversation_id[32m 3[2mms[22m[39m
+     [32m✓[39m 累计口径的 answer 不会产生重复文本[32m 1[2mms[22m[39m
+     [32m✓[39m 跨 TCP 分片的事件能被正确重组（切在事件中间也不丢字）[32m 1[2mms[22m[39m
+     [32m✓[39m 上游返回 JSON 错误（应用未发布）时走错误分流，而不是当成空回答[32m 5[2mms[22m[39m
+     [32m✓[39m app_unavailable 翻译成可执行的中文提示，不把英文原文丢给使用者[32m 1[2mms[22m[39m
+     [32m✓[39m 2xx 但既非 SSE 又不是可解析出回答的 JSON（网关错误页）仍走错误分流[32m 1[2mms[22m[39m
+     [32m✓[39m 流里一个有效事件都没有时明确报错，而不是静默返回空串[32m 1[2mms[22m[39m
+     [32m✓[39m 请求发往同源代理且不带任何凭据（密钥不进浏览器）[32m 2[2mms[22m[39m
+     [32m✓[39m 首轮不传 conversation_id，避免 Dify 收到空串被当成非法会话[32m 1[2mms[22m[39m
+     [32m✓[39m 阶段缺省为 01 知识宣教[32m 1[2mms[22m[39m
+     [32m✓[39m 阶段进路径后缀，四个阶段各自可达（02/03/04 尚未接线但通道是通的）[32m 1[2mms[22m[39m
+     [32m✓[39m 阶段注册表与 xlsx 的四个使用阶段一一对应[32m 0[2mms[22m[39m
+     [32m✓[39m 给了 inputs 就带上（供 02/03/04 传案例背景设定）[32m 1[2mms[22m[39m
+     [32m✓[39m 没给 inputs 时连键都不出现，不给上游塞空对象[32m 1[2mms[22m[39m
+     [32m✓[39m message_replace 是替换语义：旧文被顶掉而不是拼在后面[32m 1[2mms[22m[39m
+     [32m✓[39m text_chunk 的正文在 data.text 里，也要认[32m 0[2mms[22m[39m
+     [32m✓[39m 裸 [DONE] 哨兵按无事件跳过，不影响已收内容[32m 0[2mms[22m[39m
+     [32m✓[39m 2xx 但不是 SSE、且是带 answer 的 JSON 时按成功处理（不再当错误丢掉）[32m 1[2mms[22m[39m
+     [32m✓[39m 工作流形态的 data.outputs.text 也认（为将来加工作流应用留口）[32m 1[2mms[22m[39m
+     [32m✓[39m 2xx + JSON 但对象里没有可识别的回答字段时也报错[32m 1[2mms[22m[39m
+     [32m✓[39m internal_server_error 指向「应用编排」，且不再甩锅给模型供应商[32m 1[2mms[22m[39m
+     [32m✓[39m 上游回 HTML 错误页时给可执行提示，不把 <html> 甩到页面上[32m 1[2mms[22m[39m
+     [32m✓[39m 代理返回的中文 message 原样保留（比通用提示更具体，带阶段号）[32m 1[2mms[22m[39m
+   [31m❯[39m streamChat · Chatflow 真实事件形态 [2m(7)[22m
+     [32m✓[39m 整条真实序列（含 ping / workflow_* / [DONE]）不影响正常流式累加[32m 1[2mms[22m[39m
+     [32m✓[39m 只收到 message_end、一个字都没吐 → 报错而不是 resolve 空串[32m 1[2mms[22m[39m
+[31m     [31m×[31m 上游一个字都不吐、正文只在 workflow_finished.data.outputs → 兜底取到，不再是空气泡[39m[32m 6[2mms[22m[39m
+[31m     [31m×[31m outputs 里混着过程字段时只认正文键，绝不把 elapsed_time 当回答念出去[39m[32m 1[2mms[22m[39m
+     [32m✓[39m outputs 认不出正文键 → 报「未返回任何内容」，不静默空白[32m 1[2mms[22m[39m
+[31m     [31m×[31m workflow_finished.status=failed → 抛可读错误并回调 onError[39m[32m 5[2mms[22m[39m
+[31m     [31m×[31m status=failed 但没给 error 文案 → 回落到中文提示，不把 undefined 显示给使用者[39m[32m 1[2mms[22m[39m
+   [32m✓[39m pickTextFromOutputs [2m(3)[22m
+     [32m✓[39m 字符串直接可用；去空白后为空则视为不可用[32m 0[2mms[22m[39m
+     [32m✓[39m 按 answer / text / output / result / content 顺序取正文键[32m 0[2mms[22m[39m
+     [32m✓[39m 只有过程字段 / 非对象 → 空串（宁可报错，不可念错）[32m 0[2mms[22m[39m
+   [32m✓[39m extractAnswerFromJson [2m(5)[22m
+     [32m✓[39m answer 字段[32m 0[2mms[22m[39m
+     [32m✓[39m data.outputs 为字符串[32m 0[2mms[22m[39m
+     [32m✓[39m data.outputs.answer[32m 0[2mms[22m[39m
+     [32m✓[39m 顺带带出 conversation_id，便于继续多轮[32m 0[2mms[22m[39m
+     [32m✓[39m 认不出的一律返回空串，绝不把整个对象当回答[32m 1[2mms[22m[39m
+   [32m✓[39m difyUrl [2m(1)[22m
+     [32m✓[39m 前缀 + 阶段，缺省 01[32m 0[2mms[22m[39m
+   [32m✓[39m difyUser [2m(1)[22m
+     [32m✓[39m 存储不可用时降级为内存 id（不抛错），且同一会话内保持稳定[32m 0[2mms[22m[39m
+ [32m✓[39m src/__tests__/quizReview.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 286[2mms[22m[39m
+ [32m✓[39m src/__tests__/HomePage.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 77[2mms[22m[39m
+ [32m✓[39m src/__tests__/CaseStudyPage.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[32m 140[2mms[22m[39m
+ [32m✓[39m src/__tests__/KnowledgePage.test.tsx [2m([22m[2m23 tests[22m[2m)[22m[33m 2793[2mms[22m[39m
+   [32m✓[39m KnowledgePage [2m(23)[22m
+     [33m[2m✓[22m[39m 多页模块可用左右箭头翻页，首末页边界禁用[33m 453[2mms[22m[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m6 passed[39m[22m[90m (7)[39m
+[2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m128 passed[39m[22m[90m (132)[39m
+[2m   Start at [22m 15:45:02
+[2m   Duration [22m 11.31s[2m (environment 59%, tests 18%, setup 9%, import 8%, transform 6%, worker 1%)[22m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 4 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/dify.test.ts[2m > [22mstreamChat · Chatflow 真实事件形态[2m > [22m上游一个字都不吐、正文只在 workflow_finished.data.outputs → 兜底取到，不再是空气泡
+[31m[1mError[22m: 对话服务未返回任何内容[39m
+[36m [2m❯[22m streamChat src/lib/dify.ts:[2m481:15[22m[39m
+    [90m479|[39m         const message = '对话服务未返回任何内容'
+    [90m480|[39m         handlers.onError?.(message)
+    [90m481|[39m         throw new Error(message)
+    [90m   |[39m               [31m^[39m
+    [90m482|[39m       }
+    [90m483|[39m       return answer
+[90m [2m❯[22m src/__tests__/dify.test.ts:[2m424:20[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/dify.test.ts[2m > [22mstreamChat · Chatflow 真实事件形态[2m > [22moutputs 里混着过程字段时只认正文键，绝不把 elapsed_time 当回答念出去
+[31m[1mError[22m: 对话服务未返回任何内容[39m
+[36m [2m❯[22m streamChat src/lib/dify.ts:[2m481:15[22m[39m
+    [90m479|[39m         const message = '对话服务未返回任何内容'
+    [90m480|[39m         handlers.onError?.(message)
+    [90m481|[39m         throw new Error(message)
+    [90m   |[39m               [31m^[39m
+    [90m482|[39m       }
+    [90m483|[39m       return answer
+[90m [2m❯[22m src/__tests__/dify.test.ts:[2m439:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/dify.test.ts[2m > [22mstreamChat · Chatflow 真实事件形态[2m > [22mworkflow_finished.status=failed → 抛可读错误并回调 onError
+[31m[1mAssertionError[22m: expected [Function] to throw error including 'Model provider credential is invalid.' but got '对话服务未返回任何内容'[39m
+
+Expected: [32m"Model provider credential is invalid."[39m
+Received: [31m"对话服务未返回任何内容"[39m
+
+[36m [2m❯[22m src/__tests__/dify.test.ts:[2m470:81[22m[39m
+    [90m468|[39m     )
+    [90m469|[39m     const errors: string[] = []
+    [90m470|[39m     await expect(streamChat({ query: 'q' }, { onError: (m) => errors.p…
+    [90m   |[39m                                                                                 [31m^[39m
+    [90m471|[39m       'Model provider credential is invalid.',
+    [90m472|[39m     )
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/dify.test.ts[2m > [22mstreamChat · Chatflow 真实事件形态[2m > [22mstatus=failed 但没给 error 文案 → 回落到中文提示，不把 undefined 显示给使用者
+[31m[1mAssertionError[22m: expected '对话服务未返回任何内容' to contain '工作流执行中断'[39m
+
+Expected: [32m"工作流执行中断"[39m
+Received: [31m"对话服务未返回任何内容"[39m
+
+[36m [2m❯[22m src/__tests__/dify.test.ts:[2m485:23[22m[39m
+    [90m483|[39m     const errors: string[] = []
+    [90m484|[39m     await expect(streamChat({ query: 'q' }, { onError: (m) => errors.p…
+    [90m485|[39m     expect(errors[0]).toContain('工作流执行中断')
+    [90m   |[39m                       [31m^[39m
+    [90m486|[39m     expect(errors[0]).not.toContain('undefined')
+    [90m487|[39m   })
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯[22m[39m
+

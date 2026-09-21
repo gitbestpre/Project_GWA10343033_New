@@ -25,7 +25,8 @@ const FIGMA = {
 
   const rows = {};
   for (const p of PAGES) {
-    await page.goto(BASE + p.route, { waitUntil: 'networkidle' });
+    await page.goto(BASE + p.route, { waitUntil: 'load', timeout: 60000 });
+    await page.waitForSelector('.app-header', { timeout: 8000 });
     await page.waitForTimeout(600);
     const m = await page.evaluate(() => {
       const stage = document.querySelector('.stage-canvas').getBoundingClientRect();
@@ -93,12 +94,12 @@ const FIGMA = {
     check('toolsR', tl && tl.r, FIGMA.toolsR);
     check('logoL', rows[p].logo && rows[p].logo.l, FIGMA.logoL);
   }
-  // 播放页应有阶段标签且居中于 771-1055
+  // 播放页应有阶段标签（Figma 230:288：左竖线771、右竖线1079，容器 771→1081，蓝底宽260）
   const st = rows.player.stageTag;
-  if (!st || Math.abs(st.l - 771) > 2 || Math.abs(st.r - 1055) > 2) {
-    console.log(`FIGMA player.stageTag=${JSON.stringify(st)} expected 771→1055`); fail++;
+  if (!st || Math.abs(st.l - 771) > 2 || Math.abs(st.r - 1081) > 2) {
+    console.log(`FIGMA player.stageTag=${JSON.stringify(st)} expected 771→1081`); fail++;
   } else {
-    console.log('\nplayer stageTag', st.l, '→', st.r, '(Figma 771→1055) OK');
+    console.log('\nplayer stageTag', st.l, '→', st.r, '(Figma 230:288 771→1081) OK');
   }
 
   console.log(fail === 0 ? '\nALL TOPBAR CHECKS PASS' : `\n${fail} TOPBAR CHECK(S) FAILED`);

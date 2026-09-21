@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>实验室检测 · 分步明细对照表（完整版 42 段）</title>
+<style>
+  :root{
+    --ink:#1b2330; --ink-2:#48536b; --ink-3:#7c879e;
+    --line:#dfe4ee; --line-2:#eef1f7; --bg:#f5f7fb; --card:#fff;
+    --blue:#1949A9; --blue-soft:#eaf0fc; --blue-line:#c3d4f5;
+    --amber:#b46a00; --amber-soft:#fff6e6; --amber-line:#f0d5a3;
+    --green:#1c7a4a; --green-soft:#e9f7f0;
+    --gray:#6b7280; --gray-soft:#f1f3f7;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.6 "HarmonyOS Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif}
+  .wrap{max-width:1280px;margin:0 auto;padding:28px 20px 60px}
+  h1{font-size:20px;margin:0 0 6px;letter-spacing:.3px}
+  .sub{color:var(--ink-3);font-size:13px;margin:0 0 18px}
+  .stats{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:8px;
+    padding:7px 12px;font-size:12.5px;color:var(--ink-2)}
+  .stat b{color:var(--ink);font-weight:600}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin:0 0 14px;font-size:12.5px;color:var(--ink-2)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+  .sw.new{background:var(--blue)} .sw.done{background:#c9cfdb}
+  table{width:100%;border-collapse:collapse;background:var(--card);
+    border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  thead th{position:sticky;top:0;z-index:2;background:var(--blue);color:#fff;
+    font-weight:600;font-size:13px;text-align:left;padding:11px 12px;white-space:nowrap}
+  tbody td{border-top:1px solid var(--line-2);padding:9px 12px;vertical-align:top;font-size:13.2px}
+  tbody tr.body:hover td{background:#fafbfe}
+  td.no{width:52px;text-align:right;color:var(--ink-3);font-variant-numeric:tabular-nums}
+  td.play{width:168px;font-weight:600;white-space:nowrap}
+  td.audio{width:126px;white-space:nowrap;color:var(--ink-2)}
+  td.stop{width:268px;color:var(--ink-2)}
+  tr.grp td{background:var(--blue-soft);border-top:1px solid var(--blue-line);
+    color:var(--blue);font-weight:600;font-size:13px;padding:8px 12px}
+  tr.grp td .tag{font-weight:500;color:var(--ink-2);margin-left:8px}
+  tr.new td{background:#fbfdff}
+  tr.new td.no{box-shadow:inset 3px 0 0 var(--blue)}
+  tr.done td.no{box-shadow:inset 3px 0 0 #c9cfdb}
+  .dim{color:var(--ink-3)}
+  .chip{display:inline-block;font-size:11px;padding:1px 6px;border-radius:999px;
+    background:var(--blue-soft);color:var(--blue);border:1px solid var(--blue-line);
+    margin-left:6px;vertical-align:1px}
+  .chip.amber{background:var(--amber-soft);color:var(--amber);border-color:var(--amber-line)}
+  .chip.green{background:var(--green-soft);color:var(--green);border-color:#b9e2cd}
+  .chip.gray{background:var(--gray-soft);color:var(--gray);border-color:#d7dbe3}
+  .sn{display:block;color:var(--ink-3);font-size:11.5px;font-weight:400;white-space:normal}
+  .ph{display:block;color:var(--ink-3);font-size:11px;font-weight:400;font-family:ui-monospace,Consolas,monospace}
+  .note{margin:22px 0 0;background:var(--card);border:1px solid var(--line);
+    border-radius:10px;padding:16px 18px}
+  .note h2{font-size:14px;margin:0 0 10px}
+  .note h2:not(:first-child){margin-top:18px}
+  .note ul{margin:0;padding-left:20px;color:var(--ink-2);font-size:13px}
+  .note li{margin:5px 0}
+  .note code{background:#f1f3f8;border-radius:4px;padding:1px 5px;font-size:12.4px}
+  .foot{color:var(--ink-3);font-size:12px;margin-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>实验室检测 · 分步明细对照表</h1>
+  <p class="sub">食源性疾病虚拟仿真教学系统 ｜ 实验室检测模块 · 操作链<b>全量 42 段</b>（查看 1 + 操作 41）· 与 <code>LabTestingPlayer.tsx</code> 当前代码逐条核对</p>
+
+  <div class="stats">
+    <div class="stat">视频段 <b>42</b> 段<span class="dim">（查看 1 + 操作 41）</span></div>
+    <div class="stat">操作视频文件 <b>43</b> 个<span class="dim">（链路用 41，未用 13.3 / 40）</span></div>
+    <div class="stat">实际点击 <b>42</b> 下<span class="dim">（10.mp4 段需点 SC + TTB 两下）</span></div>
+    <div class="stat">徽标分段 <b>7</b> 段<span class="dim">（含「查看实验视频」自成一档）</span></div>
+    <div class="stat">操作段总时长 <b>190.11 s</b><span class="dim">（实测，不含查看段）</span></div>
+    <div class="stat">查看段 <b>517.84 s</b><span class="dim">（8 分 37 秒）</span></div>
+  </div>
+
+  <div class="legend">
+    <span><i class="sw done"></i>已实现（序号 1–41，E2E 全绿）</span>
+    <span><i class="sw new"></i>本轮新增（序号 42：39.mp4 + 知识考核侧栏）</span>
+    <span>音效列 <b>—</b> ＝ 该段不配音；<b>*</b> ＝ 该段<b>末帧点击</b>时才播（其余为进入该段即播）</span>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="text-align:right">序号</th>
+        <th>播放（实测时长）</th>
+        <th>音效</th>
+        <th>播完停在此帧，需要点</th>
+        <th>末帧底部提示 / 备注</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- ── ① 查看实验视频 ── -->
+      <tr class="grp"><td colspan="5">① 查看实验视频<span class="tag">徽标「查看实验视频」· 独立 <code>watchRef</code> 元素，与操作链分离</span></td></tr>
+      <tr class="body done">
+        <td class="no">1</td>
+        <td class="play">17.mp4<span class="sn">517.84 s · 根目录 /Video/17.mp4</span><span class="ph">watch17</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">原生控制条；右下角「下一步」／「退出视频」</td>
+        <td>点「下一步」→ 进入 01.mp4；「退出视频」→ 回案例页。<b>注意与 <code>操作视频/17.mp4</code>（2.18 s）同名不同物</b>，不属同一段</td>
+      </tr>
+
+      <!-- ── ② 样品处理 ── -->
+      <tr class="grp"><td colspan="5">② 样品处理<span class="tag">徽标「样品处理」（01.mp4 起切换）</span></td></tr>
+      <tr class="body done">
+        <td class="no">2</td>
+        <td class="play">01.mp4<span class="sn">2.86 s</span><span class="ph">play01 → tools</span></td>
+        <td class="audio">7.mp3</td>
+        <td class="stop">停在末帧<span class="dim">（点右侧道具栏）</span></td>
+        <td>提示：把缓冲蛋白胨水（BPW）放至秤上</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">3</td>
+        <td class="play">02.mp4<span class="sn">2.60 s</span><span class="ph">op02 → tareWait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">末帧画面 秤面橙色「归零」（Tare）按钮</td>
+        <td><b>本段末帧无提示文案</b>（<code>HINT_TEXT</code> 无 <code>tareWait</code> 键）—— 只有空提示胶囊 <span class="chip amber">原表此处有误，已订正</span></td>
+      </tr>
+      <tr class="body done">
+        <td class="no">4</td>
+        <td class="play">03.mp4<span class="sn">2.25 s</span><span class="ph">op03 → pickFoodWait</span></td>
+        <td class="audio">8.mp3 <b>*</b></td>
+        <td class="stop">停在末帧<span class="dim">（点右侧道具栏）</span></td>
+        <td>提示：点击食品样品</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">5</td>
+        <td class="play">04.mp4<span class="sn">9.38 s</span><span class="ph">op04 → pickHomoWait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">停在末帧<span class="dim">（点右侧道具栏）</span></td>
+        <td>提示：点击匀质机</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">6</td>
+        <td class="play">05.mp4<span class="sn">0.81 s</span><span class="ph">op05 → handleWait</span></td>
+        <td class="audio">9.mp3</td>
+        <td class="stop">末帧画面 红色闪烁区域（匀质机把手）</td>
+        <td>提示：请点击红色区域。<span class="dim">叠加引导层 <code>/images/lab-tools/handle.png</code> 即 1920×1080 整屏精确层</span></td>
+      </tr>
+      <tr class="body done">
+        <td class="no">7</td>
+        <td class="play">06.mp4<span class="sn">0.72 s</span><span class="ph">op06 → bpwWait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">末帧画面 左侧 BPW 烧杯</td>
+        <td>提示：点击画面中的 BPW</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">8</td>
+        <td class="play">07.mp4<span class="sn">3.74 s</span><span class="ph">op07 → incubatorWait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">停在末帧<span class="dim">（点右侧道具栏）</span></td>
+        <td>提示：点击道具栏的「隔水式恒温培养箱」</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">9</td>
+        <td class="play">08.mp4<span class="sn">3.97 s</span><span class="ph">op08 → switchP1Wait</span></td>
+        <td class="audio">10.mp3</td>
+        <td class="stop">末帧画面 面板 ON/OFF 开关（绿翘板）</td>
+        <td>提示：点击面板上的开关</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">10</td>
+        <td class="play">09.mp4<span class="sn">4.20 s</span><span class="ph">op09 → okWait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">末帧画面「确定」按钮（对话框）</td>
+        <td>提示：点击「确定」继续</td>
+      </tr>
+
+      <!-- ── ③ 增菌培养 ── -->
+      <tr class="grp"><td colspan="5">③ 增菌培养<span class="tag">徽标「增菌培养」（10.mp4 起切换）</span></td></tr>
+      <tr class="body done">
+        <td class="no">11</td>
+        <td class="play">10.mp4<span class="sn">2.67 s</span><span class="ph">op10 → scTtbWait</span></td>
+        <td class="audio">11.mp3</td>
+        <td class="stop">停在末帧<span class="dim">（点右侧道具栏，两件都要点）</span></td>
+        <td>提示：点击SC增菌液和TTB增菌液 <span class="chip">需点 2 下</span></td>
+      </tr>
+      <tr class="body done">
+        <td class="no">12</td>
+        <td class="play">11.mp4<span class="sn">6.22 s</span><span class="ph">op11 → pipetteWait</span></td>
+        <td class="audio">12.mp3</td>
+        <td class="stop">末帧画面 第 4 支移液枪（1 mL）</td>
+        <td>提示：点击移液枪</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">13</td>
+        <td class="play">12.mp4<span class="sn">19.44 s</span><span class="ph">op12 → incubator2Wait</span></td>
+        <td class="audio">13.mp3</td>
+        <td class="stop">停在末帧<span class="dim">（点右侧道具栏）</span></td>
+        <td>提示：用移液枪吸取菌液，分别接种至SC增菌液与TTB增菌液中 <span class="chip">唯一「播放中即有提示文案」的段</span></td>
+      </tr>
+      <tr class="body done">
+        <td class="no">14</td>
+        <td class="play">13.1.mp4<span class="sn">4.74 s</span><span class="ph">op13_1 → switchP2Wait</span></td>
+        <td class="audio">14.mp3</td>
+        <td class="stop">末帧画面 面板 ON/OFF 开关（与 08 同位）</td>
+        <td>提示：点击面板上的开关</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">15</td>
+        <td class="play">13.2.mp4<span class="sn">0.88 s</span><span class="ph">op13_2 → endWait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">末帧画面「继续」按钮（末帧自带气泡）</td>
+        <td>提示：点击「继续」</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">16</td>
+        <td class="play">13.4.mp4<span class="sn">5.20 s</span><span class="ph">op13_4 → switchP3Wait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">末帧画面 面板 ON/OFF 开关（与 08 同位）</td>
+        <td>提示：点击面板上的开关</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">17</td>
+        <td class="play">14.mp4<span class="sn">0.72 s</span><span class="ph">op14 → go2Wait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">末帧画面「继续」按钮（与 13.2 同位）</td>
+        <td>提示：点击「继续」</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">18</td>
+        <td class="play">15.mp4<span class="sn">4.04 s</span><span class="ph">op15 → ok2Wait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">末帧画面「确定」按钮（对话框）</td>
+        <td>提示：点击「确定」继续 <span class="dim">（24 h 后观察增菌培养液）</span></td>
+      </tr>
+      <tr class="body done">
+        <td class="no">19</td>
+        <td class="play">16.mp4<span class="sn">1.11 s</span><span class="ph">op16 → ok3Wait</span></td>
+        <td class="audio">15.mp3</td>
+        <td class="stop">末帧画面「确定」按钮（对话框）</td>
+        <td>提示：点击「确定」继续</td>
+      </tr>
+
+      <!-- ── ④ 分离培养 ── -->
+      <tr class="grp"><td colspan="5">④ 分离培养<span class="tag">徽标「分离培养」（17.mp4 起切换）</span></td></tr>
+      <tr class="body done">
+        <td class="no">20</td>
+        <td class="play">17.mp4<span class="sn">2.18 s · 操作视频/17.mp4</span><span class="ph">op17 → alcoholWait</span></td>
+        <td class="audio">16.mp3</td>
+        <td class="stop">末帧画面 桌面酒精灯</td>
+        <td>提示：点击「酒精灯」</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">21</td>
+        <td class="play">18.mp4<span class="sn">1.07 s</span><span class="ph">op18 → pickLoopWait</span></td>
+        <td class="audio">17.mp3</td>
+        <td class="stop">停在末帧<span class="dim">（点右侧道具栏）</span></td>
+        <td>提示：点击道具栏的「接种环」</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">22</td>
+        <td class="play">19.mp4<span class="sn">9.78 s</span><span class="ph">op19 → go3Wait</span></td>
+        <td class="audio">18.mp3</td>
+        <td class="stop">末帧画面「继续」按钮（末帧自带气泡）</td>
+        <td>提示：点击「继续」</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">23</td>
+        <td class="play">20.mp4<span class="sn">9.17 s</span><span class="ph">op20 → go4Wait</span></td>
+        <td class="audio">19.mp3</td>
+        <td class="stop">末帧画面「继续」按钮（末帧自带气泡）</td>
+        <td>提示：点击「继续」</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">24</td>
+        <td class="play">21.mp4<span class="sn">0.72 s</span><span class="ph">op21 → incubator3Wait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">停在末帧<span class="dim">（点右侧道具栏）</span></td>
+        <td>提示：点击道具栏的「隔水式恒温培养箱」</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">25</td>
+        <td class="play">22.mp4<span class="sn">5.55 s</span><span class="ph">op22 → switchP4Wait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">末帧画面 面板 ON/OFF 开关</td>
+        <td>提示：点击面板上的开关</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">26</td>
+        <td class="play">23.mp4<span class="sn">0.91 s</span><span class="ph">op23 → go5Wait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">末帧画面「继续」按钮（末帧自带气泡）</td>
+        <td>提示：点击「继续」</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">27</td>
+        <td class="play">24.mp4<span class="sn">2.90 s</span><span class="ph">op24 → ok4Wait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">末帧画面「确定」按钮（对话框）</td>
+        <td>提示：点击「确定」</td>
+      </tr>
+
+      <!-- ── ⑤ 鉴定-1 ── -->
+      <tr class="grp"><td colspan="5">⑤ 鉴定-1<span class="tag">徽标「鉴定-1」（25.mp4 起切换）</span></td></tr>
+      <tr class="body done">
+        <td class="no">28</td>
+        <td class="play">25.mp4<span class="sn">21.50 s</span><span class="ph">op25 → pickTsiWait</span></td>
+        <td class="audio">20+21.mp3</td>
+        <td class="stop">停在末帧<span class="dim">（点右侧道具栏）</span></td>
+        <td>提示：点击「三糖铁（TSI）琼脂」</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">29</td>
+        <td class="play">26.mp4<span class="sn">13.14 s</span><span class="ph">op26 → incubator4Wait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">停在末帧<span class="dim">（点右侧道具栏）</span></td>
+        <td>提示：点击道具栏的「隔水式恒温培养箱」</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">30</td>
+        <td class="play">27.mp4<span class="sn">4.44 s</span><span class="ph">op27 → switchP5Wait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">末帧画面 面板 ON/OFF 开关</td>
+        <td>提示：点击面板上的开关</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">31</td>
+        <td class="play">28.mp4<span class="sn">0.91 s</span><span class="ph">op28 → go6Wait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">末帧画面「继续」按钮（末帧自带气泡）</td>
+        <td>提示：点击「继续」</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">32</td>
+        <td class="play">29.mp4<span class="sn">2.42 s</span><span class="ph">op29 → ok5Wait</span></td>
+        <td class="audio">22.mp3</td>
+        <td class="stop">末帧画面「确定」按钮（对话框）</td>
+        <td>提示：点击「确定」</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">33</td>
+        <td class="play">30.mp4<span class="sn">1.11 s</span><span class="ph">op30 → ok6Wait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">末帧画面「确定」按钮（对话框）</td>
+        <td>提示：点击「确定」</td>
+      </tr>
+
+      <!-- ── ⑥ 鉴定-2 ── -->
+      <tr class="grp"><td colspan="5">⑥ 鉴定-2<span class="tag">徽标「鉴定-2」（31.mp4 起切换）</span></td></tr>
+      <tr class="body done">
+        <td class="no">34</td>
+        <td class="play">31.mp4<span class="sn">2.58 s</span><span class="ph">op31 → ok7Wait</span></td>
+        <td class="audio">23+29.mp3</td>
+        <td class="stop">末帧画面「确定」按钮（对话框）</td>
+        <td>提示：点击「确定」</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">35</td>
+        <td class="play">32.mp4<span class="sn">0.49 s</span><span class="ph">op32 → pickDishWait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">停在末帧<span class="dim">（点右侧道具栏）</span></td>
+        <td>提示：点击道具栏的「平皿」</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">36</td>
+        <td class="play">33.mp4<span class="sn">5.64 s</span><span class="ph">op33 → pickLoop2Wait</span></td>
+        <td class="audio">24.mp3</td>
+        <td class="stop">停在末帧<span class="dim">（点右侧道具栏）</span></td>
+        <td>提示：点击道具栏的「接种环」</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">37</td>
+        <td class="play">34.mp4<span class="sn">6.64 s</span><span class="ph">op34 → pickSerumWait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">停在末帧<span class="dim">（点右侧道具栏）</span></td>
+        <td>提示：点击道具栏的「多价菌体（O）抗血清」</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">38</td>
+        <td class="play">35.mp4<span class="sn">4.34 s</span><span class="ph">op35 → salineWait</span></td>
+        <td class="audio">25.mp3</td>
+        <td class="stop">末帧画面 桌面生理盐水瓶</td>
+        <td>提示：点击桌面的「生理盐水」</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">39</td>
+        <td class="play">36.mp4<span class="sn">10.98 s</span><span class="ph">op36 → ok8Wait</span></td>
+        <td class="audio">26.mp3</td>
+        <td class="stop">末帧画面「确定」按钮（对话框）</td>
+        <td>提示：点击「确定」</td>
+      </tr>
+      <tr class="body done">
+        <td class="no">40</td>
+        <td class="play">37.mp4<span class="sn">1.11 s</span><span class="ph">op37 → ok9Wait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop">末帧画面「确定」按钮（对话框）</td>
+        <td>提示：点击「确定」</td>
+      </tr>
+
+      <!-- ── ⑦ 鉴定-3 ── -->
+      <tr class="grp"><td colspan="5">⑦ 鉴定-3<span class="tag">徽标「鉴定-3」（38.mp4 起切换）· 整段不出右侧道具栏</span></td></tr>
+      <tr class="body done">
+        <td class="no">41</td>
+        <td class="play">38.mp4<span class="sn">4.44 s</span><span class="ph">op38 → ok10Wait</span></td>
+        <td class="audio">27+28.mp3</td>
+        <td class="stop">末帧画面 对话框蓝按钮「<b>我已了解</b>」</td>
+        <td>提示：点击「我已了解」。<span class="dim">按钮文案与其余对话框的「确定」不同，是 38.mp4 特有</span> <span class="chip amber">原表记作「确定 · 去向待定」，已订正</span></td>
+      </tr>
+      <tr class="body new">
+        <td class="no">42</td>
+        <td class="play">39.mp4<span class="sn">2.55 s</span><span class="ph">op39 → quizWait</span></td>
+        <td class="audio dim">—</td>
+        <td class="stop"><b>无需点击</b>：39.mp4 播完 → 右侧出现「知识考核」侧栏</td>
+        <td>提示：请完成右侧知识考核 <span class="chip green">侧栏在播完后才出现</span><br>
+          <span class="dim">侧栏：H_12 / H_17 两题、一次一题、单选题；答对即时切题、答错停 5 秒后切题；末题判完自动回 <code>/case-study</code>；非模态不遮画面。<br>
+          39.mp4 末帧自带「我已了解」按钮（实测 [507..703, 776..836]），但本页<b>不给它热区</b> —— 后续去向未定，考核完成后停在末帧。</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <h2>依据与核对方式</h2>
+    <ul>
+      <li><b>权威依据 ①：原始 Flash 工程</b> <code>AN文件/3实验室检测.fla</code>（ZIP + FLA-XML）根时间轴帧标签，与上表「播完停在此帧，需要点」列<b>逐条同序对应</b>：<code>点击酒精灯 → 点击工具栏里的接种环 → 点击继续 → 点击继续 → 点击 → 点击 → 点击 → 点击确定 → 点击三糖 → 点击培养箱 → 点击开关 → 点击继续 → 点击 → 点击 → 点击平皿 → 点击工具栏里的接种环 → 点击多价抗血清 → 点击生理盐水 → 点击 → 点击 → 点击确定</code>，共 21 个命名帧（另 1 个点击位于子元件时间轴内）。</li>
+      <li><b>权威依据 ②：当前代码</b> <code>frontend/src/pages/LabTestingPlayer.tsx</code> —— 本表「需要点 / 下一段 / 提示文案 / 音效」四列全部取自代码里的单一来源表
+        （<code>CLICK_SPOTS</code> / <code>SCENE_SPOTS</code> / <code>PICK_TARGETS</code> / <code>PICK_NEXT</code> / <code>HINT_TEXT</code> / <code>PHASE_AUDIO</code> / <code>BADGE_TIERS</code>），
+        <b>不是抄自旧文档</b>。该页已由 <code>.verify-lab-chain.cjs</code>（188 项）逐段跑通。</li>
+      <li><b>时长列</b>为本机<b>实测值</b>（Chromium 解码读 <code>duration</code>，脚本 <code>.durs-all.cjs</code>），非素材目录标注值。
+        ⚠️ 媒体文件历史上被替换过 —— <b>每次出表都应重新实测</b>，不要复用旧记录。</li>
+      <li><b>音效归属：</b>沿用「第 N 段操作视频 ↔ 第 N−1 支 mp3」规律，且全部以 <code>PHASE_AUDIO</code> 为准。
+        <code>25.mp4 ← 20+21.mp3</code>、<code>31.mp4 ← 23+29.mp3</code>、<code>38.mp4 ← 27+28.mp3</code> 为三段<b>合成音档</b>（素材目录中与 <code>20/21/23/27/28/29.mp3</code> 单支版本并存）。
+        带 <b>*</b> 的 <code>8.mp3</code> 挂在前一等待阶段 <code>pickFoodWait</code>，即 03.mp4 末帧点击「食品样品」时才播。</li>
+      <li><b>徽标切换点（7 段）：</b>「查看实验视频」自成一档（<code>watch17</code>，不在 <code>BADGE_TIERS</code> 内）；
+        其余 6 段的入口分别是 <b>01 / 10 / 17 / 25 / 31 / 38.mp4</b>。其中 <b>17.mp4 挂「分离培养」</b>（非「增菌培养」），已按规格落地。</li>
+      <li><b>操作视频音轨：</b>链路全部 <code>*.mp4</code> 实测为静音（Web Audio 电平峰值 0），故 mp3 可与视频同时播放、不叠音。</li>
+    </ul>
+
+    <h2>未入链路的素材</h2>
+    <ul>
+      <li><code>操作视频/13.3.mp4</code>（5.41 s，TTB 组）—— 素材存在但未纳入链路。 <span class="chip gray">待定</span></li>
+      <li><code>操作视频/40.mp4</code>（0.79 s，空 3D 场景）—— 未纳入链路。 <span class="chip gray">待定</span></li>
+      <li>目录共 43 个操作视频文件，链路使用 41 个；外加仓库根 <code>Video/17.mp4</code> 作「查看实验视频」。</li>
+    </ul>
+
+    <h2>本轮订正（相对上一版对照表）</h2>
+    <ul>
+      <li><b>补全序号 42</b>：<code>39.mp4</code> + 右侧「知识考核」侧栏（上一版止于 38.mp4，39.mp4 列在「待确认①」）。</li>
+      <li><b>序号 41 订正</b>：38.mp4 末帧按钮是「<b>我已了解</b>」而非「确定」，「其后去向待定」也已确定 —— 点它进 39.mp4 并进入知识考核。</li>
+      <li><b>序号 3 订正</b>：<code>02.mp4</code> 末帧没有提示文案（<code>HINT_TEXT</code> 里无 <code>tareWait</code> 键），上一版写了文案。</li>
+      <li><b>统计订正</b>：徽标分段 6 → <b>7</b> 段（含「查看实验视频」）；视频段 41 → <b>42</b> 段；实际点击 41 → <b>42</b> 下。</li>
+      <li><b>补齐时长</b>：13.4 / 14 等原先空缺的段落已按实测填入；全表时长统一为实测值。</li>
+      <li><b>新增列信息</b>：「播放」列增加等宽字体的<b>阶段名</b>（与代码 <code>LabPhase</code> 一致），便于按代码定位改哪一行。</li>
+    </ul>
+
+    <p class="foot">
+      序号体系：序号 1 = 查看视频（根 <code>Video/17.mp4</code>）；序号 2–20 = <code>操作视频/01–17.mp4</code>（19 段）；序号 21–42 = <code>操作视频/18–39.mp4</code>（22 段）。<br>
+      操作视频时长实测于 2026-09-18；合计 190.11 s（41 段，不含查看段）。
+    </p>
+  </div>
+</div>
+</body>
+</html>

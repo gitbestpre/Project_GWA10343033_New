@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #000;
+      }
+    </style>
+  </head>
+  <body>
+    <video id="v" muted playsinline preload="auto" style="width: 480px; height: 270px"></video>
+    <script>
+      var src = new URLSearchParams(location.search).get('src')
+      var v = document.getElementById('v')
+      v.src = src
+      v.load()
+    </script>
+  </body>
+</html>

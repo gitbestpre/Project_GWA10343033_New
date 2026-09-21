@@ -14,14 +14,25 @@ import InterviewOutlineModal from '../components/player/InterviewOutlineModal'
 import SiteSurveyInfoModal from '../components/player/SiteSurveyInfoModal'
 import ModuleFinishModal from '../components/player/ModuleFinishModal'
 import AiCompanionModal from '../components/player/AiCompanionModal'
+import ExitConfirmModal from '../components/player/ExitConfirmModal'
 import TaskListModal from '../components/player/TaskListModal'
 import { getQuestionById } from '../data/questions'
 import { FIELD_DIALOGUES, CDC_REPORT_DIALOGUES } from '../data/dialogues'
 import type { DialogueLine } from '../data/dialogues'
+import {
+  WRONG_HOLD_SECONDS,
+  judgeAndRecord,
+  reviewResultOf,
+} from '../components/player/quizShared'
+import {
+  MODULE_FIRST_STEP,
+  discardSession,
+  makeStepGuard,
+  markDone,
+  markStudying,
+  readProgress,
+} from '../lib/moduleProgress'
 import './EpidemiologyPlayer.css'
-
-/** 答错后正确答案停留时长（秒），到时自动进入下一步 */
-const WRONG_HOLD_SECONDS = 5
 
 /**
  * 本阶段编排（顺序）：
@@ -45,31 +56,41 @@ const WRONG_HOLD_SECONDS = 5
  * 点击记录卡弹出《食品安全事故病例访谈提纲》可滚动文档弹窗，关闭后停留记录页。
  * 答对立即进入下一步；答错展示正确答案停留 5 秒后自动进入。
  */
-type PhaseKind =
-  | 'video'
-  | 'quiz'
-  | 'dialog'
-  | 'inquiry'
-  | 'postquiz'
-  | 'feedback'
-  | 'briefing'
-  | 'cdcDialog'
-  | 'cdcQuiz'
-  | 'reportFlow'
-  | 'investVideo19'
-  | 'investQuiz5'
-  | 'investReady'
-  | 'siteVideo20'
-  | 'siteQuiz6'
-  | 'siteVideo7'
-  | 'siteQuiz7'
-  | 'aiChat'
-  | 'aiRelated'
-  | 'recordPage'
-  | 'closingVideo9'
-  | 'siteInfo'
-  | 'closingVideo10'
-  | 'moduleFinish'
+/**
+ * 全阶段类型（phaseKind）常量表 —— **同时充当断点校验白名单**（见下方 `isEpiKind`）。
+ *
+ * 类型由本表派生（`type PhaseKind = (typeof EPI_PHASE_KINDS)[number]`），于是
+ * `makeStepGuard(EPI_PHASE_KINDS)` 天然与类型定义**同源**：新增/改名阶段只改这一处，
+ * 断点白名单不可能忘记同步。顺序 = 链路推进顺序，便于人工核对。
+ */
+const EPI_PHASE_KINDS = [
+  'video',
+  'quiz',
+  'dialog',
+  'inquiry',
+  'postquiz',
+  'feedback',
+  'briefing',
+  'cdcDialog',
+  'cdcQuiz',
+  'reportFlow',
+  'investVideo19',
+  'investQuiz5',
+  'investReady',
+  'siteVideo20',
+  'siteQuiz6',
+  'siteVideo7',
+  'siteQuiz7',
+  'aiChat',
+  'aiRelated',
+  'recordPage',
+  'closingVideo9',
+  'siteInfo',
+  'closingVideo10',
+  'moduleFinish',
+] as const
+
+type PhaseKind = (typeof EPI_PHASE_KINDS)[number]
 
 /** 问询页背景视频（4.mp4 双人分屏，本身无音轨）与左上徽标文案 */
 const INQUIRY_VIDEO = '/Video/4.mp4'
@@ -149,22 +170,122 @@ const STAGES: Stage[] = [
   { video: '/Video/2.mp4', badge: '接到报案', quizId: null, dialogues: FIELD_DIALOGUES },
 ]
 
-/** 判断所选集合是否与标准答案集合完全一致（顺序无关，兼容单选/多选） */
-function isCorrectAnswer(selected: string[], answerKeys: string[]) {
-  if (selected.length !== answerKeys.length) return false
-  return answerKeys.every((k) => selected.includes(k))
+/** 判断所选集合是否与标准答案集合完全一致 —— 已收敛到共享判题口径 quizShared.ts
+ *  （原先此处有一份本地副本，与 QuizStep/QuizRail 的判题逻辑重复，易改一处忘一处）。
+ *  判题一律走 `judgeAndRecord`（判对错的同时记账，每题只做一次）。 */
+
+/* ------------------------------------------------------------------ *
+ * 学习进度（断点续做）—— 与 moduleProgress 存储层对接
+ *
+ * 负责人 2026-09-18：点进模块即「学习中」、走到终点（「模块完成」点我已了解）才是
+ * 「已学习」；中途返回则下次点击进来要**继续上次的进度**（步骤级，不恢复视频秒数）。
+ *
+ * ⚠ 本模块的进度是**二维**的（`stage` 主视频序号 × `phaseKind` 阶段），
+ *   故断点编码为 `stage:phaseKind`（如 `0:video` / `1:siteVideo7`）——
+ *   与 `MODULE_FIRST_STEP.epidemiology = '0:video'` 同一口径，两边必须一致。
+ * ------------------------------------------------------------------ */
+
+const MODULE_ID = 'epidemiology' as const
+/** 断点校验：白名单即 EPI_PHASE_KINDS，与类型定义同源，脏数据/旧版本残留一律判为无断点 */
+const isEpiKind = makeStepGuard(EPI_PHASE_KINDS)
+
+type ResumePoint = { stage: number; phaseKind: PhaseKind }
+
+/** 断点编码（写入侧） */
+const makeStep = (stage: number, phaseKind: PhaseKind): string => `${stage}:${phaseKind}`
+
+/**
+ * 断点解析（读取侧）：非法一律返回 null（当作无断点，从第一步开始）。
+ * 校验三件事：能按 `stage:kind` 切分、kind 在白名单内、stage 在 STAGES 下标范围内。
+ */
+function parseStep(step: string | null | undefined): ResumePoint | null {
+  if (!step) return null
+  const sep = step.indexOf(':')
+  if (sep <= 0) return null
+  const rawStage = step.slice(0, sep)
+  const rawKind = step.slice(sep + 1)
+  if (!/^\d+$/.test(rawStage)) return null
+  if (!isEpiKind(rawKind)) return null
+  const stage = Number(rawStage)
+  if (stage < 0 || stage >= STAGES.length) return null
+  return { stage, phaseKind: rawKind }
+}
+
+/** 本模块第一步（首次进入 / 「重新学习」的起点，也是断点非法/缺失时的兜底） */
+const FIRST_POINT: ResumePoint = parseStep(MODULE_FIRST_STEP[MODULE_ID]) ?? {
+  stage: 0,
+  phaseKind: 'video',
+}
+
+/**
+ * 断点 → **恢复时的起步阶段**（需要时回退，其余原样返回）。
+ *
+ * 回退的都是「叠在某段视频末帧上的题卡 / 弹窗」阶段：它们自身不挂视频，靠宿主阶段
+ * 渲染那段视频（`autoPlay`）。若直接落进这些阶段，画面一边显示题卡、底下视频却
+ * 从头再播一遍，状态自相矛盾。故回退到它叠着的那段视频，让视频播完再自然出题卡 ——
+ * 这正是「回到该步骤开头重播」的语义。
+ *
+ * （`inquiry` / `postquiz` / `cdcQuiz` / `dialog` 等虽是弹窗/面板，但背景是**静音循环**的
+ *   4.mp4 / 过渡6.mp4 或对话组件自携背景，不存在「末帧重播」矛盾，故不回退。）
+ */
+const RESUME_BACKOFF: Partial<Record<PhaseKind, PhaseKind>> = {
+  quiz: 'video', // 主视频（1/2.mp4）末帧上的题卡
+  investQuiz5: 'investVideo19',
+  siteQuiz6: 'siteVideo20',
+  siteQuiz7: 'siteVideo7',
+  aiRelated: 'aiChat', // 相关信息弹窗叠在 8.mp4 末帧上
+  siteInfo: 'closingVideo9', // 现场调查信息卡叠在 9.mp4 末帧上
+  moduleFinish: 'closingVideo10', // 模块完成提示叠在 10.mp4 末帧上
+}
+
+const resumePointOf = (step: string | null | undefined): ResumePoint => {
+  const p = parseStep(step)
+  if (!p) return FIRST_POINT
+  return { stage: p.stage, phaseKind: RESUME_BACKOFF[p.phaseKind] ?? p.phaseKind }
 }
 
 export default function EpidemiologyPlayer() {
   const navigate = useNavigate()
-  const [score] = useState(100)
+  // 「目前得分」不再由页面传入 —— 顶栏 Header 直接用 lib/quizScore 的实时值
+  // （单选 6 分 / 多选 5 分，0 分起累加）
 
-  const [stage, setStage] = useState(0)
-  const [phaseKind, setPhaseKind] = useState<PhaseKind>('video')
+  // 断点续做：首次挂载读一次存储并解析（stage 与 phaseKind 必须来自同一次解析，
+  // 否则两者可能不一致）；无合法断点则从第一步（0:video）开始
+  const [initialPoint] = useState<ResumePoint>(() => resumePointOf(readProgress(MODULE_ID).step))
+  const [stage, setStage] = useState(initialPoint.stage)
+  const [phaseKind, setPhaseKind] = useState<PhaseKind>(initialPoint.phaseKind)
   const current = STAGES[stage]
 
-  // 判题结果与倒计时
-  const [result, setResult] = useState<QuizResult | null>(null)
+  /** 中途退出确认弹窗（Figma 1:7889「退出提示」）：保存进度并退出 / 直接退出 */
+  const [exitPrompt, setExitPrompt] = useState(false)
+
+  // 每推进一步即写回断点（编码 `stage:phaseKind`）：模块选择页据此显示「学习中」/「已学习」，
+  // 也是下次进入的续做点。状态语义见 moduleProgress：已「已学习」的模块不因再进来一次而降级。
+  useEffect(() => {
+    markStudying(MODULE_ID, makeStep(stage, phaseKind))
+  }, [stage, phaseKind])
+
+  /** 中途退出请求（顶栏返回弯箭头）→ 先弹「退出提示」 */
+  const requestExit = () => setExitPrompt(true)
+
+  /** 保存进度并退出：断点已随 stage/phaseKind 持续写入，直接回模块选择页 */
+  const handleSaveAndExit = () => {
+    setExitPrompt(false)
+    navigate('/case-study')
+  }
+
+  /** 直接退出：本次学习成绩不予记录 —— 清掉本次断点再回模块选择页 */
+  const handleDiscardAndExit = () => {
+    discardSession(MODULE_ID)
+    setExitPrompt(false)
+    navigate('/case-study')
+  }
+
+  // 判题结果与倒计时。懒初始化：本题若**之前已答过**（每题只做一次），
+  // 挂载即进入评审态（回显用户答案与正确答案，停留 5 秒后推进）。
+  const [result, setResult] = useState<QuizResult | null>(() =>
+    current.quizId ? reviewResultOf(current.quizId) : null,
+  )
   const [countdown, setCountdown] = useState(WRONG_HOLD_SECONDS)
 
   // 视频播放状态：进入视频阶段即播，播放结束后：有题出题，有对话进对话，否则停留
@@ -184,9 +305,12 @@ export default function EpidemiologyPlayer() {
     el.play().catch(() => setNeedPlay(true))
   }, [stage, phaseKind])
 
-  // 答错倒计时：每秒 -1，归零后进入下一视频
+  // 倒计时：评审态一律停留（无论当初对错），首次答错才停留；归零后进入下一视频。
+  // ⚠️ 必须限定在 `quiz` 阶段：评审态的结果对象可能在挂载时就已存在（断点恢复），
+  //    若不加阶段判断，会在非考核阶段被这个 effect 悄悄把流程推到下一支视频。
   useEffect(() => {
-    if (!result || result.correct) return
+    if (phaseKind !== 'quiz') return
+    if (!result || (result.correct && result.review !== true)) return
     if (countdown <= 0) {
       goNextVideo()
       return
@@ -194,11 +318,14 @@ export default function EpidemiologyPlayer() {
     const timer = window.setTimeout(() => setCountdown((c) => c - 1), 1000)
     return () => window.clearTimeout(timer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [result, countdown])
+  }, [phaseKind, result, countdown])
 
   const handleVideoEnded = () => {
     setVideoEnded(true)
     if (current.quizId) {
+      // 已答过 → 评审态；未答过 → null（正常作答）
+      setResult(reviewResultOf(current.quizId))
+      setCountdown(WRONG_HOLD_SECONDS)
       setPhaseKind('quiz') // 本视频后有考核 → 出题
     } else if (current.dialogues && current.dialogues.length > 0) {
       setPhaseKind('dialog') // 视频2 → 接报通话对话
@@ -215,7 +342,7 @@ export default function EpidemiologyPlayer() {
 
   const handleSubmit = (selectedKeys: string[]) => {
     const q = current.quizId ? getQuestionById(current.quizId) : null
-    const correct = !!q && isCorrectAnswer(selectedKeys, q.answerKeys)
+    const correct = !!q && judgeAndRecord(q, selectedKeys)
     if (correct) {
       // 答对：立即切到下一个视频
       setResult({ correct: true })
@@ -233,9 +360,13 @@ export default function EpidemiologyPlayer() {
   const showInquiry = phaseKind === 'inquiry'
   const quizTotal = STAGES.filter((s) => s.quizId).length
 
-  // —— 结束问询后的两题知识考核（01/02 = H_03，02/02 = H_02）——
+  // —— 结束问询后的两题知识考核（01/02 = H_02 多选，02/02 = H_03 单选，
+  //      与 POST_QUIZ_IDS 声明顺序一致）——
   const [postIndex, setPostIndex] = useState(0)
-  const [postResult, setPostResult] = useState<QuizResult | null>(null)
+  // 懒初始化：首题若已答过则直接评审态（断点恢复到 postquiz 时的重走场景）
+  const [postResult, setPostResult] = useState<QuizResult | null>(() =>
+    reviewResultOf(POST_QUIZ_IDS[0]),
+  )
   const [postCountdown, setPostCountdown] = useState(WRONG_HOLD_SECONDS)
   const postQ = getQuestionById(POST_QUIZ_IDS[postIndex])
   const showPostQuiz = phaseKind === 'postquiz' && postQ
@@ -243,18 +374,22 @@ export default function EpidemiologyPlayer() {
 
   /** 进入下一道问询后考题；两题答完进入处置反馈弹窗 */
   const advancePostQuiz = () => {
-    setPostResult(null)
-    setPostCountdown(WRONG_HOLD_SECONDS)
-    if (postIndex + 1 < POST_QUIZ_IDS.length) {
-      setPostIndex((i) => i + 1)
+    const nextIndex = postIndex + 1
+    if (nextIndex < POST_QUIZ_IDS.length) {
+      setPostIndex(nextIndex)
+      // 下一题若之前已答过 → 评审态；否则 null（正常作答）
+      setPostResult(reviewResultOf(POST_QUIZ_IDS[nextIndex]))
+      setPostCountdown(WRONG_HOLD_SECONDS)
     } else {
+      setPostResult(null)
+      setPostCountdown(WRONG_HOLD_SECONDS)
       setPhaseKind('feedback')
     }
   }
 
   const handlePostSubmit = (selectedKeys: string[]) => {
     if (!postQ) return
-    const correct = isCorrectAnswer(selectedKeys, postQ.answerKeys)
+    const correct = judgeAndRecord(postQ, selectedKeys)
     if (correct) {
       setPostResult({ correct: true })
       advancePostQuiz()
@@ -264,10 +399,10 @@ export default function EpidemiologyPlayer() {
     }
   }
 
-  // 问询后考题答错倒计时：归零后进入下一题/反馈弹窗
+  // 问询后考题倒计时：评审态一律停留，首次答错才停留；归零后进入下一题/反馈弹窗
   useEffect(() => {
     if (phaseKind !== 'postquiz') return
-    if (!postResult || postResult.correct) return
+    if (!postResult || (postResult.correct && postResult.review !== true)) return
     if (postCountdown <= 0) {
       advancePostQuiz()
       return
@@ -285,7 +420,7 @@ export default function EpidemiologyPlayer() {
   // 结束问询 → 进入两题知识考核（不再直接离开页面）
   const handleInquiryEnd = () => {
     setPostIndex(0)
-    setPostResult(null)
+    setPostResult(reviewResultOf(POST_QUIZ_IDS[0]))
     setPostCountdown(WRONG_HOLD_SECONDS)
     setPhaseKind('postquiz')
   }
@@ -304,33 +439,38 @@ export default function EpidemiologyPlayer() {
 
   const handleCdcDialogFinish = () => {
     setCdcIndex(0)
-    setCdcResult(null)
+    setCdcResult(reviewResultOf(CDC_QUIZ_IDS[0]))
     setCdcCountdown(WRONG_HOLD_SECONDS)
     setPhaseKind('cdcQuiz')
   }
 
-  // —— 疾控汇报后的两题知识考核（H_04、H_05）——
+  // —— 疾控汇报后的单题知识考核（仅 H_04 多选；H_05 属后续 investQuiz5 阶段，不在此列）——
   const [cdcIndex, setCdcIndex] = useState(0)
-  const [cdcResult, setCdcResult] = useState<QuizResult | null>(null)
+  const [cdcResult, setCdcResult] = useState<QuizResult | null>(() =>
+    reviewResultOf(CDC_QUIZ_IDS[0]),
+  )
   const [cdcCountdown, setCdcCountdown] = useState(WRONG_HOLD_SECONDS)
   const cdcQ = getQuestionById(CDC_QUIZ_IDS[cdcIndex])
   const showCdcQuiz = phaseKind === 'cdcQuiz' && cdcQ
   const showReportFlow = phaseKind === 'reportFlow'
 
-  /** 进入下一道疾控考题；两题答完进入报告流程页 */
+  /** 进入下一道疾控考题（当前题库仅 H_04，此处按列表通用写法保留）；答完进入报告流程页 */
   const advanceCdcQuiz = () => {
-    setCdcResult(null)
-    setCdcCountdown(WRONG_HOLD_SECONDS)
-    if (cdcIndex + 1 < CDC_QUIZ_IDS.length) {
-      setCdcIndex((i) => i + 1)
+    const nextIndex = cdcIndex + 1
+    if (nextIndex < CDC_QUIZ_IDS.length) {
+      setCdcIndex(nextIndex)
+      setCdcResult(reviewResultOf(CDC_QUIZ_IDS[nextIndex]))
+      setCdcCountdown(WRONG_HOLD_SECONDS)
     } else {
+      setCdcResult(null)
+      setCdcCountdown(WRONG_HOLD_SECONDS)
       setPhaseKind('reportFlow')
     }
   }
 
   const handleCdcSubmit = (selectedKeys: string[]) => {
     if (!cdcQ) return
-    const correct = isCorrectAnswer(selectedKeys, cdcQ.answerKeys)
+    const correct = judgeAndRecord(cdcQ, selectedKeys)
     if (correct) {
       setCdcResult({ correct: true })
       advanceCdcQuiz()
@@ -340,10 +480,10 @@ export default function EpidemiologyPlayer() {
     }
   }
 
-  // 疾控考题答错倒计时：归零后进入下一题/报告流程页
+  // 疾控考题倒计时：评审态一律停留，首次答错才停留；归零后进入下一题/报告流程页
   useEffect(() => {
     if (phaseKind !== 'cdcQuiz') return
-    if (!cdcResult || cdcResult.correct) return
+    if (!cdcResult || (cdcResult.correct && cdcResult.review !== true)) return
     if (cdcCountdown <= 0) {
       advanceCdcQuiz()
       return
@@ -361,14 +501,20 @@ export default function EpidemiologyPlayer() {
   const closingVideoRef = useRef<HTMLVideoElement>(null)
   const [closingNeedPlay, setClosingNeedPlay] = useState(false)
 
-  // H_05 判题结果与倒计时
-  const [investResult, setInvestResult] = useState<QuizResult | null>(null)
+  // H_05 判题结果与倒计时（懒初始化评审态，断点恢复到本阶段时的重走场景）
+  const [investResult, setInvestResult] = useState<QuizResult | null>(() =>
+    reviewResultOf(INVEST_QUIZ_ID),
+  )
   const [investCountdown, setInvestCountdown] = useState(WRONG_HOLD_SECONDS)
   // H_06 判题结果与倒计时（答完进入 7.mp4）
-  const [siteResult, setSiteResult] = useState<QuizResult | null>(null)
+  const [siteResult, setSiteResult] = useState<QuizResult | null>(() =>
+    reviewResultOf(SITE_QUIZ_ID),
+  )
   const [siteCountdown, setSiteCountdown] = useState(WRONG_HOLD_SECONDS)
   // H_07 判题结果与倒计时（答完进入 AI 问询对话页）
-  const [site7Result, setSite7Result] = useState<QuizResult | null>(null)
+  const [site7Result, setSite7Result] = useState<QuizResult | null>(() =>
+    reviewResultOf(SITE_QUIZ_7_ID),
+  )
   const [site7Countdown, setSite7Countdown] = useState(WRONG_HOLD_SECONDS)
 
   const investQ = getQuestionById(INVEST_QUIZ_ID)
@@ -405,7 +551,7 @@ export default function EpidemiologyPlayer() {
 
   /** 报告流程页“继 续” → 播放 19.mp4（开展调查工作） */
   const handleReportFlowContinue = () => {
-    setInvestResult(null)
+    setInvestResult(reviewResultOf(INVEST_QUIZ_ID))
     setInvestCountdown(WRONG_HOLD_SECONDS)
     setPhaseKind('investVideo19')
   }
@@ -413,14 +559,14 @@ export default function EpidemiologyPlayer() {
   /** 19.mp4 播放结束 → 停留末帧并弹出 H_05 考核卡 */
   const handleInvestVideoEnded = () => {
     if (phaseKind !== 'investVideo19') return
-    setInvestResult(null)
+    setInvestResult(reviewResultOf(INVEST_QUIZ_ID))
     setInvestCountdown(WRONG_HOLD_SECONDS)
     setPhaseKind('investQuiz5')
   }
 
   const handleInvestSubmit = (selectedKeys: string[]) => {
     if (!investQ) return
-    const correct = isCorrectAnswer(selectedKeys, investQ.answerKeys)
+    const correct = judgeAndRecord(investQ, selectedKeys)
     if (correct) {
       // 答对：立即进入调查组准备静态页
       setInvestResult({ correct: true })
@@ -432,10 +578,10 @@ export default function EpidemiologyPlayer() {
     }
   }
 
-  // H_05 答错倒计时：归零后进入调查组准备静态页
+  // H_05 倒计时：评审态一律停留，首次答错才停留；归零后进入调查组准备静态页
   useEffect(() => {
     if (phaseKind !== 'investQuiz5') return
-    if (!investResult || investResult.correct) return
+    if (!investResult || (investResult.correct && investResult.review !== true)) return
     if (investCountdown <= 0) {
       setPhaseKind('investReady')
       return
@@ -447,7 +593,7 @@ export default function EpidemiologyPlayer() {
 
   /** 静态页“继 续” → 播放 20.mp4（现场调查） */
   const handleInvestReadyContinue = () => {
-    setSiteResult(null)
+    setSiteResult(reviewResultOf(SITE_QUIZ_ID))
     setSiteCountdown(WRONG_HOLD_SECONDS)
     setPhaseKind('siteVideo20')
   }
@@ -455,18 +601,18 @@ export default function EpidemiologyPlayer() {
   /** 20.mp4 播放结束 → 停留末帧并弹出 H_06 考核卡 */
   const handleSiteVideoEnded = () => {
     if (phaseKind !== 'siteVideo20') return
-    setSiteResult(null)
+    setSiteResult(reviewResultOf(SITE_QUIZ_ID))
     setSiteCountdown(WRONG_HOLD_SECONDS)
     setPhaseKind('siteQuiz6')
   }
 
   const handleSiteSubmit = (selectedKeys: string[]) => {
     if (!siteQ) return
-    const correct = isCorrectAnswer(selectedKeys, siteQ.answerKeys)
+    const correct = judgeAndRecord(siteQ, selectedKeys)
     if (correct) {
       // 答对：立即播放 7.mp4（现场调查继续）
       setSiteResult({ correct: true })
-      setSite7Result(null)
+      setSite7Result(reviewResultOf(SITE_QUIZ_7_ID))
       setSite7Countdown(WRONG_HOLD_SECONDS)
       setPhaseKind('siteVideo7')
     } else {
@@ -476,12 +622,12 @@ export default function EpidemiologyPlayer() {
     }
   }
 
-  // H_06 答错倒计时：归零后播放 7.mp4
+  // H_06 倒计时：评审态一律停留，首次答错才停留；归零后播放 7.mp4
   useEffect(() => {
     if (phaseKind !== 'siteQuiz6') return
-    if (!siteResult || siteResult.correct) return
+    if (!siteResult || (siteResult.correct && siteResult.review !== true)) return
     if (siteCountdown <= 0) {
-      setSite7Result(null)
+      setSite7Result(reviewResultOf(SITE_QUIZ_7_ID))
       setSite7Countdown(WRONG_HOLD_SECONDS)
       setPhaseKind('siteVideo7')
       return
@@ -494,14 +640,14 @@ export default function EpidemiologyPlayer() {
   /** 7.mp4 播放结束 → 停留末帧并弹出 H_07 考核卡 */
   const handleSite7VideoEnded = () => {
     if (phaseKind !== 'siteVideo7') return
-    setSite7Result(null)
+    setSite7Result(reviewResultOf(SITE_QUIZ_7_ID))
     setSite7Countdown(WRONG_HOLD_SECONDS)
     setPhaseKind('siteQuiz7')
   }
 
   const handleSite7Submit = (selectedKeys: string[]) => {
     if (!site7Q) return
-    const correct = isCorrectAnswer(selectedKeys, site7Q.answerKeys)
+    const correct = judgeAndRecord(site7Q, selectedKeys)
     if (correct) {
       // 答对：立即进入 AI 问询对话页
       setSite7Result({ correct: true })
@@ -513,10 +659,10 @@ export default function EpidemiologyPlayer() {
     }
   }
 
-  // H_07 答错倒计时：归零后进入 AI 问询对话页
+  // H_07 倒计时：评审态一律停留，首次答错才停留；归零后进入 AI 问询对话页
   useEffect(() => {
     if (phaseKind !== 'siteQuiz7') return
-    if (!site7Result || site7Result.correct) return
+    if (!site7Result || (site7Result.correct && site7Result.review !== true)) return
     if (site7Countdown <= 0) {
       setPhaseKind('aiChat')
       return
@@ -565,8 +711,9 @@ export default function EpidemiologyPlayer() {
     setPhaseKind('moduleFinish')
   }
 
-  /** “模块完成”提示“我已了解” → 返回模块选择页 */
+  /** “模块完成”提示“我已了解” → 标记「已学习」并返回模块选择页（终点的返回不弹退出确认） */
   const handleModuleFinishAck = () => {
+    markDone(MODULE_ID)
     navigate('/case-study')
   }
 
@@ -732,8 +879,14 @@ export default function EpidemiologyPlayer() {
         </div>
         )}
 
-        {/* 顶部状态栏（全站统一 Header，含阶段标签） */}
-        <Header variant="stats" score={score} timeText="20:00" stageLabel="现场流行病学调查" />
+        {/* 顶部状态栏（全站统一 Header，含阶段标签）。
+            返回弯箭头改为先弹「退出提示」（保存进度并退出 / 直接退出），不再直接跳回模块页；
+            走到终点的返回由「模块完成」的 handleModuleFinishAck 接管，不弹确认。 */}
+        <Header
+          variant="stats"
+          stageLabel="现场流行病学调查"
+          onBack={requestExit}
+        />
 
         {/* 自动播放被浏览器拦截时的点击播放提示（正常情况下不出现） */}
         {needPlay && !videoEnded && phaseKind === 'video' && (
@@ -1079,6 +1232,15 @@ export default function EpidemiologyPlayer() {
             currentTask={badgeText}
             onBack={handleTaskListBack}
             onJump={handleTaskJump}
+          />
+        )}
+
+        {/* 中途退出确认（Figma 1:7889）：顶栏返回弯箭头触发 */}
+        {exitPrompt && (
+          <ExitConfirmModal
+            onSaveAndExit={handleSaveAndExit}
+            onDiscardAndExit={handleDiscardAndExit}
+            onCancel={() => setExitPrompt(false)}
           />
         )}
       </div>

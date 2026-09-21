@@ -1,0 +1,140 @@
+/* 信息整理表弹窗（Figma 355:1701 / Group 1171275673）
+   1200×856 卡（舞台 left360 top151）：白底头条 56 + 主体 #F0F5FB 800，
+   表体为 1049 宽整幅长图（源 1049×3531），主体内纵向滚动。 */
+
+.st-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 23;
+}
+
+/* 注意：本弹窗卡容器类名用 .stt-panel（SummaryTable 前缀）。
+   旧名「st-panel」已被 FoodHygienePlayer.css 的「采样工具道具栏」(260×760 右侧面板)
+   占用，两者都是全局样式，同名会按注入顺序互相覆盖，故此处必须避开。 */
+.stt-panel {
+  position: absolute;
+  left: 360px;
+  top: 151px;
+  width: 1200px;
+  height: 856px;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  box-shadow: 0 10px 40px rgba(20, 40, 80, 0.25);
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+/* ---------- 标题栏（白底 56） ---------- */
+.st-head {
+  position: relative;
+  flex: none;
+  height: 56px;
+  background: #ffffff;
+  border-radius: 15px 15px 0 0;
+}
+
+.st-head-bar {
+  position: absolute;
+  left: 30px;
+  top: 16px;
+  width: 8px;
+  height: 23px;
+  border-radius: 2px;
+  background: #6883bb;
+}
+
+.st-head-title {
+  position: absolute;
+  left: 54px;
+  top: 13px;
+  font-family: "HarmonyOS Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 30px;
+  color: #505050;
+}
+
+.st-close {
+  position: absolute;
+  right: 20px;
+  top: 16px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.st-close:hover {
+  opacity: 0.7;
+}
+
+/* ---------- 主体（#f0f5fb，长图纵向滚动） ---------- */
+.st-body {
+  position: relative;
+  flex: 1 1 auto;
+  background: #f0f5fb;
+  border-radius: 0 0 12px 12px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #b9c6dd #f0f5fb;
+}
+
+.st-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.st-body::-webkit-scrollbar-thumb {
+  background: #b9c6dd;
+  border-radius: 4px;
+}
+
+.st-body::-webkit-scrollbar-track {
+  background: #f0f5fb;
+}
+
+/* 长图：卡内宽 1049 水平居中；保持原始宽高比，纵向随内容滚动 */
+.st-img {
+  display: block;
+  width: 1049px;
+  height: auto;
+  margin: 16px auto 24px;
+  user-select: none;
+}
+
+/* ---------- 底部固定确认栏（进入《调查报告提纲》） ---------- */
+.st-footer {
+  position: relative;
+  flex: none;
+  height: 84px;
+  background: #f0f5fb;
+  border-top: 1px solid #d7dfeb;
+  border-radius: 0 0 12px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.st-confirm-btn {
+  width: 191px;
+  height: 56px;
+  border: none;
+  border-radius: 12px;
+  background: #618dcf;
+  color: #fcfcfc;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 56px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.st-confirm-btn:hover {
+  background: #4f7fc7;
+}

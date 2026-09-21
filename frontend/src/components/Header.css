@@ -13,7 +13,8 @@
   border-bottom: 1px solid #eef1f5;
   z-index: 100;
   font-family: 'HarmonyOS Sans SC', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  overflow: hidden;
+  /* 放开裁切，使阶段标签下拉菜单可伸出顶栏 73px 高度 */
+  overflow: visible;
 }
 
 /* ---------- 校徽（Figma x15 y6, 232x58） ---------- */
@@ -34,18 +35,18 @@
   flex-shrink: 0;
 }
 
-/* 标题竖线（Figma x262 y16, 2x39） */
+/* 标题竖线（Figma 230:288 x262 y16, 2x39） */
 .hd-divider-brand {
   left: 262px;
   top: 16px;
-  height: 40px;
+  height: 39px;
 }
 
-/* ---------- 中英标题（Figma 组 x275 y20, 宽470） ---------- */
+/* ---------- 中英标题（Figma 230:288 组 x275 y20） ---------- */
 .hd-titles {
   position: absolute;
   left: 275px;
-  top: 13px;
+  top: 20px;
   width: 470px;
   display: flex;
   flex-direction: column;
@@ -53,30 +54,30 @@
 
 .hd-title-cn {
   margin: 0;
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 500;
-  line-height: 27px;
+  line-height: 26px;
   color: #494e58;
   white-space: nowrap;
-  letter-spacing: 0.2px;
+  letter-spacing: 0;
 }
 
 .hd-title-en {
-  margin: 1px 0 0 2px;
+  margin: 0 0 0 2px;
   font-size: 9px;
   font-weight: 300;
-  line-height: 13px;
-  color: #8a93a3;
-  letter-spacing: 0.1px;
+  line-height: 13.5px;
+  color: #1d2129;
+  letter-spacing: 0.99px;
   white-space: nowrap;
 }
 
-/* ---------- 当前阶段标签（Figma 区 x771 y11, 284x50） ---------- */
+/* ---------- 当前阶段标签（Figma 230:288 区 x771 y11, 310x50；蓝底 x793 宽260） ---------- */
 .hd-stage {
   position: absolute;
   left: 771px;
   top: 11px;
-  width: 284px;
+  width: 310px;
   height: 50px;
 }
 
@@ -87,25 +88,114 @@
 }
 
 .hd-divider-stage-r {
-  left: 282px;   /* Figma x1053 - 771 */
+  left: 308px;   /* Figma 右竖线 x1079 - 771 */
   top: 5px;
   height: 40px;
 }
 
 .hd-stage-tag {
   position: absolute;
-  left: 22px;    /* Figma 蓝底 x793 - 771 */
+  left: 14px;    /* 蓝底 280 在左右竖线(0/308)间居中：(308-280)/2 */
   top: 0;
-  width: 240px;
+  width: 280px;  /* Figma 原 260 + 右侧下拉箭头，对称加宽 */
   height: 50px;
+  border: none;
   border-radius: 6px;
   background: #618dcf;
   color: #fff;
-  font-size: 24px;
+  font-family: inherit;
+  font-size: 26px;
   font-weight: 500;
   line-height: 50px;
   text-align: center;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.hd-stage-tag:hover {
+  background: #5680c2;
+}
+
+.hd-stage-label {
+  line-height: 1;
+}
+
+.hd-stage-caret {
+  flex: none;
+  transition: transform 0.18s ease;
+}
+
+.hd-stage.is-open .hd-stage-caret {
+  transform: rotate(180deg);
+}
+
+/* ---------- 模块下拉菜单（伸出顶栏下方） ---------- */
+.hd-stage-menu {
+  position: absolute;
+  left: 14px;    /* 与蓝底按钮左缘对齐 */
+  top: 58px;
+  width: 280px;
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  background: #fcfcfc;
+  border: 1px solid #d7dfeb;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(25, 45, 80, 0.18);
+  z-index: 120;
+}
+
+.hd-stage-menu li {
+  margin: 0;
+}
+
+.hd-stage-item {
+  width: 100%;
+  height: 52px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: 400;
+  color: #494e58;
+  text-align: left;
+  white-space: nowrap;
+  transition: background 0.12s ease;
+}
+
+.hd-stage-item:hover {
+  background: #f4f8fd;
+}
+
+.hd-stage-item-tick {
+  flex: none;
+  width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hd-stage-item-text {
+  flex: 1;
+  line-height: 1;
+}
+
+.hd-stage-item.is-active {
+  color: #395ba8;
+  font-weight: 500;
+  background: #eef3fb;
 }
 
 /* ---------- 得分 / 用时 卡片（位置固定，不随阶段标签有无变化） ---------- */
@@ -117,21 +207,56 @@
   align-items: center;
   border-radius: 8px;
   background: #e9eff9;
+  /* Figma 230:288：2px #618DCF 内描边，用 inset 阴影避免改变 226/273 固定尺寸 */
+  box-shadow: inset 0 0 0 2px #618dcf;
   color: #5d89cc;
-  padding: 0 12px;
-  gap: 10px;
+  /* 不用统一 padding/gap：两张卡图标宽度不同（星28/钟24），
+     Figma 按绝对坐标摆位，各自精确 margin（见下方卡片专属规则） */
+  padding: 0;
 }
 
-/* 得分卡 Figma x1108 宽226 */
+/* 得分卡 Figma x1108 宽226：星11 + 28 + 4 + 标签96 + 10 + 竖线2 + 4 + 数字58 = 213，右留白13 */
 .hd-score-card {
   left: 1108px;
   width: 226px;
 }
 
-/* 用时卡 Figma x1364 宽273 */
+.hd-score-card .hd-icon-star {
+  margin-left: 11px;
+}
+
+.hd-score-card .hd-stat-label {
+  margin-left: 4px;
+}
+
+.hd-score-card .hd-stat-sep {
+  margin-left: 10px;
+}
+
+.hd-score-card .hd-stat-value {
+  margin-left: 4px;
+}
+
+/* 用时卡 Figma x1364 宽273：钟14 + 24 + 9 + 标签96 + 10 + 竖线2 + 11 + 数字96 = 262，右留白11 */
 .hd-time-card {
   left: 1364px;
   width: 273px;
+}
+
+.hd-time-card .hd-icon-clock {
+  margin-left: 14px;
+}
+
+.hd-time-card .hd-stat-label {
+  margin-left: 9px;
+}
+
+.hd-time-card .hd-stat-sep {
+  margin-left: 10px;
+}
+
+.hd-time-card .hd-stat-value {
+  margin-left: 11px;
 }
 
 .hd-stat .hd-icon-star,
@@ -162,10 +287,13 @@
   white-space: nowrap;
 }
 
-/* 数字使用等宽风格，贴近设计稿 Digital Numbers */
+/* 数字使用设计稿指定的 Digital Numbers（LCD 等宽风格）；
+   该字体仅覆盖数字与少量符号，中文/冒号等自动回退 HarmonyOS */
 .hd-num {
+  font-family: 'Digital Numbers', 'HarmonyOS Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-weight: 400;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.5px;
+  letter-spacing: 0;
 }
 
 /* ---------- 右侧 5 个操作图标（Figma Component 32：x1673 y19, 224x36） ---------- */

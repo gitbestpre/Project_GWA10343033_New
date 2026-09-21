@@ -1,0 +1,138 @@
+/* 选择题考核完成提示卡（Figma 355:1547 / Group 1171275683）
+   950×560 白卡 r20，舞台居中（left485 top260）；
+   浅蓝头条 64 + 蓝色标题 + 两段结论正文 + 191×60「我已了解」。 */
+
+.ch-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 23;
+}
+
+.ch-card {
+  position: absolute;
+  left: 485px;
+  top: 260px;
+  width: 950px;
+  height: 560px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(30, 50, 90, 0.18);
+  overflow: hidden;
+}
+
+/* ---------- 头条（浅蓝底 64px） ---------- */
+.ch-head {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 64px;
+  background: #f4f8fd;
+}
+
+.ch-head-bar {
+  position: absolute;
+  left: 30px;
+  top: 20px;
+  width: 8px;
+  height: 24px;
+  border-radius: 2px;
+  background: #395ba8;
+}
+
+.ch-head-title {
+  position: absolute;
+  left: 58px;
+  top: 16px;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 33px;
+  color: #395ba8;
+}
+
+.ch-divider {
+  position: absolute;
+  left: 0;
+  top: 63px;
+  width: 100%;
+  height: 1px;
+  background: #d7dfeb;
+}
+
+/* 右上关闭 */
+.ch-close {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.ch-close:hover {
+  background: #eef2f8;
+}
+
+/* ---------- 标题 ---------- */
+.ch-title {
+  position: absolute;
+  left: 45px;
+  top: 76px;
+  width: 860px;
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 45px;
+  color: #395ba8;
+}
+
+/* ---------- 正文 ---------- */
+.ch-body {
+  position: absolute;
+  left: 45px;
+  top: 125px;
+  width: 860px;
+}
+
+.ch-para {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 40px;
+  color: #494e58;
+  text-indent: 2em;
+}
+
+/* ---------- 「我已了解」主按钮（191×60，卡内水平居中，y450） ---------- */
+.ch-ack-btn {
+  position: absolute;
+  left: 50%;
+  top: 450px;
+  transform: translateX(-50%);
+  width: 191px;
+  height: 60px;
+  border: none;
+  border-radius: 12px;
+  background: #618dcf;
+  color: #fcfcfc;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.ch-ack-btn:hover {
+  background: #4f7fc7;
+}

@@ -1,10 +1,33 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import StageLayout from '../components/layout/StageLayout'
+import { streamChat } from '../lib/dify'
+import { DEFAULT_VOICE_KEY, findVoice, segmentLines, stripMarkdown } from '../lib/tts'
+import { useTts } from '../lib/useTts'
 import './KnowledgePage.css'
 
 type Section = { heading: string; body: string }
+
+/**
+ * 本页与 Dify 对话时固定使用的响应模式。
+ *
+ * ⚠️ 用 `streaming`，而不是 `blocking`。这个字段**必须保持显式写出**，
+ * 不要删掉改回「用库层默认值」：它是一处决策记录，删了就没人知道本页当初
+ * 权衡过什么，下次有人想改模式又得从头试一遍。
+ *
+ * 为什么最终是流式（2026-09-20 结论）：
+ * - 逐字上屏与节点进度**只有流式有**。`onNode` 依赖 `node_started`，
+ *   阻塞模式下一个都不会来，等待期就只剩通用兜底文案（能看到「正在思考」，
+ *   但看不到「正在检索知识库」这种真实进度）。
+ * - 上游故障时切 blocking 并不能绕开：实测两种模式都会 500，只是错误体形态不同
+ *   （流式 → 网关 HTML 500；阻塞 → 应用层 JSON 500）。留 blocking 的价值在排查，
+ *   不在跑通。
+ *
+ * 库里 `responseMode` 这个可选项保留（见 dify.ts），排查上游时换它跑一次能拿到
+ * 更具体的错误体；把本行改成 `'blocking'` 即可切换，无需改动别处。
+ */
+const DIFY_RESPONSE_MODE: 'streaming' | 'blocking' = 'streaming'
 
 const knowledgeModules: { name: string; pages: Section[][] }[] = [
   {
@@ -200,9 +223,17 @@ function PlayIcon() {
   )
 }
 
+function StopIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <rect x="5" y="5" width="14" height="14" rx="2" />
+    </svg>
+  )
+}
+
 function ChevronLeftIcon() {
   return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="15 18 9 12 15 6" />
     </svg>
   )
@@ -210,7 +241,7 @@ function ChevronLeftIcon() {
 
 function ChevronRightIcon() {
   return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="9 18 15 12 9 6" />
     </svg>
   )
@@ -237,18 +268,153 @@ function CheckCircleIcon() {
   )
 }
 
+/** 显示语义：收起导师卡片后，左列那个「打开AI导师」按钮用它 */
+function EyeIcon() {
+  return (
+    <svg
+      width="28"
+      height="28"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.9"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2.2 12S5.6 5.9 12 5.9 21.8 12 21.8 12 18.4 18.1 12 18.1 2.2 12 2.2 12Z" />
+      <circle cx="12" cy="12" r="3.1" />
+    </svg>
+  )
+}
+
+/**
+ * 把上游节点标题翻成一句学员看得懂的话。
+ *
+ * 「开始」「直接回复」这类节点不翻译 —— 它们对学员没有意义
+ * （前者还在排队，后者已经是收尾），此时回落到通用文案更诚实。
+ * 只做到「关键词归类」这一层：节点标题是应用作者随手填的，
+ * 写死精确匹配会在对方改一个字之后全部失效。
+ */
+export function progressLabel(nodeTitle: string): string {
+  const t = (nodeTitle || '').trim()
+  if (!t) return '正在思考，请稍候…'
+  if (/检索|知识库|知识检索/.test(t)) return '正在检索知识库…'
+  if (/LLM|大模型|模型|生成/.test(t)) return '正在生成回答…'
+  if (/代码|Code|HTTP|模板|转换/.test(t)) return '正在整理资料…'
+  // 「开始」「直接回复」以及各种自定义节点：不硬翻，给通用文案
+  return '正在思考，请稍候…'
+}
+
+/** 正文行：idx = 「本页标题 + 非空正文行」按渲染顺序拍平后的下标。
+ *  语音分段与朗读高亮共用这一套编号，所以两边必须从同一个数组切出来。 */
+type RenderLine = {
+  idx: number
+  sectionIdx: number
+  kind: 'heading' | 'body'
+  text: string
+}
+
 export default function KnowledgePage() {
   const navigate = useNavigate()
   const [knowledgeStarted, setKnowledgeStarted] = useState(false)
   const [activeModule, setActiveModule] = useState(0)
   const [activePage, setActivePage] = useState(0)
-  const [aiTutorVisible, setAiTutorVisible] = useState(true)
-  const [isPaused, setIsPaused] = useState(false)
+  /** 只控制「人物卡片」这一层（照片 + 其上的导师控制键）。
+   *  ⚠️ 不再控制左列按钮列：收起照片后按钮列仍在，所以「完成学习」「停止播放」不会跟着消失，
+   *  朗读也就不是「没有控件可停的孤儿」，不必再掐断音频。 */
+  const [tutorPhotoVisible, setTutorPhotoVisible] = useState(true)
   const [dialogInput, setDialogInput] = useState('')
+
+  /* ---- 底部对话栏 → Dify「01 知识宣教」Chatflow ---- */
+  /** 导师回答（逐字增长；最终为全文） */
+  const [dialogReply, setDialogReply] = useState('')
+  const [dialogError, setDialogError] = useState('')
+  const [dialogBusy, setDialogBusy] = useState(false)
+  /**
+   * 上游 Chatflow 当前跑到哪个节点（来自 `node_started`）。
+   * 只用来把「首字之前的 2~3 秒静默」讲清楚，不参与任何业务判断：
+   * 聊天助手型应用不推 `node_*`，那时它就是空串，界面回落到通用文案。
+   * 本页走 streaming，故这条通路是**活的**（会真的拿到「知识检索」「LLM」这类标题）。
+   */
+  const [dialogNode, setDialogNode] = useState('')
+  /** 会话 id：首轮由 Dify 下发，后续轮次回传即可让导师记住上下文（多轮对话的关键） */
+  const conversationIdRef = useRef('')
+  const dialogAbortRef = useRef<AbortController | null>(null)
+  /** 当前 TTS 引擎里装的是「本页正文」还是「导师回答」。
+   *  两个用途：① 提问时决定「停」还是「暂停」（回答过期→停，正文→暂停保位）；
+   *  ② 暴露成 data-tts-source，让验证脚本能证明回答确实被念了，而不是只上屏。
+   *  ⚠️ 不能用 ref：它要驱动 DOM 属性，必须参与渲染。 */
+  const [ttsSource, setTtsSource] = useState<'' | 'page' | 'reply'>('')
+
+  // 离开页面 / 组件卸载：掐断仍在进行的对话请求。否则回答会继续生成（继续计费），
+  // 且其 setState 会落在一个已经卸载的组件上。
+  useEffect(() => () => dialogAbortRef.current?.abort(), [])
+
+  const tts = useTts()
+  // 音色固定为默认（女主持人）：负责人把左列那个音色选择行撤掉了，
+  // 所以这里不再有可切换状态 —— 是「无此控件」，不是「控件被藏起来」。
+  const voice = findVoice(DEFAULT_VOICE_KEY)
+
+  /** 音频收工（播完 / 停止 / 出错）后把来源标记归零：留着会让
+   *  「上一条回答还在念」这个判断失真，也会让 data-tts-source 变成谎话。 */
+  const ttsActive = tts.active
+  useEffect(() => {
+    if (!ttsActive) setTtsSource('')
+  }, [ttsActive])
 
   const currentModule = knowledgeModules[activeModule]
   const pageCount = currentModule.pages.length
   const currentSections = currentModule.pages[Math.min(activePage, pageCount - 1)]
+
+  /** 本页可朗读行（标题 + 非空正文行），保持渲染顺序 */
+  const allLines = useMemo<RenderLine[]>(() => {
+    const out: RenderLine[] = []
+    currentSections.forEach((section, sectionIdx) => {
+      out.push({ idx: out.length, sectionIdx, kind: 'heading', text: section.heading })
+      for (const line of section.body.split('\n')) {
+        if (line.trim() === '') continue
+        out.push({ idx: out.length, sectionIdx, kind: 'body', text: line })
+      }
+    })
+    return out
+  }, [currentSections])
+
+  /** 按 section 分组，只为还原原有的 .content-section 结构 */
+  const sectionGroups = useMemo(() => {
+    const groups: { sectionIdx: number; lines: RenderLine[] }[] = []
+    for (const line of allLines) {
+      const tail = groups[groups.length - 1]
+      if (tail && tail.sectionIdx === line.sectionIdx) tail.lines.push(line)
+      else groups.push({ sectionIdx: line.sectionIdx, lines: [line] })
+    }
+    return groups
+  }, [allLines])
+
+  const segments = useMemo(() => segmentLines(allLines.map((l) => l.text)), [allLines])
+
+  // 进入学习态 / 切模块 / 翻页 / 收起导师面板 → 先停掉当前播放，再按需自动开念（见下方 effect）
+  const stopTts = tts.stop
+  const playTts = tts.play
+  /** 已自动起播过的「模块:页」组合。仅用于兜住「依赖变化但内容没变」时重复起播 */
+  const autoPlayedRef = useRef('')
+
+  useEffect(() => {
+    // 内容一变就先掐断旧音频：块内容已经变了，继续念旧文本只会和正文错位。
+    // 依赖写 tts.stop / tts.play 这两个稳定引用，而不是整个 tts 对象 —— 后者每次快照变化
+    // 都会换新对象，会让本 effect 在播放状态一变化时就重跑，等于刚开口就被自己掐断。
+    stopTts()
+    if (!knowledgeStarted) return
+    // 收起人物卡片不再掐断音频：左列按钮列（含「停止播放」主控）仍挂着，音频始终停得掉。
+    if (segments.length === 0) return
+    const tag = `${activeModule}:${activePage}`
+    if (autoPlayedRef.current === tag) return
+    autoPlayedRef.current = tag
+    // 进入即自动播放：起播由「知识科普」点击 / 切标签 / 翻页带来用户手势授权，
+    // 故不受浏览器自动播放策略限制；万一被拦，控制器会落进 blocked 态并提示点击。
+    // voice 不进依赖表：换音色不该打断正在播的内容，下一次内容变化时才会用到新音色。
+    setTtsSource('page')
+    playTts(segments, voice)
+  }, [knowledgeStarted, activeModule, activePage, segments, stopTts, playTts])
 
   const selectModule = (index: number) => {
     setActiveModule(index)
@@ -262,14 +428,179 @@ export default function KnowledgePage() {
     navigate('/')
   }
 
+  /** 起播「本页正文」，并标注来源（两颗播放键在空闲态被点击时走这里） */
+  const playPageText = () => {
+    setTtsSource('page')
+    tts.play(segments, voice)
+  }
+
+  /**
+   * 起播「导师回答」——沿用同一支 MiniMax 音色（默认女主持人）。
+   *
+   * 两点口径：
+   * 1. **整段到手后再念**，而不是边收边念。与参考项目
+   *    `临床中药师/public/app.js` 里 `requestDifyReply()` 完成后再 `speakPatientText()`
+   *    的先后一致；流式增量只用于打字机上屏，不喂给 TTS
+   *    （否则每来一个字就发一次合成请求）。
+   * 2. 送合成前先过 `stripMarkdown`：Dify 回答常带 `**` / `#` / `-`，正文里没有这些，
+   *    所以清洗只作用于回答这一路，不动正文的朗读口径。
+   */
+  const playReply = (answer: string) => {
+    const replySegments = segmentLines(answer.split('\n').map(stripMarkdown))
+    if (!replySegments.length) return
+    setTtsSource('reply')
+    tts.play(replySegments, voice)
+  }
+
+  /** 左列主控：播放文字 / 停止播放 / 继续播放 */
+  const handleReadButton = () => {
+    if (tts.active) {
+      if (tts.snap.status === 'paused') tts.resume()
+      else tts.stop()
+      return
+    }
+    playPageText()
+  }
+
+  /** 导师面板那颗控制键：空闲=播放、播放=暂停、暂停=继续、载入=取消 */
+  const handleTtsPrimary = () => {
+    if (tts.snap.status === 'playing') tts.pause()
+    else if (tts.snap.status === 'paused') tts.resume()
+    else if (tts.snap.status === 'loading') tts.stop()
+    else playPageText()
+  }
+
+  /**
+   * 底部对话栏：把问题发给 Dify「01 知识宣教」应用，回答上屏到字幕条，
+   * **整段到手后再用同一支 MiniMax 音色念一遍**。
+   *
+   * 四个刻意的取舍：
+   * 1. 提问时先处理正在响的音频：念的是**上一条回答**就停掉（内容已过期，没有接着听的
+   *    道理）；念的是**本页正文**则暂停，保住朗读位置，学员问完还能点「继续播放」接着听。
+   * 2. 上一轮还没结束时直接忽略新的点击（`dialogBusy` 同时禁用了发送钮），
+   *    避免并发请求把同一个 conversation_id 的上下文写乱。
+   * 3. 错误不吞：上游不可用（如应用未发布）时把可执行的中文提示落到字幕条上 —— 这是
+   *    接入期最需要看到的信息，静默失败会让人以为是「点了没反应」。
+   *    错误提示**不朗读**：它是给开发者看的诊断文案，念出来只会让学员更困惑。
+   * 4. 朗读只在正常收尾后触发（见 playReply 的说明），错误与中止都不发声。
+   */
+  const sendQuestion = () => {
+    const query = dialogInput.trim()
+    if (!query || dialogBusy) return
+    if (ttsSource === 'reply') {
+      tts.stop()
+      setTtsSource('')
+    } else if (tts.snap.status === 'playing') {
+      tts.pause()
+    }
+
+    setDialogInput('')
+    setDialogReply('')
+    setDialogError('')
+    setDialogNode('')
+    setDialogBusy(true)
+
+    dialogAbortRef.current?.abort()
+    const ac = new AbortController()
+    dialogAbortRef.current = ac
+
+    void streamChat(
+      // stage 显式写出而不靠默认值：这个页面用的是「01 知识宣教」，
+      // 别处（02/03 流行病学调查、04 结案报告）接进来时一眼能看出各自用哪个应用
+      { stage: '01', query, conversationId: conversationIdRef.current, responseMode: DIFY_RESPONSE_MODE },
+      {
+        onUpdate: setDialogReply,
+        onConversation: (id) => {
+          conversationIdRef.current = id
+        },
+        onNode: setDialogNode,
+        onError: setDialogError,
+      },
+      ac.signal,
+    )
+      .then((answer) => {
+        // 被下一轮提问 / 切页中止时，这份回答已经作废，别再开口念
+        if (ac.signal.aborted) return
+        // 整段到手再开口念（与参考实现一致：不边收边念，避免半句被打断重念）
+        playReply(answer)
+      })
+      .catch((e: unknown) => {
+        // abort 是我们自己发起的，不算失败，也不要在字幕条上报错
+        if (e instanceof Error && e.name === 'AbortError') return
+        setDialogError((prev) => prev || (e instanceof Error ? e.message : String(e)))
+      })
+      .finally(() => {
+        if (dialogAbortRef.current === ac) setDialogBusy(false)
+      })
+  }
+
+  const readLabel =
+    tts.snap.status === 'loading'
+      ? '载入中…'
+      : tts.snap.status === 'playing'
+        ? '停止播放'
+        : tts.snap.status === 'paused'
+          ? '继续播放'
+          : tts.snap.blocked
+            ? '播放文字' // 被自动播放策略拦下：只需一次点击，措辞上不该像是出了错
+            : tts.snap.status === 'error'
+              ? '重新播放'
+              : '播放文字'
+
+  const primaryLabel =
+    tts.snap.status === 'playing'
+      ? '暂停'
+      : tts.snap.status === 'paused'
+        ? '继续'
+        : tts.snap.status === 'loading'
+          ? '取消'
+          : '播放'
+
+  const readTitle =
+    tts.snap.status === 'error'
+      ? tts.snap.error
+      : tts.active
+        ? `${readLabel}${tts.snap.total > 1 ? `（第 ${tts.snap.index + 1}/${tts.snap.total} 段）` : ''}`
+        : `用「${voice.label}」播放本页文字（共 ${segments.length} 段）`
+
+  /* 字幕条：出错优先（错误比半截回答更需要被看到），否则显示导师回答。
+     「忙碌但一个字都还没吐」时也挂上，靠呼吸光标把它和「点了没反应」区分开。 */
+  const subtitleText = dialogError || dialogReply
+  const subtitleVisible = Boolean(dialogError || dialogReply || dialogBusy)
+  const subtitleState = dialogError ? 'error' : dialogBusy ? 'streaming' : 'done'
+
+  /**
+   * 「已发出、上游还在跑、一个字都还没到」这个空窗。
+   *
+   * 实测该 Chatflow 的耗时结构（控制台「追踪」：开始 7ms → 知识检索 381ms →
+   * LLM 2275ms → 直接回复 9ms）意味着这段时间有 2~3 秒。此前这里只挂一个光标，
+   * 而字幕条宽 1325px、正文宽 550px，视觉上就是「一大片空白 + 一根闪动的竖线」——
+   * 负责人反馈的「发送之后要等几秒才开始回复」正是这一段。
+   *
+   * 现在改为给一句明确的进度文案：优先用上游节点标题（真实进度），
+   * 没有就回落到通用文案（聊天助手型应用不推节点事件，必须也能显示）。
+   */
+  const dialogWaiting = dialogBusy && !dialogReply && !dialogError
+  const waitingText = progressLabel(dialogNode)
+
   return (
     <StageLayout background="#e9eff9">
-    <div className="knowledge-page">
+    <div
+      className="knowledge-page"
+      /* 驱动右侧白卡左移/放大（见 CSS）。放在页根而非 aside 上：
+         .knowledge-content 是 aside 的兄弟节点，无法用 aside 自身状态反向选中。 */
+      data-tutor={tutorPhotoVisible ? 'expanded' : 'collapsed'}
+      data-tts-status={tts.snap.status}
+      data-tts-index={tts.snap.index}
+      data-tts-total={tts.snap.total}
+      data-tts-voice={voice.key}
+      data-tts-source={ttsSource || undefined}
+      data-tts-error={tts.snap.error || undefined}
+    >
       <Header />
       <div className="knowledge-layout">
-        {aiTutorVisible && (
-          <aside className="tutor-zone">
-            <div className="tutor-action-col">
+        <aside className="tutor-zone" data-photo={tutorPhotoVisible ? 'on' : 'off'}>
+          <div className="tutor-action-col">
               <button
                 className="sidebar-action-btn"
                 onClick={() => setKnowledgeStarted(true)}
@@ -281,35 +612,75 @@ export default function KnowledgePage() {
                 <CheckCircleIcon />
                 <span>完成学习</span>
               </button>
+              {/* 朗读相关控件只在进入学习态后出现：欢迎页没有正文可念 */}
+              {knowledgeStarted && (
+                <button
+                  className={`tts-read-btn${tts.active ? ' is-active' : ''}${
+                    tts.snap.status === 'error' ? ' is-error' : ''
+                  }`}
+                  onClick={handleReadButton}
+                  aria-label={readLabel}
+                  title={readTitle}
+                >
+                  {tts.active ? <StopIcon /> : <PlayIcon />}
+                  <span>{readLabel}</span>
+                </button>
+              )}
+              {/* 收起态的还原入口。放在按钮列内（而非照片层里）：照片一旦收起，
+                  照片层上的那颗竖排按钮会跟着消失，就没路可回了。 */}
+              {!tutorPhotoVisible && (
+                <button
+                  className="sidebar-action-btn"
+                  onClick={() => setTutorPhotoVisible(true)}
+                  aria-label="打开AI导师"
+                  title="重新显示AI导师卡片"
+                >
+                  <EyeIcon />
+                  <span>打开AI导师</span>
+                </button>
+              )}
               <div className="sidebar-divider" />
             </div>
-            <div className="tutor-photo-panel">
-              <img src="/images/ai-tutor.png" alt="AI导师" className="tutor-image" />
-              <div className="tutor-controls">
-                <button className="control-btn" aria-label="音量" title="音量">
-                  <VolumeIcon />
-                </button>
-                {knowledgeStarted && (
+            {tutorPhotoVisible && (
+              <div className="tutor-photo-panel">
+                <img src="/images/ai-tutor.png" alt="AI导师" className="tutor-image" />
+                <div className="tutor-controls">
                   <button
                     className="control-btn"
-                    aria-label={isPaused ? '播放' : '暂停'}
-                    title={isPaused ? '播放' : '暂停'}
-                    onClick={() => setIsPaused(!isPaused)}
+                    aria-label={tts.snap.muted ? '取消静音' : '静音'}
+                    title={tts.snap.muted ? '取消静音' : '静音'}
+                    onClick={tts.toggleMute}
                   >
-                    {isPaused ? <PlayIcon /> : <PauseIcon />}
+                    <VolumeIcon />
                   </button>
-                )}
+                  {knowledgeStarted && (
+                    <button
+                      className="control-btn"
+                      aria-label={primaryLabel}
+                      title={`${primaryLabel}朗读`}
+                      onClick={handleTtsPrimary}
+                    >
+                      {tts.snap.status === 'playing' ? (
+                        <PauseIcon />
+                      ) : tts.snap.status === 'loading' ? (
+                        <StopIcon />
+                      ) : (
+                        <PlayIcon />
+                      )}
+                    </button>
+                  )}
+                </div>
+                <button
+                  className="hide-tutor-btn"
+                  onClick={() => setTutorPhotoVisible(false)}
+                  title="隐藏AI导师卡片"
+                  aria-label="隐藏AI导师"
+                >
+                  隐藏AI导师
+                </button>
               </div>
-              <button
-                className="hide-tutor-btn"
-                onClick={() => setAiTutorVisible(false)}
-                title="隐藏AI导师"
-              >
-                隐藏AI导师
-              </button>
-            </div>
+            )}
           </aside>
-        )}
 
         <main className="knowledge-content">
           {!knowledgeStarted ? (
@@ -338,47 +709,81 @@ export default function KnowledgePage() {
               </div>
 
               <div className="content-area">
-                <button
-                  className="nav-arrow left-arrow"
-                  onClick={handlePrevPage}
-                  disabled={activePage === 0}
-                  aria-label="上一页"
-                  title="上一页"
-                >
-                  <ChevronLeftIcon />
-                </button>
                 <div className="narrator">
                   <span className="narrator-dot" />
                   <img src="/images/Ellipse 33.png" alt="讲解头像" className="narrator-avatar" />
                 </div>
                 <div className="content-card">
                   <div className="content-card-inner">
-                    {currentSections.map((section, idx) => (
-                      <div key={idx} className="content-section">
-                        <p className="section-heading">{section.heading}</p>
-                        {section.body.split('\n').map((line, lineIdx) =>
-                          line.trim() === '' ? null : (
-                            <p key={lineIdx} className="section-body">{line}</p>
-                          )
-                        )}
+                    {sectionGroups.map((group) => (
+                      <div key={group.sectionIdx} className="content-section">
+                        {group.lines.map((line) => (
+                          <p
+                            key={line.idx}
+                            className={line.kind === 'heading' ? 'section-heading' : 'section-body'}
+                          >
+                            {line.text}
+                          </p>
+                        ))}
                       </div>
                     ))}
                   </div>
                 </div>
-                <button
-                  className="nav-arrow right-arrow"
-                  onClick={handleNextPage}
-                  disabled={activePage === pageCount - 1}
-                  aria-label="下一页"
-                  title="下一页"
-                >
-                  <ChevronRightIcon />
-                </button>
               </div>
+
+              {/* 箭头相对白卡定位（圆心 = 白卡竖直中心），故不放在 .content-area 内 */}
+              <button
+                className="nav-arrow left-arrow"
+                onClick={handlePrevPage}
+                disabled={activePage === 0}
+                aria-label="上一页"
+                title="上一页"
+              >
+                <ChevronLeftIcon />
+              </button>
+              <button
+                className="nav-arrow right-arrow"
+                onClick={handleNextPage}
+                disabled={activePage === pageCount - 1}
+                aria-label="下一页"
+                title="下一页"
+              >
+                <ChevronRightIcon />
+              </button>
             </>
           )}
         </main>
       </div>
+
+      {/* AI 导师字幕条（Figma 231:1203）：承载导师的流式回答。
+          放在页根而非 .knowledge-content 里 —— 它是相对整个 1920×1080 舞台定位的，
+          且与右侧白卡无关，不能跟着内容区一起被收起/放大。 */}
+      {subtitleVisible && (
+        <div
+          className="lecture-subtitle"
+          data-state={subtitleState}
+          /* 把「等首字」与「正在吐字」分开暴露：两者都算 streaming，
+             但只有前者需要显示进度文案，验证脚本也靠它精确取样。 */
+          data-phase={dialogError ? 'error' : dialogWaiting ? 'waiting' : dialogBusy ? 'typing' : 'done'}
+          role="status"
+          aria-live="polite"
+          aria-label="AI导师回答"
+        >
+          {dialogWaiting ? (
+            /* 等待期：还没有正文可显示，用进度文案占住这块 1325px 宽的区域。
+               光标一并搬进来 —— 它的作用本来就是「已发出、还没吐字」。 */
+            <p className="lecture-subtitle-hint">
+              {waitingText}
+              <span className="lecture-subtitle-caret" />
+            </p>
+          ) : (
+            <p className="lecture-subtitle-text">
+              {subtitleText}
+              {dialogBusy && !dialogError && <span className="lecture-subtitle-caret" />}
+            </p>
+          )}
+        </div>
+      )}
 
       <footer className="ai-dialog-bar">
         <div className="ai-dialog">
@@ -390,10 +795,20 @@ export default function KnowledgePage() {
               type="text"
               className="dialog-input"
               placeholder="请输入内容"
+              aria-label="向AI导师提问"
               value={dialogInput}
               onChange={(e) => setDialogInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') sendQuestion()
+              }}
             />
-            <button className="send-btn" aria-label="发送" title="发送">
+            <button
+              className="send-btn"
+              aria-label="发送"
+              title={dialogBusy ? '导师正在回答，请稍候' : '发送'}
+              disabled={!dialogInput.trim() || dialogBusy}
+              onClick={sendQuestion}
+            >
               <SendIcon />
             </button>
           </div>

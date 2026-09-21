@@ -363,6 +363,27 @@
   border: 1px solid #e06a5b;
 }
 
+/* 评审态（本题之前已答过，重走阶段时回显「你的答案 + 正确答案」）。
+   该行比「回答错误，正确答案：X」长得多（最多 5 字母 × 两个答案 + 中文标签），
+   故单独缩小字号并允许换行：结果条 top 已到 512px、卡片高 600px，
+   保持单行 56px 才不会顶出卡片。 */
+.epi-quiz-result.is-review {
+  background: #eef2fa;
+  border: 1px solid #7f9ad4;
+  flex-wrap: wrap;
+}
+
+.epi-quiz-result.is-review .epi-quiz-result-text {
+  font-size: 18px;
+  line-height: 24px;
+  color: #3c4a63;
+}
+
+.epi-quiz-result.is-review .epi-quiz-result-count {
+  font-size: 18px;
+  color: #5b6b8c;
+}
+
 .epi-quiz-result-text {
   font-size: 23px;
   font-weight: 500;

@@ -1,0 +1,180 @@
+/* 通用「提示」弹窗骨架（Figma 1:7909「学习提示」/ 1:7889「退出提示」）
+ *
+ * 两个组件几何逐像素一致，故共用一套样式；配色差异全部落在
+ * .pm-btn--danger / --success / --primary 三个修饰类上。
+ * 全部量值取自 Figma REST API（node 1:7909 / 1:7889 的 absoluteBoundingBox），
+ * 相对卡片左上角换算后即为下方各 left/top。
+ */
+
+/* 遮罩：只拦截点击，不加底色（与 ch-mask / rp-mask / st-mask 的项目约定一致）。
+   z-index 200 —— 高于各模块内部所有弹窗与引导层（最高为实验室检测引导层 z40）。
+   ⚠ 用 fixed 而非 absolute：StageLayout 的 .stage-canvas 带 transform，fixed 的包含块
+   即该舞台，因此在可滚动的「模块选择页」（StageLayout scroll）上也能固定盖住 1920×1080
+   舞台视口，不会随内容滚动而错位。 */
+.pm-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+}
+
+/* 卡片 520×374 r15，舞台居中：(1920-520)/2=700、(1080-374)/2=353 */
+.pm-card {
+  position: absolute;
+  left: 700px;
+  top: 353px;
+  width: 520px;
+  height: 374px;
+  background: #fcfcfc;
+  border-radius: 15px;
+  box-shadow: 0 12px 40px rgba(30, 50, 90, 0.18);
+  overflow: hidden;
+}
+
+/* ---------- 顶部浅蓝条 +「提示」 ---------- */
+.pm-head {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 64px;
+  background: #f4f8fd;
+}
+
+.pm-head-title {
+  position: absolute;
+  left: 23px;
+  top: 20px;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 23px;
+  color: #395ba8;
+}
+
+/* ---------- 右上关闭（32×32 @465,17） ---------- */
+.pm-close {
+  position: absolute;
+  right: 23px;
+  top: 17px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.pm-close:hover {
+  background: #e9eff9;
+}
+
+.pm-divider {
+  position: absolute;
+  left: 0;
+  top: 66px;
+  width: 100%;
+  height: 1px;
+  background: #d7dfeb;
+}
+
+/* ---------- 感叹号圆圈（48×48 居中 @76） ---------- */
+.pm-tip-icon {
+  position: absolute;
+  left: 236px;
+  top: 76px;
+}
+
+/* ---------- 标题（居中 @132） ---------- */
+.pm-title {
+  position: absolute;
+  left: 0;
+  top: 132px;
+  width: 100%;
+  margin: 0;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 27px;
+  color: #494e58;
+}
+
+/* ---------- 说明（@53,176 宽 415） ---------- */
+.pm-bullets {
+  position: absolute;
+  left: 53px;
+  top: 176px;
+  width: 415px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pm-bullet {
+  position: relative;
+  padding-left: 27px;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 27px;
+  color: #717989;
+}
+
+.pm-bullet::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 11px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #717989;
+}
+
+/* ---------- 底部双按钮（180×52 r5 @y289，左右 53/52） ---------- */
+.pm-actions {
+  position: absolute;
+  left: 53px;
+  top: 289px;
+  width: 415px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.pm-btn {
+  width: 180px;
+  height: 52px;
+  border: none;
+  border-radius: 5px;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.pm-btn--danger {
+  background: #f1534f;
+}
+
+.pm-btn--danger:hover {
+  background: #df4340;
+}
+
+.pm-btn--success {
+  background: #65c178;
+}
+
+.pm-btn--success:hover {
+  background: #55b169;
+}
+
+.pm-btn--primary {
+  background: #558ef5;
+}
+
+.pm-btn--primary:hover {
+  background: #4379e0;
+}

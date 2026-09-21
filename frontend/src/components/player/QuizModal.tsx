@@ -7,6 +7,16 @@ export type { QuizOption, QuizQuestion } from '../../data/questions'
 export interface QuizResult {
   correct: boolean
   countdown?: number
+  /**
+   * 用户提交的选项字母。评审态（review）必须传，用于回显用户当时的选择；
+   * 首次作答时不必传 —— 组件内部的 `selected` 已经是用户所选项。
+   */
+  selectedKeys?: string[]
+  /**
+   * 评审态：该题**之前已经答过**（每题只做一次），本次只是重走阶段时回显，
+   * 不可再作答、不重复计分。此时展示「你的答案 + 正确答案」并以 countdown 推进。
+   */
+  review?: boolean
 }
 
 export default function QuizModal({
@@ -44,8 +54,12 @@ export default function QuizModal({
     return () => ro.disconnect()
   }, [question.id])
 
-  // 提交后锁定，进入判题结果展示（高亮正确/错选，不可再改）
+  // 提交后锁定，进入判题结果展示（高亮正确/错选，不可再改）；
+  // 评审态（本题之前已答过）挂载即锁定，且用记录里的选择回显，无需用户再点。
   const locked = result != null
+  const review = result?.review === true
+  /** 实际高亮的选项集合：评审态取回显值，首次作答取组件内部状态 */
+  const chosenKeys = result?.selectedKeys ?? selected
 
   const toggle = (key: string) => {
     if (locked) return
@@ -58,11 +72,16 @@ export default function QuizModal({
     }
   }
 
-  const isChosen = (key: string) => selected.includes(key)
+  const isChosen = (key: string) => chosenKeys.includes(key)
   const isAnswer = (key: string) => question.answerKeys.includes(key)
   const isWrongPick = (key: string) => locked && isChosen(key) && !isAnswer(key)
   const pad = (n: number) => String(n).padStart(2, '0')
   const answerText = question.answerKeys.join('、')
+  /** 用户所选项字母，按选项原始顺序排列（与正确答案对照更直观） */
+  const chosenText = question.options
+    .filter((o) => chosenKeys.includes(o.key))
+    .map((o) => o.key)
+    .join('、')
 
   return (
     <div className="epi-quiz-mask">
@@ -81,7 +100,7 @@ export default function QuizModal({
               <span className="epi-quiz-page-total"> / {pad(total)}</span>
             </span>
           </div>
-          <span className="epi-quiz-type">{multiple ? '多选题' : '单选题'}</span>
+          <span className="epi-quiz-type">{review ? '已作答' : multiple ? '多选题' : '单选题'}</span>
         </div>
 
         {/* 题干 */}
@@ -141,10 +160,28 @@ export default function QuizModal({
           </button>
         )}
 
-        {/* 判题结果条：答错时展示正确答案并倒计时停留；答对瞬间即跳转，基本不可见 */}
+        {/* 判题结果条：
+            · 评审态 —— 展示「你的答案 + 正确答案」，停留 countdown 秒后推进（每题只做一次）；
+            · 首次答错 —— 展示正确答案并倒计时停留；
+            · 首次答对 —— 立即跳转，基本不可见。 */}
         {locked && (
-          <div className={`epi-quiz-result ${result?.correct ? 'is-ok' : 'is-bad'}`}>
-            {result?.correct ? (
+          <div
+            className={`epi-quiz-result ${result?.correct ? 'is-ok' : 'is-bad'}${
+              review ? ' is-review' : ''
+            }`}
+          >
+            {review ? (
+              <>
+                <span className="epi-quiz-result-text">
+                  已作答 · 你的答案：<b>{chosenText}</b>　正确答案：<b>{answerText}</b>
+                </span>
+                {result?.countdown != null && (
+                  <span className="epi-quiz-result-count">
+                    {result.countdown} 秒后进入下一步
+                  </span>
+                )}
+              </>
+            ) : result?.correct ? (
               <span className="epi-quiz-result-text">{successText}</span>
             ) : (
               <>
